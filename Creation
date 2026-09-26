@@ -373,13 +373,13 @@ end
 local function MakeDraggable(handle, target)
     target = target or handle
     local dragging = false
-    local dragInput, dragStart, startPos
+    local dragInput, dragStart, startAbs
 
     handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
-            startPos = target.Position
+            startAbs = target.AbsolutePosition
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
@@ -395,10 +395,10 @@ local function MakeDraggable(handle, target)
     end)
 
     UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
+        if input == dragInput and dragging and startAbs then
             local delta = input.Position - dragStart
-            local newX = startPos.X.Offset + delta.X
-            local newY = startPos.Y.Offset + delta.Y
+            local newX = startAbs.X + delta.X
+            local newY = startAbs.Y + delta.Y
             local cam = workspace.CurrentCamera
             if cam then
                 local vs = cam.ViewportSize
@@ -406,7 +406,8 @@ local function MakeDraggable(handle, target)
                 newX = math.clamp(newX, 0, math.max(0, vs.X - sz.X))
                 newY = math.clamp(newY, 0, math.max(0, vs.Y - sz.Y))
             end
-            target.Position = UDim2.new(0, newX, 0, newY)
+            target.Position = UDim2.fromOffset(newX, newY)
+            target.AnchorPoint = Vector2.new(0, 0)
         end
     end)
 end
@@ -572,17 +573,20 @@ function Velox:Notify(opts)
         container = Create("Frame", {
             Name = "NotifyList",
             BackgroundTransparency = 1,
-            Size = UDim2.new(0, 320, 1, -40),
-            Position = UDim2.new(1, -330, 0, 20),
+            Size = UDim2.new(0, 300, 0, 0),
+            AutomaticSize = Enum.AutomaticSize.Y,
+            Position = UDim2.new(1, -320, 1, -20),
+            AnchorPoint = Vector2.new(0, 1),
             Parent = sg,
         })
-        list(container, 10, Enum.FillDirection.Vertical)
+        local lay = list(container, 8, Enum.FillDirection.Vertical)
+        lay.VerticalAlignment = Enum.VerticalAlignment.Bottom
+        lay.HorizontalAlignment = Enum.HorizontalAlignment.Right
     end
 
     local card = Create("Frame", {
         BackgroundColor3 = nTheme.Background,
-        Size = UDim2.new(1, 0, 0, 68),
-        Position = UDim2.fromOffset(340, 0),
+        Size = UDim2.new(0, 300, 0, 72),
         ClipsDescendants = true,
         Parent = container,
     })
@@ -592,41 +596,47 @@ function Velox:Notify(opts)
     local bar = Create("Frame", {
         BackgroundColor3 = col,
         Size = UDim2.new(0, 4, 1, 0),
+        BorderSizePixel = 0,
         Parent = card,
     })
     corner(bar, 2)
 
     Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -24, 0, 20),
+        Size = UDim2.new(1, -28, 0, 20),
         Position = UDim2.fromOffset(14, 10),
         Font = Fonts.Bold,
         Text = nTitle,
         TextColor3 = nTheme.Text,
         TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd,
         Parent = card,
     })
 
     Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -24, 0, 30),
-        Position = UDim2.fromOffset(14, 30),
+        Size = UDim2.new(1, -28, 0, 32),
+        Position = UDim2.fromOffset(14, 32),
         Font = Fonts.Main,
         Text = nContent,
         TextColor3 = nTheme.TextDim,
         TextSize = 11,
         TextWrapped = true,
         TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
         Parent = card,
     })
 
     playSound(self.Sounds.Notify, 0.4)
-    Tween(card, {Position = UDim2.fromOffset(0, 0)}, 0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    card.BackgroundTransparency = 1
+    Tween(card, {BackgroundTransparency = 0}, 0.3)
 
     task.delay(nDuration, function()
-        local out = Tween(card, {Position = UDim2.fromOffset(340, 0)}, 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-        out.Completed:Connect(function() card:Destroy() end)
+        local out = Tween(card, {BackgroundTransparency = 1}, 0.25)
+        out.Completed:Connect(function()
+            if card and card.Parent then card:Destroy() end
+        end)
     end)
 end
 
