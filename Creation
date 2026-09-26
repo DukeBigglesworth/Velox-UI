@@ -20,6 +20,7 @@ local Players          = game:GetService("Players")
 local HttpService      = game:GetService("HttpService")
 local CoreGui          = game:GetService("CoreGui")
 local SoundService     = game:GetService("SoundService")
+local Stats            = game:GetService("Stats")
 
 local LocalPlayer = Players.LocalPlayer
 
@@ -521,18 +522,18 @@ function Velox:Notify(opts)
 end
 
 ----------------------------------------------------------------
--- 3. MAIN WINDOW CONSTRUCTOR
+-- 3. MAIN WINDOW CONSTRUCTOR (Custom UI Naming & Layout)
 ----------------------------------------------------------------
 function Velox:CreateWindow(cfg)
     cfg = cfg or {}
-    local title        = cfg.Title or "Velox UI"
-    local subTitle     = cfg.SubTitle or "v2.0 • Premium Edition"
-    local size         = cfg.Size or UDim2.fromOffset(680, 480)
-    local minKey       = cfg.MinimizeKey or Enum.KeyCode.RightControl
-    local themeKey     = cfg.Theme or "Obsidian"
-    local showProfile  = cfg.ShowProfile ~= false
-    local showSearch   = cfg.ShowSearch ~= false
-    local showSettings = cfg.ShowSettings ~= false
+    local title       = cfg.Title or "Velox UI"
+    local subTitle    = cfg.SubTitle or "v2.0 • Premium Edition"
+    local size        = cfg.Size or UDim2.fromOffset(680, 480)
+    local minKey      = cfg.MinimizeKey or Enum.KeyCode.RightControl
+    local themeKey    = cfg.Theme or "Obsidian"
+    local showProfile = cfg.ShowProfile ~= false
+    local showSearch  = cfg.ShowSearch ~= false
+    local showSettings= cfg.ShowSettings ~= false
 
     local theme = self.Themes[themeKey] or self.Themes.Obsidian
     local accentColor = theme.Accent
@@ -554,11 +555,11 @@ function Velox:CreateWindow(cfg)
         Parent = gui
     })
     corner(main, 14)
-    AddLitStroke(main, theme, 1, 0.5)
+    local mainStroke = AddLitStroke(main, theme, 1, 0.5)
 
     local mainScale = Create("UIScale", {Scale = 1.0, Parent = main})
 
-    -- Ambient Shadow
+    -- Ambient Glow Shadow
     Create("ImageLabel", {
         BackgroundTransparency = 1,
         Image = "rbxassetid://6014261993",
@@ -594,7 +595,7 @@ function Velox:CreateWindow(cfg)
 
     local titleXOffset = 16
 
-    -- TOP-LEFT PLAYER DISPLAY
+    -- TOP-LEFT PLAYER AVATAR DISPLAY (Inside Header)
     if showProfile then
         local avatarBox = Create("Frame", {
             BackgroundColor3 = theme.InputBackground,
@@ -634,7 +635,7 @@ function Velox:CreateWindow(cfg)
         titleXOffset = 56
     end
 
-    -- CUSTOM TITLE & SUBTITLE
+    -- CUSTOM TITLE & SUBTITLE (To the right of Player Display)
     local titleLabel = Create("TextLabel", {
         BackgroundTransparency = 1,
         Size = UDim2.new(0, 240, 0, 20),
@@ -661,7 +662,7 @@ function Velox:CreateWindow(cfg)
         Parent = header
     })
 
-    -- Controls: [Settings Gear] [Minimize] [Close]
+    -- Header Controls: [Settings Gear] [Minimize] [Close]
     local controls = Create("Frame", {
         BackgroundTransparency = 1,
         Size = UDim2.fromOffset(108, 32),
@@ -1216,7 +1217,7 @@ function Velox:CreateWindow(cfg)
                 Size = UDim2.new(1, 0, 0, 24),
                 Parent = page
             })
-            Create("TextLabel", {
+            local sLab = Create("TextLabel", {
                 BackgroundTransparency = 1,
                 Size = UDim2.fromScale(1, 1),
                 Font = Fonts.Bold,
@@ -1683,4 +1684,43 @@ function Velox:CreateWindow(cfg)
     return win
 end
 
-return Velox
+-- Demo Test Execution of the Library
+local win = Velox:CreateWindow({
+    Title = "VELOX UI",
+    SubTitle = "v2.0 • Script Engine",
+    Theme = "Obsidian",
+    ShowProfile = true,
+    ShowSearch = true,
+    ShowSettings = true,
+})
+
+-- Overhead Nametag invocation (Optional per script)
+Velox:CreateNametag({
+    Player = LocalPlayer,
+    Title = "VELOX DEVELOPER",
+    Subtitle = "Verified Creator",
+    Color = Color3.fromRGB(90, 140, 255),
+    Icon = Velox.Icons.Flame,
+})
+
+local generalTab = win:CreateTab("General", Velox.Icons.Home)
+generalTab:CreateSection("Script Configuration")
+generalTab:CreateToggle({
+    Name = "Auto Farm Enabled",
+    Description = "Automatically cycles mob farming routes",
+    Default = true
+})
+generalTab:CreateSlider({
+    Name = "Farm Radius",
+    Min = 50,
+    Max = 1000,
+    Default = 250,
+    Suffix = " studs"
+})
+
+Velox:Notify({
+    Title = "Velox Library Ready",
+    Content = "Top-Left Profile, Customizer, & Nametag initialized.",
+    Type = "Success",
+    Duration = 3.5
+})
