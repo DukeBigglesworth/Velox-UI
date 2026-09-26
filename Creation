@@ -4038,6 +4038,72 @@ function Velox.createUI(width, height, position, title, themeKey)
         return card
     end
 
+    function customUI:AddKeybind(opts)
+        opts = opts or {}
+        local cur = opts.Default or Enum.KeyCode.E
+        local listening = false
+        local card = Create("Frame", {
+            BackgroundColor3 = theme.Secondary,
+            Size = opts.Size or UDim2.new(1, 0, 0, 36),
+            Parent = container
+        })
+        corner(card, 8)
+        AddLitStroke(card, theme, 1, 0.75)
+
+        Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -90, 1, 0),
+            Position = UDim2.fromOffset(10, 0),
+            Font = Fonts.Semi,
+            Text = opts.Text or "Keybind",
+            TextColor3 = theme.Text,
+            TextSize = 12,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Parent = card
+        })
+
+        local kb = Create("TextButton", {
+            BackgroundColor3 = theme.Tertiary,
+            Size = UDim2.fromOffset(72, 24),
+            Position = UDim2.new(1, -82, 0.5, -12),
+            Font = Fonts.Bold,
+            Text = cur.Name,
+            TextColor3 = theme.Accent,
+            TextSize = 11,
+            AutoButtonColor = false,
+            Parent = card
+        })
+        corner(kb, 6)
+        AddLitStroke(kb, theme, 1, 0.55)
+
+        AddBouncyClick(kb, function()
+            listening = true
+            kb.Text = "..."
+        end)
+
+        UserInputService.InputBegan:Connect(function(inp, gpe)
+            if listening and inp.UserInputType == Enum.UserInputType.Keyboard then
+                cur = inp.KeyCode
+                listening = false
+                kb.Text = cur.Name
+                playSound(Velox.Sounds.Click, 0.3)
+                if opts.Callback then opts.Callback(cur) end
+            elseif not gpe and not listening and inp.KeyCode == cur then
+                if opts.OnPress then opts.OnPress(cur) end
+            end
+        end)
+
+        return {
+            Set = function(key)
+                cur = key
+                kb.Text = key.Name
+            end,
+            Value = function()
+                return cur
+            end
+        }
+    end
+
     return customUI
 end
 
@@ -4046,3 +4112,4 @@ if getgenv then
 end
 
 return Velox
+
