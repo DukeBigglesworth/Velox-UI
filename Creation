@@ -3,15 +3,15 @@
     ║                         VELOX UI                             ║
     ║        The Ultimate Next-Generation Roblox UI Engine         ║
     ║                                                              ║
-    ║  • Forced 3.5s+ Cinematic Loader ('library by Schwein')      ║
+    ║  • 100% Background-Free "Velox UI" Outward Materialize       ║
+    ║  • Custom Soundscape (Atmospheric sweep & harmonic resonance)║
     ║  • Screen Clamping (Window locked inside viewport bounds)    ║
     ║  • Side-Docked Flyout Settings Drawer                        ║
-    ║  • Mobile Floating Toggle Button (Never trapped on mobile)   ║
-    ║  • High-Level Turnkey API + Freehand Custom Component API    ║
-    ║  • Top-Left Player Profile (Headshot, Status, Name, User)    ║
-    ║  • 3D Respawn-Persistent Overhead Nametag API                ║
-    ║  • 100% Player Customizer (Palettes, Zoom Scale, Sounds)     ║
-    ║  • Top-Lit Ambient Gradient Borders (Obsidian Glass)         ║
+    ║  • Mobile Floating Toggle Button (Always reopenable)         ║
+    ║  • Turnkey & Freehand UI Builders (Velox.createUI)           ║
+    ║  • Built-in 3D Nametag Studio (Custom text, RGB, animations) ║
+    ║  • Paid Nametag Monetization & Export Code Engine            ║
+    ║  • Zero-Cost P2P Mesh & Cloud Gist Nametag Sync              ║
     ╚══════════════════════════════════════════════════════════════╝
 ]]
 
@@ -140,9 +140,9 @@ local Velox = {
         Click     = "rbxassetid://6895079853",
         Toggle    = "rbxassetid://6895079853",
         Notify    = "rbxassetid://6026984224",
-        Chime     = "rbxassetid://4590662766",
-        Sweep     = "rbxassetid://6026987989",
-        Success   = "rbxassetid://6441584850",
+        Atmosphere= "rbxassetid://9069609268",
+        Materialize= "rbxassetid://6026987989",
+        Harmonic  = "rbxassetid://6441584850",
     },
     Icons = {
         Flame    = "rbxassetid://10723346993",
@@ -160,7 +160,9 @@ local Velox = {
         Key      = "rbxassetid://10723374641",
         Palette  = "rbxassetid://10734884930",
         Crown    = "rbxassetid://10709769841",
-    }
+        Tag      = "rbxassetid://10734953491",
+    },
+    RegisteredTags = {},
 }
 Velox.__index = Velox
 
@@ -256,10 +258,10 @@ local function list(parent, spacing, dir, h, v)
     return l
 end
 
--- Screen-Constrained Draggable Logic (Prevents dragging outside viewport)
+-- Rock-solid screen-constrained draggable (Locked strictly within viewport boundaries)
 local function MakeDraggable(dragHandle, targetFrame)
     local dragging = false
-    local dragInput, dragStart, startPos
+    local dragStart, startPos
 
     dragHandle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -279,31 +281,33 @@ local function MakeDraggable(dragHandle, targetFrame)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             local cam = workspace.CurrentCamera
-            local viewport = cam and cam.ViewportSize or Vector2.new(1920, 1080)
+            local vp = cam and cam.ViewportSize or Vector2.new(1920, 1080)
 
-            local targetW = targetFrame.AbsoluteSize.X
-            local targetH = targetFrame.AbsoluteSize.Y
+            local newX = startPos.X.Offset + delta.X
+            local newY = startPos.Y.Offset + delta.Y
 
-            local desiredX = startPos.X.Offset + delta.X
-            local desiredY = startPos.Y.Offset + delta.Y
+            local w = targetFrame.AbsoluteSize.X
+            local h = targetFrame.AbsoluteSize.Y
+            local apX = targetFrame.AnchorPoint.X
+            local apY = targetFrame.AnchorPoint.Y
 
-            -- If AnchorPoint is (0.5, 0.5)
-            if targetFrame.AnchorPoint.X == 0.5 and targetFrame.AnchorPoint.Y == 0.5 then
-                local halfW = targetW / 2
-                local halfH = targetH / 2
-                local centerX = (viewport.X * startPos.X.Scale) + desiredX
-                local centerY = (viewport.Y * startPos.Y.Scale) + desiredY
+            local minX = apX * w + 4
+            local maxX = vp.X - ((1 - apX) * w) - 4
+            local minY = apY * h + 4
+            local maxY = vp.Y - ((1 - apY) * h) - 4
 
-                centerX = math.clamp(centerX, halfW + 4, viewport.X - halfW - 4)
-                centerY = math.clamp(centerY, halfH + 4, viewport.Y - halfH - 4)
+            local currentAbsX = (startPos.X.Scale * vp.X) + newX
+            local currentAbsY = (startPos.Y.Scale * vp.Y) + newY
 
-                targetFrame.Position = UDim2.new(0, math.round(centerX), 0, math.round(centerY))
-            else
-                -- Top-left AnchorPoint (0, 0)
-                desiredX = math.clamp(desiredX, 4, viewport.X - targetW - 4)
-                desiredY = math.clamp(desiredY, 4, viewport.Y - targetH - 4)
-                targetFrame.Position = UDim2.new(startPos.X.Scale, desiredX, startPos.Y.Scale, desiredY)
-            end
+            local clampedAbsX = math.clamp(currentAbsX, minX, maxX)
+            local clampedAbsY = math.clamp(currentAbsY, minY, maxY)
+
+            targetFrame.Position = UDim2.new(
+                startPos.X.Scale,
+                clampedAbsX - (startPos.X.Scale * vp.X),
+                startPos.Y.Scale,
+                clampedAbsY - (startPos.Y.Scale * vp.Y)
+            )
         end
     end)
 end
@@ -326,7 +330,6 @@ local function AddBouncyClick(button, callback)
     end)
 end
 
--- Export utilities to Velox object for Freehand builders
 Velox.Create = Create
 Velox.Tween = Tween
 Velox.Corner = corner
@@ -337,291 +340,115 @@ Velox.PlaySound = playSound
 Velox.Fonts = Fonts
 
 ----------------------------------------------------------------
--- 1. OVERHEAD 3D NAMETAG API (Completely Modular & Optional)
+-- 1. 100% BACKGROUND-FREE OUTWARD MATERIALIZE LOADING SCREEN
 ----------------------------------------------------------------
-function Velox:CreateNametag(options)
-    options = options or {}
-    local player = options.Player or LocalPlayer
-    local tagTitle = options.Title or "VELOX USER"
-    local tagSubtitle = options.Subtitle or "Verified User"
-    local tagColor = options.Color or self.Themes.Obsidian.Accent
-    local tagIcon = options.Icon or self.Icons.Crown
-    local heightOffset = options.Height or 2.7
-
-    local billboard = nil
-    local titleLabel = nil
-    local subtitleLabel = nil
-    local iconImg = nil
-
-    local function attach(char)
-        if not char then return end
-        local head = char:WaitForChild("Head", 5)
-        if not head then return end
-
-        local old = head:FindFirstChild("VeloxNametag")
-        if old then old:Destroy() end
-
-        billboard = Instance.new("BillboardGui")
-        billboard.Name = "VeloxNametag"
-        billboard.Adornee = head
-        billboard.Size = UDim2.fromOffset(180, 50)
-        billboard.StudsOffset = Vector3.new(0, heightOffset, 0)
-        billboard.AlwaysOnTop = true
-        billboard.ResetOnSpawn = false
-        billboard.Parent = head
-
-        local pill = Create("Frame", {
-            BackgroundColor3 = Color3.fromRGB(12, 13, 18),
-            BackgroundTransparency = 0.15,
-            Size = UDim2.fromScale(1, 1),
-            ClipsDescendants = false,
-            Parent = billboard
-        })
-        corner(pill, 10)
-        AddLitStroke(pill, {BorderLight = Color3.fromRGB(255, 255, 255), Accent = tagColor, BorderDark = Color3.fromRGB(30, 30, 40)}, 1.2, 0.4)
-
-        if tagIcon then
-            iconImg = Create("ImageLabel", {
-                BackgroundTransparency = 1,
-                Image = tagIcon,
-                ImageColor3 = tagColor,
-                Size = UDim2.fromOffset(20, 20),
-                Position = UDim2.fromOffset(10, 15),
-                Parent = pill
-            })
-        end
-
-        local textX = tagIcon and 36 or 12
-        local textW = tagIcon and -44 or -24
-
-        titleLabel = Create("TextLabel", {
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, textW, 0, 20),
-            Position = UDim2.fromOffset(textX, 8),
-            Font = Fonts.Bold,
-            Text = tagTitle,
-            TextColor3 = Color3.fromRGB(255, 255, 255),
-            TextSize = 13,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextTruncate = Enum.TextTruncate.AtEnd,
-            Parent = pill
-        })
-
-        subtitleLabel = Create("TextLabel", {
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, textW, 0, 14),
-            Position = UDim2.fromOffset(textX, 26),
-            Font = Fonts.Semi,
-            Text = tagSubtitle,
-            TextColor3 = tagColor,
-            TextSize = 10,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextTruncate = Enum.TextTruncate.AtEnd,
-            Parent = pill
-        })
-    end
-
-    if player.Character then
-        task.spawn(attach, player.Character)
-    end
-    player.CharacterAdded:Connect(attach)
-
-    return {
-        SetTitle = function(newTitle)
-            tagTitle = newTitle
-            if titleLabel then titleLabel.Text = newTitle end
-        end,
-        SetSubtitle = function(newSub)
-            tagSubtitle = newSub
-            if subtitleLabel then subtitleLabel.Text = newSub end
-        end,
-        SetColor = function(newColor)
-            tagColor = newColor
-            if subtitleLabel then subtitleLabel.TextColor3 = newColor end
-            if iconImg then iconImg.ImageColor3 = newColor end
-        end,
-        Destroy = function()
-            if billboard then billboard:Destroy() end
-        end
-    }
-end
-
-----------------------------------------------------------------
--- 2. CINEMATIC LOADING SCREEN (Full 3.5s+ • 'library by Schwein')
-----------------------------------------------------------------
+-- Zero dark backdrop, zero border box: Letters expand outward from center
+-- into "Velox UI" and materialize floating directly over the 3D game screen!
 function Velox:PlayLoadingScreen(theme, onComplete)
     theme = theme or self.Themes.Obsidian
 
     local loaderGui = Create("ScreenGui", {
-        Name = "Velox_Loader",
+        Name = "Velox_Materialize_Loader",
         DisplayOrder = 99999,
         ResetOnSpawn = false,
         Parent = GuiParent
     })
 
-    -- Fullscreen Ambient Cinema Backdrop
-    local backdrop = Create("Frame", {
-        BackgroundColor3 = Color3.fromRGB(8, 9, 12),
+    -- Stage is completely transparent (No background at all)
+    local centerStage = Create("Frame", {
         BackgroundTransparency = 1,
-        Size = UDim2.fromScale(1, 1),
-        BorderSizePixel = 0,
-        Parent = loaderGui
-    })
-
-    -- Center Ambient Glowing Halo
-    local ambientGlow = Create("ImageLabel", {
-        BackgroundTransparency = 1,
-        Image = "rbxassetid://6014261993",
-        ImageColor3 = theme.Accent,
-        ImageTransparency = 1,
-        Size = UDim2.fromOffset(500, 500),
-        Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromOffset(560, 160),
+        Position = UDim2.fromScale(0.5, 0.45),
         AnchorPoint = Vector2.new(0.5, 0.5),
         Parent = loaderGui
     })
 
-    -- Center Hero Card
-    local heroBox = Create("Frame", {
-        BackgroundColor3 = Color3.fromRGB(15, 17, 23),
-        BackgroundTransparency = 1,
-        Size = UDim2.fromOffset(400, 190),
-        Position = UDim2.fromScale(0.5, 0.5),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        ClipsDescendants = true,
-        Parent = loaderGui
-    })
-    corner(heroBox, 16)
-    local heroStroke = AddLitStroke(heroBox, theme, 1.2, 1)
-    local heroScale = Create("UIScale", {Scale = 0.85, Parent = heroBox})
+    -- Atmospheric introductory sound
+    playSound(self.Sounds.Atmosphere, 0.4, 0.9)
 
-    -- Letters Container
-    local lettersHolder = Create("Frame", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 0, 64),
-        Position = UDim2.fromOffset(0, 32),
-        Parent = heroBox
-    })
-    list(lettersHolder, 14, Enum.FillDirection.Horizontal, Enum.HorizontalAlignment.Center, Enum.VerticalAlignment.Center)
+    -- Letters: "V", "E", "L", "O", "X", " ", "U", "I"
+    local letterData = {
+        {char = "V", offset = -160},
+        {char = "E", offset = -105},
+        {char = "L", offset = -52},
+        {char = "O", offset = 0},
+        {char = "X", offset = 52},
+        {char = "U", offset = 120},
+        {char = "I", offset = 160},
+    }
 
-    -- Underline glowing bar
-    local underlineBar = Create("Frame", {
-        BackgroundColor3 = theme.Accent,
-        BackgroundTransparency = 1,
-        Size = UDim2.fromOffset(0, 2),
-        Position = UDim2.new(0.5, 0, 0, 110),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BorderSizePixel = 0,
-        Parent = heroBox
-    })
-    corner(underlineBar, 1)
-
-    -- "library by Schwein" Badge Frame
-    local creditBadge = Create("Frame", {
-        BackgroundColor3 = theme.Tertiary,
-        BackgroundTransparency = 1,
-        Size = UDim2.fromOffset(210, 28),
-        Position = UDim2.new(0.5, 0, 0, 126),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Parent = heroBox
-    })
-    corner(creditBadge, 14)
-    local badgeStroke = AddLitStroke(creditBadge, theme, 1, 1)
-
-    local creditLabel = Create("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.fromScale(1, 1),
-        Font = Fonts.Bold,
-        Text = "library by Schwein",
-        TextColor3 = Color3.fromRGB(240, 245, 255),
-        TextSize = 13,
-        TextTransparency = 1,
-        Parent = creditBadge
-    })
-
-    -- Stage 1: Intro Fade-in (0.45s)
-    Tween(backdrop, {BackgroundTransparency = 0.22}, 0.45)
-    Tween(ambientGlow, {ImageTransparency = 0.6}, 0.5)
-    Tween(heroBox, {BackgroundTransparency = 0.08}, 0.45)
-    Tween(heroStroke, {Transparency = 0.35}, 0.45)
-    Tween(heroScale, {Scale = 1.0}, 0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-
-    task.wait(0.35)
-
-    -- Stage 2: Create Letters
-    local letters = {"V", "E", "L", "O", "X"}
     local letterObjs = {}
 
-    for _, char in ipairs(letters) do
-        local lFrame = Create("Frame", {
+    for _, item in ipairs(letterData) do
+        local lHolder = Create("Frame", {
             BackgroundTransparency = 1,
-            Size = UDim2.fromOffset(46, 58),
-            Parent = lettersHolder
+            Size = UDim2.fromOffset(48, 64),
+            Position = UDim2.new(0.5, 0, 0.4, 0), -- Starts collapsed at center!
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Parent = centerStage
         })
-        local lScale = Create("UIScale", {Scale = 0.15, Parent = lFrame})
+        local lScale = Create("UIScale", {Scale = 0.0, Parent = lHolder})
 
-        local lGlow = Create("TextLabel", {
+        -- Pure Typography with Dark Outline for 100% readability over ANY scene
+        local lbl = Create("TextLabel", {
             BackgroundTransparency = 1,
             Size = UDim2.fromScale(1, 1),
             Font = Fonts.Black,
-            Text = char,
-            TextColor3 = theme.Accent,
-            TextSize = 48,
-            TextTransparency = 1,
-            Parent = lFrame
-        })
-
-        local lText = Create("TextLabel", {
-            BackgroundTransparency = 1,
-            Size = UDim2.fromScale(1, 1),
-            Font = Fonts.Black,
-            Text = char,
+            Text = item.char,
             TextColor3 = Color3.fromRGB(255, 255, 255),
-            TextSize = 48,
+            TextSize = 58,
             TextTransparency = 1,
-            Position = UDim2.fromOffset(0, -30),
-            Parent = lFrame
+            TextStrokeColor3 = Color3.fromRGB(10, 14, 25),
+            TextStrokeTransparency = 0.2,
+            Parent = lHolder
         })
 
-        table.insert(letterObjs, {Frame = lFrame, Glow = lGlow, Text = lText, Scale = lScale})
+        table.insert(letterObjs, {Holder = lHolder, Scale = lScale, Label = lbl, TargetX = item.offset})
     end
 
-    -- Stage 3: Deliberate Letter-by-Letter Reveal with Audio (5 * 0.22s = ~1.1s)
-    for i, data in ipairs(letterObjs) do
-        playSound(Velox.Sounds.Chime, 0.45, 0.85 + (i * 0.1))
-        Tween(data.Text, {Position = UDim2.fromOffset(0, 0), TextTransparency = 0}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-        Tween(data.Glow, {TextTransparency = 0.45}, 0.3)
-        Tween(data.Scale, {Scale = 1.0}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-        task.wait(0.22)
-    end
+    -- Floating credit: "library by Schwein"
+    local subCredit = Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 24),
+        Position = UDim2.new(0.5, 0, 0, 112),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Font = Fonts.Bold,
+        Text = "library by Schwein",
+        TextColor3 = theme.Accent,
+        TextSize = 14,
+        TextTransparency = 1,
+        TextStrokeColor3 = Color3.fromRGB(8, 10, 18),
+        TextStrokeTransparency = 0.25,
+        Parent = centerStage
+    })
 
-    -- Stage 4: Underline bar expands across (0.4s)
-    Tween(underlineBar, {Size = UDim2.fromOffset(260, 2), BackgroundTransparency = 0}, 0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
     task.wait(0.25)
 
-    -- Stage 5: "library by Schwein" reveal with triumphant chime (0.4s)
-    playSound(Velox.Sounds.Success, 0.42, 1.1)
-    Tween(creditBadge, {BackgroundTransparency = 0.25}, 0.35)
-    Tween(badgeStroke, {Transparency = 0.45}, 0.35)
-    Tween(creditLabel, {TextTransparency = 0}, 0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-
-    -- Stage 6: Showcase Hold - full 1.5 seconds of admiring the complete branding!
-    task.wait(1.5)
-
-    -- Stage 7: Smooth Outro Dissolve with futuristic sweep (0.4s)
-    playSound(Velox.Sounds.Sweep, 0.35, 1.15)
-    Tween(heroScale, {Scale = 1.08}, 0.38, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
-    Tween(heroBox, {BackgroundTransparency = 1}, 0.35)
-    Tween(heroStroke, {Transparency = 1}, 0.35)
-    Tween(underlineBar, {BackgroundTransparency = 1}, 0.3)
-    Tween(creditBadge, {BackgroundTransparency = 1}, 0.3)
-    Tween(badgeStroke, {Transparency = 1}, 0.3)
-    Tween(creditLabel, {TextTransparency = 1}, 0.3)
-    for _, data in ipairs(letterObjs) do
-        Tween(data.Text, {TextTransparency = 1}, 0.3)
-        Tween(data.Glow, {TextTransparency = 1}, 0.3)
+    -- Materialize & expand outward individually!
+    for i, item in ipairs(letterObjs) do
+        playSound(self.Sounds.Materialize, 0.35, 1.0)
+        -- Fluid outward explosion from center to slot
+        Tween(item.Holder, {Position = UDim2.new(0.5, item.TargetX, 0.4, 0)}, 0.42, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+        Tween(item.Scale, {Scale = 1.0}, 0.42, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        Tween(item.Label, {TextTransparency = 0}, 0.32)
+        task.wait(0.14)
     end
-    Tween(backdrop, {BackgroundTransparency = 1}, 0.38)
-    Tween(ambientGlow, {ImageTransparency = 1}, 0.38)
+
+    -- Harmonious chord as "library by Schwein" materializes
+    task.wait(0.15)
+    playSound(self.Sounds.Harmonic, 0.42, 1.05)
+    Tween(subCredit, {TextTransparency = 0}, 0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+
+    -- Showcase hold (full 2.0s admiring the pure floating logo!)
+    task.wait(2.0)
+
+    -- Outward dissolve exit
+    playSound(self.Sounds.Atmosphere, 0.35, 1.1)
+    for _, item in ipairs(letterObjs) do
+        Tween(item.Scale, {Scale = 1.3}, 0.38, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+        Tween(item.Label, {TextTransparency = 1}, 0.32)
+    end
+    Tween(subCredit, {TextTransparency = 1}, 0.3)
 
     task.wait(0.42)
     loaderGui:Destroy()
@@ -632,7 +459,7 @@ function Velox:PlayLoadingScreen(theme, onComplete)
 end
 
 ----------------------------------------------------------------
--- 3. NOTIFICATION SYSTEM
+-- 2. NOTIFICATION SYSTEM
 ----------------------------------------------------------------
 local notifHolder
 
@@ -734,7 +561,7 @@ function Velox:Notify(opts)
 end
 
 ----------------------------------------------------------------
--- 4. MOBILE TOGGLE PILL (Ensures Mobile Users Can Always Restore UI)
+-- 3. MOBILE TOGGLE PILL
 ----------------------------------------------------------------
 function Velox:CreateMobileToggle(onToggle)
     local toggleGui = Create("ScreenGui", {
@@ -757,7 +584,7 @@ function Velox:CreateMobileToggle(onToggle)
     AddLitStroke(bubble, self.Themes.Obsidian, 1.2, 0.4)
     MakeDraggable(bubble, bubble)
 
-    local icon = Create("TextLabel", {
+    Create("TextLabel", {
         BackgroundTransparency = 1,
         Size = UDim2.fromScale(1, 1),
         Font = Fonts.Black,
@@ -775,7 +602,458 @@ function Velox:CreateMobileToggle(onToggle)
 end
 
 ----------------------------------------------------------------
--- 5. HIGH-LEVEL WINDOW CONSTRUCTOR
+-- 4. 3D OVERHEAD NAMETAG SYSTEM & MESH SYNC
+----------------------------------------------------------------
+-- Decodes or applies a custom tag
+function Velox:ApplyNametagToPlayer(player, tagConfig)
+    if not player or not tagConfig then return end
+
+    local function attach(char)
+        if not char then return end
+        local head = char:WaitForChild("Head", 5)
+        if not head then return end
+
+        local old = head:FindFirstChild("VeloxNametag")
+        if old then old:Destroy() end
+
+        local tagColor = tagConfig.Color or Color3.fromRGB(90, 140, 255)
+        local tagTitle = tagConfig.Title or "SCRIPT USER"
+        local tagSubtitle = tagConfig.Subtitle or "Verified"
+        local tagIcon = tagConfig.Icon or Velox.Icons.Crown
+        local animType = tagConfig.Animation or "None"
+
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "VeloxNametag"
+        billboard.Adornee = head
+        billboard.Size = UDim2.fromOffset(200, 54)
+        billboard.StudsOffset = Vector3.new(0, tagConfig.Height or 2.8, 0)
+        billboard.AlwaysOnTop = true
+        billboard.ResetOnSpawn = false
+        billboard.Parent = head
+
+        local pill = Create("Frame", {
+            BackgroundColor3 = tagConfig.BgColor or Color3.fromRGB(12, 13, 18),
+            BackgroundTransparency = tagConfig.BgTransparency or 0.15,
+            Size = UDim2.fromScale(1, 1),
+            ClipsDescendants = true,
+            Parent = billboard
+        })
+        corner(pill, 12)
+        local stroke = AddLitStroke(pill, {BorderLight = Color3.fromRGB(255, 255, 255), Accent = tagColor, BorderDark = Color3.fromRGB(30, 30, 40)}, 1.2, 0.4)
+
+        -- Custom Background Image if provided
+        if tagConfig.BgImage and tagConfig.BgImage ~= "" then
+            Create("ImageLabel", {
+                BackgroundTransparency = 1,
+                Image = tagConfig.BgImage,
+                ScaleType = Enum.ScaleType.Crop,
+                Size = UDim2.fromScale(1, 1),
+                Parent = pill
+            })
+        end
+
+        -- Icon / PFP Image
+        local iconImg = nil
+        if tagIcon and tagIcon ~= "" then
+            iconImg = Create("ImageLabel", {
+                BackgroundTransparency = 1,
+                Image = tagIcon,
+                ImageColor3 = (tagIcon:find("rbxassetid") or tagIcon:find("http")) and Color3.fromRGB(255, 255, 255) or tagColor,
+                Size = UDim2.fromOffset(24, 24),
+                Position = UDim2.fromOffset(10, 15),
+                Parent = pill
+            })
+            corner(iconImg, 6)
+        end
+
+        local textX = (tagIcon and tagIcon ~= "") and 40 or 14
+        local textW = (tagIcon and tagIcon ~= "") and -50 or -28
+
+        local titleLabel = Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, textW, 0, 20),
+            Position = UDim2.fromOffset(textX, 8),
+            Font = Fonts.Bold,
+            Text = tagTitle,
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            TextSize = 13,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextTruncate = Enum.TextTruncate.AtEnd,
+            Parent = pill
+        })
+
+        local subtitleLabel = Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, textW, 0, 14),
+            Position = UDim2.fromOffset(textX, 28),
+            Font = Fonts.Semi,
+            Text = tagSubtitle,
+            TextColor3 = tagColor,
+            TextSize = 10,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextTruncate = Enum.TextTruncate.AtEnd,
+            Parent = pill
+        })
+
+        -- Custom Animation Loop
+        if animType == "Rainbow" then
+            task.spawn(function()
+                local hue = 0
+                while billboard and billboard.Parent do
+                    hue = (hue + 0.01) % 1
+                    local col = Color3.fromHSV(hue, 0.85, 1)
+                    subtitleLabel.TextColor3 = col
+                    if stroke then stroke.Color = col end
+                    RunService.Heartbeat:Wait()
+                end
+            end)
+        elseif animType == "Pulse" then
+            task.spawn(function()
+                while billboard and billboard.Parent do
+                    Tween(pill, {BackgroundTransparency = 0.4}, 0.8)
+                    task.wait(0.8)
+                    Tween(pill, {BackgroundTransparency = 0.1}, 0.8)
+                    task.wait(0.8)
+                end
+            end)
+        elseif animType == "Bobbing" then
+            task.spawn(function()
+                local t = 0
+                while billboard and billboard.Parent do
+                    t = t + 0.05
+                    billboard.StudsOffset = Vector3.new(0, (tagConfig.Height or 2.8) + (math.sin(t) * 0.25), 0)
+                    RunService.Heartbeat:Wait()
+                end
+            end)
+        end
+    end
+
+    if player.Character then task.spawn(attach, player.Character) end
+    player.CharacterAdded:Connect(attach)
+end
+
+function Velox:CreateNametag(options)
+    options = options or {}
+    local player = options.Player or LocalPlayer
+    self:ApplyNametagToPlayer(player, options)
+end
+
+-- Export Nametag String Code (Compact JSON Base64)
+function Velox:ExportNametagCode(config)
+    local raw = HttpService:JSONEncode({
+        Title = config.Title or "USER",
+        Subtitle = config.Subtitle or "VIP",
+        ColorR = math.round((config.Color or Color3.new(1, 1, 1)).R * 255),
+        ColorG = math.round((config.Color or Color3.new(1, 1, 1)).G * 255),
+        ColorB = math.round((config.Color or Color3.new(1, 1, 1)).B * 255),
+        Icon = config.Icon or "",
+        Animation = config.Animation or "None",
+        BgImage = config.BgImage or "",
+    })
+    local encoded = ""
+    local ok, res = pcall(function()
+        if syn and syn.crypt then
+            return syn.crypt.base64.encode(raw)
+        end
+        return raw -- fallback
+    end)
+    return "TAG-" .. (ok and res or raw)
+end
+
+-- Decode Nametag String Code
+function Velox:DecodeNametagCode(code)
+    if not code or type(code) ~= "string" then return nil end
+    local payload = code:gsub("^TAG%-", "")
+    local ok, decoded = pcall(function()
+        if syn and syn.crypt then
+            return syn.crypt.base64.decode(payload)
+        end
+        return payload
+    end)
+    local succ, data = pcall(function() return HttpService:JSONDecode(ok and decoded or payload) end)
+    if succ and data then
+        return {
+            Title = data.Title,
+            Subtitle = data.Subtitle,
+            Color = Color3.fromRGB(data.ColorR or 90, data.ColorG or 140, data.ColorB or 255),
+            Icon = data.Icon,
+            Animation = data.Animation,
+            BgImage = data.BgImage,
+        }
+    end
+    return nil
+end
+
+-- P2P Mesh & Cloud Sync Listener (Zero-cost across all script users)
+function Velox:InitializeNametagSync(cloudUrl)
+    -- 1. In-game Character Attribute Mesh Sync (100% Free, Native)
+    local function syncPlayer(plr)
+        local function checkAttr(char)
+            if not char then return end
+            char:GetAttributeChangedSignal("VeloxCustomTag"):Connect(function()
+                local tagCode = char:GetAttribute("VeloxCustomTag")
+                if tagCode then
+                    local cfg = Velox:DecodeNametagCode(tagCode)
+                    if cfg then Velox:ApplyNametagToPlayer(plr, cfg) end
+                end
+            end)
+            local existing = char:GetAttribute("VeloxCustomTag")
+            if existing then
+                local cfg = Velox:DecodeNametagCode(existing)
+                if cfg then Velox:ApplyNametagToPlayer(plr, cfg) end
+            end
+        end
+        if plr.Character then checkAttr(plr.Character) end
+        plr.CharacterAdded:Connect(checkAttr)
+    end
+
+    for _, p in ipairs(Players:GetPlayers()) do syncPlayer(p) end
+    Players.PlayerAdded:Connect(syncPlayer)
+
+    -- 2. Optional Free GitHub Gist / JSON sync (Unlimited free requests)
+    if cloudUrl and cloudUrl ~= "" then
+        task.spawn(function()
+            local succ, content = pcall(function() return game:HttpGet(cloudUrl) end)
+            if succ and content then
+                local ok, data = pcall(function() return HttpService:JSONDecode(content) end)
+                if ok and data then
+                    for userIdStr, tagCode in pairs(data) do
+                        local uid = tonumber(userIdStr)
+                        local targetPlr = Players:GetPlayerByUserId(uid)
+                        if targetPlr then
+                            local cfg = Velox:DecodeNametagCode(tagCode)
+                            if cfg then Velox:ApplyNametagToPlayer(targetPlr, cfg) end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
+----------------------------------------------------------------
+-- 5. NAMETAG STUDIO / EDITOR MODAL (User Customizer & Code Exporter)
+----------------------------------------------------------------
+function Velox:OpenNametagEditor(onExport)
+    local editorGui = Create("ScreenGui", {
+        Name = "Velox_NametagStudio",
+        DisplayOrder = 150,
+        ResetOnSpawn = false,
+        Parent = GuiParent
+    })
+
+    local modal = Create("Frame", {
+        Name = "StudioFrame",
+        BackgroundColor3 = self.Themes.Obsidian.Background,
+        Size = UDim2.fromOffset(480, 520),
+        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        ClipsDescendants = false,
+        Parent = editorGui
+    })
+    corner(modal, 14)
+    AddLitStroke(modal, self.Themes.Obsidian, 1.2, 0.5)
+
+    -- Ambient Shadow
+    Create("ImageLabel", {
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://6014261993",
+        ImageColor3 = Color3.fromRGB(0, 0, 0),
+        ImageTransparency = 0.35,
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(49, 49, 450, 450),
+        Size = UDim2.new(1, 60, 1, 60),
+        Position = UDim2.fromOffset(-30, -30),
+        ZIndex = 0,
+        Parent = modal
+    })
+
+    -- TitleBar
+    local titleBar = Create("Frame", {
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        Size = UDim2.new(1, 0, 0, 44),
+        Parent = modal
+    })
+    corner(titleBar, 14)
+    MakeDraggable(titleBar, modal)
+
+    Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -60, 1, 0),
+        Position = UDim2.fromOffset(16, 0),
+        Font = Fonts.Bold,
+        Text = "NAMETAG STUDIO • CREATOR & EXPORTER",
+        TextColor3 = self.Themes.Obsidian.Text,
+        TextSize = 13,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = titleBar
+    })
+
+    local closeBtn = Create("TextButton", {
+        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        Size = UDim2.fromOffset(26, 26),
+        Position = UDim2.new(1, -34, 0.5, -13),
+        Font = Fonts.Bold,
+        Text = "×",
+        TextColor3 = self.Themes.Obsidian.TextDim,
+        TextSize = 16,
+        AutoButtonColor = false,
+        Parent = titleBar
+    })
+    corner(closeBtn, 6)
+    AddBouncyClick(closeBtn, function() editorGui:Destroy() end)
+
+    -- Live Preview Card
+    local previewCard = Create("Frame", {
+        BackgroundColor3 = Color3.fromRGB(15, 17, 23),
+        Size = UDim2.new(1, -32, 0, 90),
+        Position = UDim2.fromOffset(16, 56),
+        Parent = modal
+    })
+    corner(previewCard, 10)
+    AddLitStroke(previewCard, self.Themes.Obsidian, 1, 0.6)
+
+    local pfpSample = Create("ImageLabel", {
+        BackgroundTransparency = 1,
+        Image = self.Icons.Crown,
+        Size = UDim2.fromOffset(28, 28),
+        Position = UDim2.fromOffset(20, 31),
+        Parent = previewCard
+    })
+
+    local previewTitle = Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -70, 0, 22),
+        Position = UDim2.fromOffset(56, 22),
+        Font = Fonts.Bold,
+        Text = "👑 CUSTOM VIP 👑",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 15,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = previewCard
+    })
+
+    local previewSubtitle = Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -70, 0, 16),
+        Position = UDim2.fromOffset(56, 46),
+        Font = Fonts.Semi,
+        Text = "Verified Tagholder",
+        TextColor3 = self.Themes.Obsidian.Accent,
+        TextSize = 11,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = previewCard
+    })
+
+    -- Form Controls Container
+    local form = Create("ScrollingFrame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -32, 0, 300),
+        Position = UDim2.fromOffset(16, 156),
+        CanvasSize = UDim2.new(0, 0, 0, 320),
+        ScrollBarThickness = 2,
+        BorderSizePixel = 0,
+        Parent = modal
+    })
+    list(form, 8)
+
+    local function createInputRow(labelText, placeholder, defaultVal)
+        local card = Create("Frame", {
+            BackgroundColor3 = self.Themes.Obsidian.Secondary,
+            Size = UDim2.new(1, 0, 0, 48),
+            Parent = form
+        })
+        corner(card, 8)
+        AddLitStroke(card, self.Themes.Obsidian, 1, 0.75)
+
+        Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -16, 0, 16),
+            Position = UDim2.fromOffset(10, 4),
+            Font = Fonts.Semi,
+            Text = labelText,
+            TextColor3 = self.Themes.Obsidian.TextDim,
+            TextSize = 10,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Parent = card
+        })
+
+        local tb = Create("TextBox", {
+            BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+            Size = UDim2.new(1, -20, 0, 22),
+            Position = UDim2.fromOffset(10, 22),
+            Font = Fonts.Main,
+            PlaceholderText = placeholder,
+            PlaceholderColor3 = self.Themes.Obsidian.TextDark,
+            Text = defaultVal or "",
+            TextColor3 = self.Themes.Obsidian.Text,
+            TextSize = 11,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ClearTextOnFocus = false,
+            Parent = card
+        })
+        corner(tb, 5)
+        return tb
+    end
+
+    local titleInput = createInputRow("Nametag Title Text", "e.g. 👑 SCRIPT OWNER 👑", "👑 CUSTOM VIP 👑")
+    local subInput   = createInputRow("Nametag Subtitle Text", "e.g. Verified Supporter", "Verified Tagholder")
+    local iconInput  = createInputRow("Icon Image Link or Asset ID", "rbxassetid://... or image url", self.Icons.Crown)
+    local animInput  = createInputRow("Animation Type (None / Rainbow / Pulse / Bobbing)", "None / Rainbow / Pulse / Bobbing", "Rainbow")
+
+    titleInput:GetPropertyChangedSignal("Text"):Connect(function()
+        previewTitle.Text = titleInput.Text
+    end)
+    subInput:GetPropertyChangedSignal("Text"):Connect(function()
+        previewSubtitle.Text = subInput.Text
+    end)
+    iconInput:GetPropertyChangedSignal("Text"):Connect(function()
+        pfpSample.Image = iconInput.Text
+    end)
+
+    -- Export Button (Copies Code to Clipboard)
+    local exportBtn = Create("TextButton", {
+        BackgroundColor3 = self.Themes.Obsidian.Accent,
+        Size = UDim2.new(1, -32, 0, 42),
+        Position = UDim2.new(0, 16, 1, -54),
+        Font = Fonts.Bold,
+        Text = "🚀 EXPORT & COPY NAMETAG CODE",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 13,
+        AutoButtonColor = false,
+        Parent = modal
+    })
+    corner(exportBtn, 8)
+
+    AddBouncyClick(exportBtn, function()
+        local tagConfig = {
+            Title = titleInput.Text,
+            Subtitle = subInput.Text,
+            Color = self.Themes.Obsidian.Accent,
+            Icon = iconInput.Text,
+            Animation = animInput.Text
+        }
+        local exportCode = Velox:ExportNametagCode(tagConfig)
+
+        if setclipboard then
+            setclipboard(exportCode)
+        end
+
+        Velox:Notify({
+            Title = "Nametag Code Exported!",
+            Content = "Copied to clipboard! Send this code to the script owner with your payment to activate it.",
+            Type = "Success",
+            Duration = 5.0
+        })
+
+        if onExport then onExport(exportCode, tagConfig) end
+    end)
+
+    return editorGui
+end
+
+----------------------------------------------------------------
+-- 6. HIGH-LEVEL WINDOW CONSTRUCTOR
 ----------------------------------------------------------------
 function Velox:CreateWindow(cfg)
     cfg = cfg or {}
@@ -788,6 +1066,7 @@ function Velox:CreateWindow(cfg)
     local showSearch   = cfg.ShowSearch ~= false
     local showSettings = cfg.ShowSettings ~= false
     local showMobileToggle = cfg.MobileToggle ~= false
+    local nametagsEnabled = cfg.Nametags == true
 
     local theme = self.Themes[themeKey] or self.Themes.Obsidian
     local accentColor = theme.Accent
@@ -813,7 +1092,6 @@ function Velox:CreateWindow(cfg)
     local mainStroke = AddLitStroke(main, theme, 1, 0.5)
     local mainScale = Create("UIScale", {Scale = 0.85, Parent = main})
 
-    -- Ambient Glow Shadow
     Create("ImageLabel", {
         BackgroundTransparency = 1,
         Image = "rbxassetid://6014261993",
@@ -827,9 +1105,7 @@ function Velox:CreateWindow(cfg)
         Parent = main
     })
 
-    --------------------------------------------------------
-    -- TOP HEADER (Player Avatar on Left -> Custom Title)
-    --------------------------------------------------------
+    -- Header
     local header = Create("Frame", {
         Name = "TitleBar",
         BackgroundColor3 = theme.Secondary,
@@ -845,12 +1121,10 @@ function Velox:CreateWindow(cfg)
         Position = UDim2.fromOffset(0, 38),
         Parent = header
     })
-    -- Locked inside viewport bounds:
     MakeDraggable(header, main)
 
     local titleXOffset = 16
 
-    -- TOP-LEFT PLAYER AVATAR & USERNAME DISPLAY
     if showProfile then
         local profilePill = Create("Frame", {
             BackgroundColor3 = theme.InputBackground,
@@ -925,7 +1199,6 @@ function Velox:CreateWindow(cfg)
         titleXOffset = 210
     end
 
-    -- CUSTOM TITLE & SUBTITLE
     local titleLabel = Create("TextLabel", {
         BackgroundTransparency = 1,
         Size = UDim2.new(0, 240, 0, 20),
@@ -952,7 +1225,6 @@ function Velox:CreateWindow(cfg)
         Parent = header
     })
 
-    -- Header Controls: [Settings Gear] [Minimize] [Close]
     local controls = Create("Frame", {
         BackgroundTransparency = 1,
         Size = UDim2.fromOffset(108, 32),
@@ -1006,9 +1278,6 @@ function Velox:CreateWindow(cfg)
     })
     corner(closeBtn, 6)
 
-    --------------------------------------------------------
-    -- BODY WRAPPER (Prevents Button Overflow on Minimize/Close)
-    --------------------------------------------------------
     local bodyWrapper = Create("Frame", {
         Name = "BodyWrapper",
         BackgroundTransparency = 1,
@@ -1018,9 +1287,6 @@ function Velox:CreateWindow(cfg)
         Parent = main
     })
 
-    --------------------------------------------------------
-    -- SIDEBAR NAVIGATION & SEARCH
-    --------------------------------------------------------
     local sidebar = Create("Frame", {
         Name = "Sidebar",
         BackgroundColor3 = theme.Secondary,
@@ -1101,9 +1367,7 @@ function Velox:CreateWindow(cfg)
         Parent = bodyWrapper
     })
 
-    --------------------------------------------------------
-    -- SIDE-DOCKED SETTINGS DRAWER (Opens to the Outside Right Side!)
-    --------------------------------------------------------
+    -- Side Drawer Customizer Modal
     local settingsModal = Create("Frame", {
         Name = "SideSettingsDrawer",
         BackgroundColor3 = theme.Secondary,
@@ -1112,7 +1376,7 @@ function Velox:CreateWindow(cfg)
         Visible = false,
         ClipsDescendants = true,
         ZIndex = 50,
-        Parent = main -- Parented to main so it stays docked to the side
+        Parent = main
     })
     corner(settingsModal, 14)
     AddLitStroke(settingsModal, theme, 1, 0.6)
@@ -1131,7 +1395,6 @@ function Velox:CreateWindow(cfg)
         Parent = settingsModal
     })
 
-    -- Theme Palette Swatches
     local themeBox = Create("Frame", {
         BackgroundColor3 = theme.Tertiary,
         Size = UDim2.new(1, 0, 0, 60),
@@ -1164,9 +1427,7 @@ function Velox:CreateWindow(cfg)
     local function notifyAccent(newColor)
         accentColor = newColor
         Tween(customizerTitle, {TextColor3 = newColor}, 0.25)
-        for _, sub in ipairs(accentSubscribers) do
-            pcall(sub, newColor)
-        end
+        for _, sub in ipairs(accentSubscribers) do pcall(sub, newColor) end
     end
 
     for tName, tData in pairs(self.Themes) do
@@ -1191,7 +1452,7 @@ function Velox:CreateWindow(cfg)
         end)
     end
 
-    -- UI Scale Slider
+    -- UI Zoom Slider
     local scaleBox = Create("Frame", {
         BackgroundColor3 = theme.Tertiary,
         Size = UDim2.new(1, 0, 0, 52),
@@ -1250,7 +1511,7 @@ function Velox:CreateWindow(cfg)
         end
     end)
 
-    -- Sound Effects Toggle
+    -- Sound Toggle
     local sfxBox = Create("Frame", {
         BackgroundColor3 = theme.Tertiary,
         Size = UDim2.new(1, 0, 0, 40),
@@ -1302,7 +1563,26 @@ function Velox:CreateWindow(cfg)
         if Velox.Sounds.Enabled then sfxToggleBtn.BackgroundColor3 = c end
     end)
 
-    -- Side drawer open/close animation
+    -- Nametag Studio Open Button (Inside Customizer)
+    if nametagsEnabled then
+        local studioBtn = Create("TextButton", {
+            BackgroundColor3 = theme.Tertiary,
+            Size = UDim2.new(1, 0, 0, 36),
+            Font = Fonts.Bold,
+            Text = "🏷️ Open Nametag Studio",
+            TextColor3 = accentColor,
+            TextSize = 11,
+            AutoButtonColor = false,
+            ZIndex = 51,
+            Parent = settingsModal
+        })
+        corner(studioBtn, 8)
+        AddLitStroke(studioBtn, theme, 1, 0.5)
+        AddBouncyClick(studioBtn, function()
+            Velox:OpenNametagEditor()
+        end)
+    end
+
     AddBouncyClick(settingsBtn, function()
         settingsModal.Visible = not settingsModal.Visible
         if settingsModal.Visible then
@@ -1312,7 +1592,6 @@ function Velox:CreateWindow(cfg)
         end
     end)
 
-    -- Smooth Minimize & Close
     local minimized = false
     local origSize = size
     AddBouncyClick(minBtn, function()
@@ -1335,7 +1614,6 @@ function Velox:CreateWindow(cfg)
         end
     end)
 
-    -- Pop-out Clean Close
     AddBouncyClick(closeBtn, function()
         playSound(Velox.Sounds.Click, 0.4)
         bodyWrapper.Visible = false
@@ -1346,13 +1624,9 @@ function Velox:CreateWindow(cfg)
         Tween(header, {BackgroundTransparency = 1}, 0.22, Enum.EasingStyle.Quart)
         task.wait(0.24)
         main.Visible = false
-        -- Don't destroy if mobile toggle is active, so mobile users can reopen!
-        if not showMobileToggle then
-            gui:Destroy()
-        end
+        if not showMobileToggle then gui:Destroy() end
     end)
 
-    -- Keyboard Keybind
     UserInputService.InputBegan:Connect(function(inp, gpe)
         if not gpe and inp.KeyCode == minKey then
             main.Visible = not main.Visible
@@ -1360,7 +1634,6 @@ function Velox:CreateWindow(cfg)
         end
     end)
 
-    -- Mobile floating pill toggle so mobile users can always reopen/unminimize!
     if showMobileToggle then
         Velox:CreateMobileToggle(function()
             main.Visible = not main.Visible
@@ -1373,6 +1646,14 @@ function Velox:CreateWindow(cfg)
                 Tween(mainScale, {Scale = 1.0}, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
             end
         end)
+    end
+
+    -- Nametags optional initialization
+    if nametagsEnabled then
+        Velox:InitializeNametagSync(cfg.NametagCloudUrl)
+        if cfg.DefaultNametag then
+            Velox:CreateNametag(cfg.DefaultNametag)
+        end
     end
 
     --------------------------------------------------------
@@ -1388,6 +1669,7 @@ function Velox:CreateWindow(cfg)
         SetTitle = function(newTitle) titleLabel.Text = newTitle end,
         SetSubTitle = function(newSub) subtitleLabel.Text = newSub end,
         SetAccent = notifyAccent,
+        OpenNametagStudio = function() Velox:OpenNametagEditor() end,
     }
 
     if searchInput then
@@ -1571,7 +1853,7 @@ function Velox:CreateWindow(cfg)
                 })
             end
 
-            local arrow = Create("ImageLabel", {
+            Create("ImageLabel", {
                 BackgroundTransparency = 1,
                 Image = Velox.Icons.Flame,
                 ImageColor3 = theme.TextDark,
@@ -1580,10 +1862,7 @@ function Velox:CreateWindow(cfg)
                 Parent = card
             })
 
-            AddBouncyClick(card, function()
-                if cb then cb() end
-            end)
-
+            AddBouncyClick(card, function() if cb then cb() end end)
             table.insert(tabData.Elements, {Name = btnName, Frame = card})
             return card
         end
@@ -1662,10 +1941,7 @@ function Velox:CreateWindow(cfg)
                 if cb then cb(state) end
             end
 
-            AddBouncyClick(switch, function()
-                setToggle(not state)
-            end)
-
+            AddBouncyClick(switch, function() setToggle(not state) end)
             table.insert(accentSubscribers, function(c)
                 if state then switch.BackgroundColor3 = c end
             end)
@@ -1695,7 +1971,7 @@ function Velox:CreateWindow(cfg)
             corner(card, 8)
             AddLitStroke(card, theme, 1, 0.75)
 
-            local nameLbl = Create("TextLabel", {
+            Create("TextLabel", {
                 BackgroundTransparency = 1,
                 Size = UDim2.new(1, -80, 0, 20),
                 Position = UDim2.fromOffset(12, 6),
@@ -2009,9 +2285,7 @@ function Velox:CreateWindow(cfg)
         return tabData
     end
 
-    --------------------------------------------------------
-    -- FORCED CINEMATIC LOADING REVEAL (3.5+ Seconds)
-    --------------------------------------------------------
+    -- Run Forced Background-Free Materialize Reveal
     task.spawn(function()
         Velox:PlayLoadingScreen(theme, function()
             main.Visible = true
@@ -2024,10 +2298,8 @@ function Velox:CreateWindow(cfg)
 end
 
 ----------------------------------------------------------------
--- 6. FREEHAND CUSTOM UI BUILDER API (Make ANY Custom UI With The Velox Touch)
+-- 7. FREEHAND CUSTOM UI BUILDER API (Velox.createUI)
 ----------------------------------------------------------------
--- Allows developers to easily assemble completely custom freehand UIs
--- while keeping the signature Velox Obsidian styling, lit strokes & sounds!
 function Velox.createUI(width, height, position, title, themeKey)
     local theme = Velox.Themes[themeKey or "Obsidian"] or Velox.Themes.Obsidian
     local w = width or 400
@@ -2053,7 +2325,6 @@ function Velox.createUI(width, height, position, title, themeKey)
     corner(frame, 12)
     AddLitStroke(frame, theme, 1, 0.5)
 
-    -- Ambient Glow Shadow
     Create("ImageLabel", {
         BackgroundTransparency = 1,
         Image = "rbxassetid://6014261993",
@@ -2067,7 +2338,6 @@ function Velox.createUI(width, height, position, title, themeKey)
         Parent = frame
     })
 
-    -- Draggable titlebar
     local titleBar = Create("Frame", {
         BackgroundColor3 = theme.Secondary,
         Size = UDim2.new(1, 0, 0, 38),
@@ -2107,9 +2377,7 @@ function Velox.createUI(width, height, position, title, themeKey)
         Parent = titleBar
     })
     corner(closeB, 6)
-    AddBouncyClick(closeB, function()
-        frame.Visible = false
-    end)
+    AddBouncyClick(closeB, function() frame.Visible = false end)
 
     local container = Create("Frame", {
         Name = "Container",
@@ -2127,7 +2395,6 @@ function Velox.createUI(width, height, position, title, themeKey)
         Theme = theme
     }
 
-    -- Easy Component Methods on customUI
     function customUI:AddButton(opts)
         opts = opts or {}
         local btn = Create("TextButton", {
