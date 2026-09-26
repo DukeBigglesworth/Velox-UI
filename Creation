@@ -561,9 +561,10 @@ function Velox:Notify(opts)
     }
     local col = typeColors[nType] or nTheme.Accent
 
-    local container = GuiParent:FindFirstChild("Velox_Notifications")
-    if not container then
-        local sg = Create("ScreenGui", {
+    local sg = GuiParent:FindFirstChild("Velox_Notifications")
+    local container
+    if not sg then
+        sg = Create("ScreenGui", {
             Name = "Velox_Notifications",
             DisplayOrder = 100,
             ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
@@ -575,13 +576,29 @@ function Velox:Notify(opts)
             BackgroundTransparency = 1,
             Size = UDim2.new(0, 300, 0, 0),
             AutomaticSize = Enum.AutomaticSize.Y,
-            Position = UDim2.new(1, -320, 1, -20),
+            Position = UDim2.new(1, -320, 1, -24),
             AnchorPoint = Vector2.new(0, 1),
             Parent = sg,
         })
         local lay = list(container, 8, Enum.FillDirection.Vertical)
         lay.VerticalAlignment = Enum.VerticalAlignment.Bottom
         lay.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    else
+        container = sg:FindFirstChild("NotifyList")
+        if not container then
+            container = Create("Frame", {
+                Name = "NotifyList",
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0, 300, 0, 0),
+                AutomaticSize = Enum.AutomaticSize.Y,
+                Position = UDim2.new(1, -320, 1, -24),
+                AnchorPoint = Vector2.new(0, 1),
+                Parent = sg,
+            })
+            local lay = list(container, 8, Enum.FillDirection.Vertical)
+            lay.VerticalAlignment = Enum.VerticalAlignment.Bottom
+            lay.HorizontalAlignment = Enum.HorizontalAlignment.Right
+        end
     end
 
     local card = Create("Frame", {
