@@ -1,20 +1,3 @@
---[[
-    ╔══════════════════════════════════════════════════════════════╗
-    ║                         VELOX UI                             ║
-    ║        The Ultimate Next-Generation Roblox UI Engine         ║
-    ║                                                              ║
-    ║  • 100% Background-Free "Velox UI" Outward Materialize       ║
-    ║  • Custom Soundscape (Atmospheric sweep & harmonic resonance)║
-    ║  • Screen Clamping (Window locked inside viewport bounds)    ║
-    ║  • Side-Docked Flyout Settings Drawer                        ║
-    ║  • Mobile Floating Toggle Button (Always reopenable)         ║
-    ║  • Turnkey & Freehand UI Builders (Velox.createUI)           ║
-    ║  • Built-in 3D Nametag Studio (Custom text, RGB, animations) ║
-    ║  • Paid Nametag Monetization & Export Code Engine            ║
-    ║  • Zero-Cost P2P Mesh & Cloud Gist Nametag Sync              ║
-    ╚══════════════════════════════════════════════════════════════╝
-]]
-
 local TweenService     = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService       = game:GetService("RunService")
@@ -22,6 +5,7 @@ local Players          = game:GetService("Players")
 local HttpService      = game:GetService("HttpService")
 local CoreGui          = game:GetService("CoreGui")
 local SoundService     = game:GetService("SoundService")
+local StatsService     = game:GetService("Stats")
 
 local LocalPlayer = Players.LocalPlayer
 
@@ -58,45 +42,64 @@ local Velox = {
             Shadow          = Color3.fromRGB(0, 0, 0),
         },
         Midnight = {
-            Background      = Color3.fromRGB(9, 11, 19),
-            Secondary       = Color3.fromRGB(13, 17, 28),
-            Tertiary        = Color3.fromRGB(20, 26, 42),
-            Quaternary      = Color3.fromRGB(28, 36, 58),
-            CardHover       = Color3.fromRGB(24, 32, 52),
-            InputBackground = Color3.fromRGB(11, 14, 23),
+            Background      = Color3.fromRGB(8, 10, 15),
+            Secondary       = Color3.fromRGB(13, 16, 24),
+            Tertiary        = Color3.fromRGB(20, 25, 38),
+            Quaternary      = Color3.fromRGB(28, 35, 52),
+            CardHover       = Color3.fromRGB(25, 32, 48),
+            InputBackground = Color3.fromRGB(11, 14, 21),
             BorderLight     = Color3.fromRGB(255, 255, 255),
-            BorderDark      = Color3.fromRGB(35, 48, 75),
-            Accent          = Color3.fromRGB(60, 160, 255),
-            Text            = Color3.fromRGB(245, 250, 255),
-            TextDim         = Color3.fromRGB(155, 175, 205),
-            TextDark        = Color3.fromRGB(100, 120, 150),
+            BorderDark      = Color3.fromRGB(35, 45, 68),
+            Accent          = Color3.fromRGB(0, 210, 255),
+            Text            = Color3.fromRGB(240, 248, 255),
+            TextDim         = Color3.fromRGB(150, 175, 205),
+            TextDark        = Color3.fromRGB(95, 115, 145),
             Success         = Color3.fromRGB(80, 220, 150),
             Error           = Color3.fromRGB(255, 90, 90),
             Warning         = Color3.fromRGB(255, 195, 75),
-            Info            = Color3.fromRGB(95, 170, 255),
+            Info            = Color3.fromRGB(0, 210, 255),
             Shadow          = Color3.fromRGB(0, 0, 0),
         },
         TokyoPurple = {
-            Background      = Color3.fromRGB(13, 10, 18),
-            Secondary       = Color3.fromRGB(20, 15, 28),
-            Tertiary        = Color3.fromRGB(30, 22, 42),
-            Quaternary      = Color3.fromRGB(42, 32, 58),
-            CardHover       = Color3.fromRGB(36, 27, 50),
-            InputBackground = Color3.fromRGB(16, 12, 22),
+            Background      = Color3.fromRGB(13, 11, 20),
+            Secondary       = Color3.fromRGB(20, 16, 32),
+            Tertiary        = Color3.fromRGB(30, 24, 48),
+            Quaternary      = Color3.fromRGB(42, 34, 66),
+            CardHover       = Color3.fromRGB(38, 30, 60),
+            InputBackground = Color3.fromRGB(16, 13, 25),
             BorderLight     = Color3.fromRGB(255, 255, 255),
-            BorderDark      = Color3.fromRGB(58, 42, 78),
+            BorderDark      = Color3.fromRGB(55, 42, 85),
             Accent          = Color3.fromRGB(185, 110, 255),
-            Text            = Color3.fromRGB(252, 248, 255),
-            TextDim         = Color3.fromRGB(180, 165, 200),
-            TextDark        = Color3.fromRGB(125, 110, 145),
+            Text            = Color3.fromRGB(250, 245, 255),
+            TextDim         = Color3.fromRGB(185, 165, 215),
+            TextDark        = Color3.fromRGB(130, 110, 160),
             Success         = Color3.fromRGB(80, 220, 150),
             Error           = Color3.fromRGB(255, 90, 90),
             Warning         = Color3.fromRGB(255, 195, 75),
             Info            = Color3.fromRGB(185, 110, 255),
             Shadow          = Color3.fromRGB(0, 0, 0),
         },
+        Cyberpunk = {
+            Background      = Color3.fromRGB(12, 12, 10),
+            Secondary       = Color3.fromRGB(20, 20, 14),
+            Tertiary        = Color3.fromRGB(30, 30, 20),
+            Quaternary      = Color3.fromRGB(42, 42, 26),
+            CardHover       = Color3.fromRGB(38, 38, 24),
+            InputBackground = Color3.fromRGB(16, 16, 12),
+            BorderLight     = Color3.fromRGB(255, 255, 255),
+            BorderDark      = Color3.fromRGB(65, 65, 35),
+            Accent          = Color3.fromRGB(255, 225, 50),
+            Text            = Color3.fromRGB(255, 255, 240),
+            TextDim         = Color3.fromRGB(210, 210, 170),
+            TextDark        = Color3.fromRGB(150, 150, 110),
+            Success         = Color3.fromRGB(80, 220, 150),
+            Error           = Color3.fromRGB(255, 90, 90),
+            Warning         = Color3.fromRGB(255, 225, 50),
+            Info            = Color3.fromRGB(95, 170, 255),
+            Shadow          = Color3.fromRGB(0, 0, 0),
+        },
         Emerald = {
-            Background      = Color3.fromRGB(10, 14, 12),
+            Background      = Color3.fromRGB(9, 14, 12),
             Secondary       = Color3.fromRGB(14, 22, 18),
             Tertiary        = Color3.fromRGB(22, 34, 28),
             Quaternary      = Color3.fromRGB(30, 46, 38),
@@ -161,8 +164,86 @@ local Velox = {
         Palette  = "rbxassetid://10734884930",
         Crown    = "rbxassetid://10709769841",
         Tag      = "rbxassetid://10734953491",
+        Shield   = "rbxassetid://10734950309",
+        Star     = "rbxassetid://10709769841",
+        Diamond  = "rbxassetid://10723346993",
+        Skull    = "rbxassetid://10709791437",
     },
+    Roles = {
+        Owner = {
+            Title = "👑 OWNER 👑",
+            Subtitle = "Script Creator • Verified Developer",
+            Color = Color3.fromRGB(255, 215, 0),
+            Badge = "👑 OWNER",
+            BadgeColor = Color3.fromRGB(255, 215, 0),
+            Icon = "rbxassetid://10709769841",
+            Animation = "Rainbow",
+            Priority = 100
+        },
+        Admin = {
+            Title = "🛡️ ADMIN 🛡️",
+            Subtitle = "Server Administrator • Staff",
+            Color = Color3.fromRGB(255, 75, 75),
+            Badge = "🛡️ ADMIN",
+            BadgeColor = Color3.fromRGB(255, 75, 75),
+            Icon = "rbxassetid://10709791437",
+            Animation = "Neon Glow",
+            Priority = 80
+        },
+        Mod = {
+            Title = "⚔️ MODERATOR ⚔️",
+            Subtitle = "Community Moderator",
+            Color = Color3.fromRGB(80, 220, 150),
+            Badge = "⚔️ MOD",
+            BadgeColor = Color3.fromRGB(80, 220, 150),
+            Icon = "rbxassetid://10734975486",
+            Animation = "Pulse",
+            Priority = 60
+        },
+        Staff = {
+            Title = "🛠️ STAFF 🛠️",
+            Subtitle = "Official Script Staff",
+            Color = Color3.fromRGB(90, 140, 255),
+            Badge = "🛠️ STAFF",
+            BadgeColor = Color3.fromRGB(90, 140, 255),
+            Icon = "rbxassetid://10734950309",
+            Animation = "Bobbing",
+            Priority = 50
+        },
+        VIP = {
+            Title = "💎 VIP 💎",
+            Subtitle = "VIP Tier Supporter",
+            Color = Color3.fromRGB(185, 110, 255),
+            Badge = "💎 VIP",
+            BadgeColor = Color3.fromRGB(185, 110, 255),
+            Icon = "rbxassetid://10723346993",
+            Animation = "Rainbow",
+            Priority = 40
+        },
+        Premium = {
+            Title = "⭐ PREMIUM ⭐",
+            Subtitle = "Premium License Holder",
+            Color = Color3.fromRGB(255, 165, 0),
+            Badge = "⭐ PREMIUM",
+            BadgeColor = Color3.fromRGB(255, 165, 0),
+            Icon = "rbxassetid://10709769841",
+            Animation = "Neon Glow",
+            Priority = 30
+        },
+        Free = {
+            Title = "👤 USER 👤",
+            Subtitle = "Velox Free Edition",
+            Color = Color3.fromRGB(170, 175, 190),
+            Badge = "👤 FREE",
+            BadgeColor = Color3.fromRGB(170, 175, 190),
+            Icon = "rbxassetid://10723434557",
+            Animation = "None",
+            Priority = 10
+        }
+    },
+    ActiveRole = "Owner",
     RegisteredTags = {},
+    NametagsEnabled = true
 }
 Velox.__index = Velox
 
@@ -179,7 +260,7 @@ local function playSound(id, vol, pitch)
     task.spawn(function()
         local s = Instance.new("Sound")
         s.SoundId = id
-        s.Volume = (vol or 0.35) * (Velox.Sounds.Volume / 0.35)
+        s.Volume = (vol or 1) * Velox.Sounds.Volume
         s.PlaybackSpeed = pitch or 1
         s.Parent = SoundService
         s:Play()
@@ -187,424 +268,403 @@ local function playSound(id, vol, pitch)
     end)
 end
 
-local function Create(className, properties)
+local function Create(className, props)
     local inst = Instance.new(className)
-    for k, v in pairs(properties or {}) do
+    for k, v in pairs(props or {}) do
         inst[k] = v
     end
     return inst
 end
 
-local function Tween(object, properties, duration, style, direction)
-    local info = TweenInfo.new(
-        duration or 0.25,
-        style or Enum.EasingStyle.Quart,
-        direction or Enum.EasingDirection.Out
+local function Tween(inst, props, duration, style, dir)
+    local t = TweenService:Create(
+        inst,
+        TweenInfo.new(duration or 0.25, style or Enum.EasingStyle.Quad, dir or Enum.EasingDirection.Out),
+        props
     )
-    local tween = TweenService:Create(object, info, properties)
-    tween:Play()
-    return tween
+    t:Play()
+    return t
 end
 
-local function corner(parent, radius)
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0, radius or 8)
-    c.Parent = parent
-    return c
+local function corner(inst, r)
+    return Create("UICorner", {CornerRadius = UDim.new(0, r or 8), Parent = inst})
 end
 
-local function AddLitStroke(parent, theme, thickness, baseTransparency)
-    local stroke = Instance.new("UIStroke")
-    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    stroke.Thickness = thickness or 1
-    stroke.Color = Color3.fromRGB(255, 255, 255)
-    stroke.Transparency = baseTransparency or 0.5
-    stroke.Parent = parent
-
-    local grad = Instance.new("UIGradient")
-    grad.Rotation = 90
-    grad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.0, theme.BorderLight),
-        ColorSequenceKeypoint.new(0.4, theme.Accent),
-        ColorSequenceKeypoint.new(1.0, theme.BorderDark)
+local function list(inst, pad, dir)
+    return Create("UIListLayout", {
+        Padding = UDim.new(0, pad or 6),
+        FillDirection = dir or Enum.FillDirection.Vertical,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = inst,
     })
-    grad.Transparency = NumberSequence.new({
-        NumberSequenceKeypoint.new(0.0, 0.15),
-        NumberSequenceKeypoint.new(0.5, 0.5),
-        NumberSequenceKeypoint.new(1.0, 0.85)
-    })
-    grad.Parent = stroke
-    return stroke
 end
 
-local function pad(parent, l, r, t, b)
-    local p = Instance.new("UIPadding")
-    p.PaddingLeft   = UDim.new(0, l or 0)
-    p.PaddingRight  = UDim.new(0, r or 0)
-    p.PaddingTop    = UDim.new(0, t or 0)
-    p.PaddingBottom = UDim.new(0, b or 0)
-    p.Parent = parent
-    return p
+function Velox.LoadWebAsset(url)
+    if not url or url == "" then return "" end
+    if type(url) == "number" or (not url:find("^https?://") and not url:find("^data:")) then
+        if tonumber(url) then return "rbxassetid://" .. url end
+        return url
+    end
+
+    local imgParam = url:match("imgurl=([^&]+)")
+    if imgParam then
+        pcall(function()
+            local decoded = HttpService:UrlDecode(imgParam)
+            if decoded and decoded ~= "" then url = decoded end
+        end)
+    end
+
+    if url:find("imgur%.com/%w+$") then
+        local id = url:match("imgur%.com/(%w+)$")
+        if id then url = "https://i.imgur.com/" .. id .. ".png" end
+    end
+
+    if url:find("^data:image/[%w%+]+;base64,") then
+        local b64 = url:match("^data:image/[%w%+]+;base64,(.+)$")
+        if b64 and writefile and getcustomasset then
+            local decoded = nil
+            pcall(function()
+                if syn and syn.crypt and syn.crypt.base64 then
+                    decoded = syn.crypt.base64.decode(b64)
+                elseif crypt and crypt.base64decode then
+                    decoded = crypt.base64decode(b64)
+                end
+            end)
+            if decoded and #decoded > 20 then
+                local fileName = "velox_data_" .. tostring(#decoded) .. ".png"
+                pcall(function() writefile(fileName, decoded) end)
+                local aOk, asset = pcall(function() return getcustomasset(fileName) end)
+                if aOk and asset then return asset end
+            end
+        end
+    end
+
+    local req = (syn and syn.request) or (http and http.request) or request or http_request
+    if req and writefile and getcustomasset then
+        local hash = 0
+        for i = 1, #url do
+            hash = (hash * 31 + string.byte(url, i)) % 2147483647
+        end
+        local fileName = "velox_web_" .. string.format("%08X", hash) .. ".png"
+
+        local ok, res = pcall(function()
+            return req({
+                Url = url,
+                Method = "GET",
+                Headers = {
+                    ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                    ["Accept"] = "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+                    ["Accept-Encoding"] = "gzip, deflate, br",
+                    ["Referer"] = "https://www.google.com/"
+                }
+            })
+        end)
+
+        if ok and res and res.StatusCode >= 200 and res.StatusCode < 300 and res.Body and #res.Body > 50 then
+            pcall(function() writefile(fileName, res.Body) end)
+            local aOk, assetId = pcall(function() return getcustomasset(fileName) end)
+            if aOk and assetId then return assetId end
+        end
+    end
+
+    return url
 end
 
-local function list(parent, spacing, dir, h, v)
-    local l = Instance.new("UIListLayout")
-    l.Padding = UDim.new(0, spacing or 6)
-    l.FillDirection = dir or Enum.FillDirection.Vertical
-    l.SortOrder = Enum.SortOrder.LayoutOrder
-    if h then l.HorizontalAlignment = h end
-    if v then l.VerticalAlignment = v end
-    l.Parent = parent
-    return l
-end
-
--- Rock-solid screen-constrained draggable (Locked strictly within viewport boundaries)
-local function MakeDraggable(dragHandle, targetFrame)
+local function MakeDraggable(handle, target)
+    target = target or handle
     local dragging = false
-    local dragStart, startPos
+    local dragInput, dragStart, startPos
 
-    dragHandle.InputBegan:Connect(function(input)
+    handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
-            startPos = targetFrame.Position
+            startPos = target.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
         end
     end)
 
-    dragHandle.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
+    handle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
         end
     end)
 
     UserInputService.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        if input == dragInput and dragging then
             local delta = input.Position - dragStart
-            local cam = workspace.CurrentCamera
-            local vp = cam and cam.ViewportSize or Vector2.new(1920, 1080)
-
-            local newX = startPos.X.Offset + delta.X
-            local newY = startPos.Y.Offset + delta.Y
-
-            local w = targetFrame.AbsoluteSize.X
-            local h = targetFrame.AbsoluteSize.Y
-            local apX = targetFrame.AnchorPoint.X
-            local apY = targetFrame.AnchorPoint.Y
-
-            local minX = apX * w + 4
-            local maxX = vp.X - ((1 - apX) * w) - 4
-            local minY = apY * h + 4
-            local maxY = vp.Y - ((1 - apY) * h) - 4
-
-            local currentAbsX = (startPos.X.Scale * vp.X) + newX
-            local currentAbsY = (startPos.Y.Scale * vp.Y) + newY
-
-            local clampedAbsX = math.clamp(currentAbsX, minX, maxX)
-            local clampedAbsY = math.clamp(currentAbsY, minY, maxY)
-
-            targetFrame.Position = UDim2.new(
+            target.Position = UDim2.new(
                 startPos.X.Scale,
-                clampedAbsX - (startPos.X.Scale * vp.X),
+                startPos.X.Offset + delta.X,
                 startPos.Y.Scale,
-                clampedAbsY - (startPos.Y.Scale * vp.Y)
+                startPos.Y.Offset + delta.Y
             )
         end
     end)
 end
 
-local function AddBouncyClick(button, callback)
-    local scale = button:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", button)
-    
-    button.MouseButton1Down:Connect(function()
-        Tween(scale, {Scale = 0.94}, 0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local function AddLitStroke(parent, theme, width, trans)
+    local stroke = Create("UIStroke", {
+        Color = theme.Accent or theme.BorderLight or Color3.fromRGB(90, 140, 255),
+        Thickness = width or 1.2,
+        Transparency = trans or 0.5,
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+        Parent = parent,
+    })
+    return stroke
+end
+
+local function AddBouncyClick(btn, cb)
+    local scale = btn:FindFirstChildOfClass("UIScale") or Create("UIScale", {Scale = 1, Parent = btn})
+    btn.MouseButton1Down:Connect(function()
+        Tween(scale, {Scale = 0.94}, 0.1, Enum.EasingStyle.Quad)
     end)
-    button.MouseButton1Up:Connect(function()
-        Tween(scale, {Scale = 1.0}, 0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    btn.MouseButton1Up:Connect(function()
+        Tween(scale, {Scale = 1.05}, 0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        task.delay(0.15, function()
+            Tween(scale, {Scale = 1}, 0.12)
+        end)
+        playSound(Velox.Sounds.Click, 0.4)
+        if cb then cb() end
     end)
-    button.MouseLeave:Connect(function()
-        Tween(scale, {Scale = 1.0}, 0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    end)
-    button.MouseButton1Click:Connect(function()
-        playSound(Velox.Sounds.Click, 0.3)
-        if callback then callback() end
+    btn.MouseLeave:Connect(function()
+        Tween(scale, {Scale = 1}, 0.12)
     end)
 end
 
-Velox.Create = Create
-Velox.Tween = Tween
-Velox.Corner = corner
-Velox.AddLitStroke = AddLitStroke
-Velox.MakeDraggable = MakeDraggable
-Velox.AddBouncyClick = AddBouncyClick
-Velox.PlaySound = playSound
-Velox.Fonts = Fonts
-
-----------------------------------------------------------------
--- 1. 100% BACKGROUND-FREE OUTWARD MATERIALIZE LOADING SCREEN
-----------------------------------------------------------------
--- Zero dark backdrop, zero border box: Letters expand outward from center
--- into "Velox UI" and materialize floating directly over the 3D game screen!
 function Velox:PlayLoadingScreen(theme, onComplete)
-    theme = theme or self.Themes.Obsidian
-
-    local loaderGui = Create("ScreenGui", {
-        Name = "Velox_Materialize_Loader",
-        DisplayOrder = 99999,
-        ResetOnSpawn = false,
-        Parent = GuiParent
-    })
-
-    -- Stage is completely transparent (No background at all)
-    local centerStage = Create("Frame", {
-        BackgroundTransparency = 1,
-        Size = UDim2.fromOffset(560, 160),
-        Position = UDim2.fromScale(0.5, 0.45),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Parent = loaderGui
-    })
-
-    -- Atmospheric introductory sound
-    playSound(self.Sounds.Atmosphere, 0.4, 0.9)
-
-    -- Letters: "V", "E", "L", "O", "X", " ", "U", "I"
-    local letterData = {
-        {char = "V", offset = -160},
-        {char = "E", offset = -105},
-        {char = "L", offset = -52},
-        {char = "O", offset = 0},
-        {char = "X", offset = 52},
-        {char = "U", offset = 120},
-        {char = "I", offset = 160},
-    }
-
-    local letterObjs = {}
-
-    for _, item in ipairs(letterData) do
-        local lHolder = Create("Frame", {
-            BackgroundTransparency = 1,
-            Size = UDim2.fromOffset(48, 64),
-            Position = UDim2.new(0.5, 0, 0.4, 0), -- Starts collapsed at center!
-            AnchorPoint = Vector2.new(0.5, 0.5),
-            Parent = centerStage
-        })
-        local lScale = Create("UIScale", {Scale = 0.0, Parent = lHolder})
-
-        -- Pure Typography with Dark Outline for 100% readability over ANY scene
-        local lbl = Create("TextLabel", {
-            BackgroundTransparency = 1,
-            Size = UDim2.fromScale(1, 1),
-            Font = Fonts.Black,
-            Text = item.char,
-            TextColor3 = Color3.fromRGB(255, 255, 255),
-            TextSize = 58,
-            TextTransparency = 1,
-            TextStrokeColor3 = Color3.fromRGB(10, 14, 25),
-            TextStrokeTransparency = 0.2,
-            Parent = lHolder
-        })
-
-        table.insert(letterObjs, {Holder = lHolder, Scale = lScale, Label = lbl, TargetX = item.offset})
-    end
-
-    -- Floating credit: "library by Schwein"
-    local subCredit = Create("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 0, 24),
-        Position = UDim2.new(0.5, 0, 0, 112),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Font = Fonts.Bold,
-        Text = "library by Schwein",
-        TextColor3 = theme.Accent,
-        TextSize = 14,
-        TextTransparency = 1,
-        TextStrokeColor3 = Color3.fromRGB(8, 10, 18),
-        TextStrokeTransparency = 0.25,
-        Parent = centerStage
-    })
-
-    task.wait(0.25)
-
-    -- Materialize & expand outward individually!
-    for i, item in ipairs(letterObjs) do
-        playSound(self.Sounds.Materialize, 0.35, 1.0)
-        -- Fluid outward explosion from center to slot
-        Tween(item.Holder, {Position = UDim2.new(0.5, item.TargetX, 0.4, 0)}, 0.42, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-        Tween(item.Scale, {Scale = 1.0}, 0.42, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-        Tween(item.Label, {TextTransparency = 0}, 0.32)
-        task.wait(0.14)
-    end
-
-    -- Harmonious chord as "library by Schwein" materializes
-    task.wait(0.15)
-    playSound(self.Sounds.Harmonic, 0.42, 1.05)
-    Tween(subCredit, {TextTransparency = 0}, 0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-
-    -- Showcase hold (full 2.0s admiring the pure floating logo!)
-    task.wait(2.0)
-
-    -- Outward dissolve exit
-    playSound(self.Sounds.Atmosphere, 0.35, 1.1)
-    for _, item in ipairs(letterObjs) do
-        Tween(item.Scale, {Scale = 1.3}, 0.38, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
-        Tween(item.Label, {TextTransparency = 1}, 0.32)
-    end
-    Tween(subCredit, {TextTransparency = 1}, 0.3)
-
-    task.wait(0.42)
-    loaderGui:Destroy()
-
-    if onComplete then
-        onComplete()
-    end
-end
-
-----------------------------------------------------------------
--- 2. NOTIFICATION SYSTEM
-----------------------------------------------------------------
-local notifHolder
-
-local function ensureNotifs()
-    if notifHolder and notifHolder.Parent then return end
-    local notifGui = Create("ScreenGui", {
-        Name = "Velox_Notifications",
+    local themeObj = theme or self.Themes.Obsidian
+    local screen = Create("ScreenGui", {
+        Name = "Velox_CinemaLoader",
         DisplayOrder = 9999,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+        IgnoreGuiInset = true,
         ResetOnSpawn = false,
-        Parent = GuiParent
+        Parent = GuiParent,
     })
-    notifHolder = Create("Frame", {
+
+    local canvas = Create("Frame", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(0, 310, 1, -40),
-        Position = UDim2.new(1, -330, 0, 20),
-        Parent = notifGui
+        Size = UDim2.fromScale(1, 1),
+        Parent = screen,
     })
-    list(notifHolder, 10, Enum.FillDirection.Vertical, Enum.HorizontalAlignment.Right, Enum.VerticalAlignment.Bottom)
+
+    local letters = {"V", "E", "L", "O", "X", " ", "U", "I"}
+    local letterSpacings = {-150, -90, -35, 20, 80, 120, 150, 200}
+    local letterLabels = {}
+
+    playSound(self.Sounds.Atmosphere, 0.7, 0.95)
+
+    for i, char in ipairs(letters) do
+        if char ~= " " then
+            local lbl = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.fromOffset(80, 80),
+                Position = UDim2.fromScale(0.5, 0.5),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Font = Fonts.Black,
+                Text = char,
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                TextSize = 58,
+                TextTransparency = 1,
+                Parent = canvas,
+            })
+            local letterScale = Create("UIScale", {Scale = 0.1, Parent = lbl})
+            letterLabels[i] = {Label = lbl, Scale = letterScale, TargetX = letterSpacings[i]}
+        end
+    end
+
+    local subTitle = Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.fromOffset(400, 30),
+        Position = UDim2.new(0.5, 0, 0.5, 64),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Font = Fonts.Semi,
+        Text = "L I B R A R Y   B Y   S C H W E I N",
+        TextColor3 = themeObj.Accent,
+        TextSize = 13,
+        TextTransparency = 1,
+        Parent = canvas,
+    })
+
+    task.spawn(function()
+        task.wait(0.2)
+        for i, data in pairs(letterLabels) do
+            task.spawn(function()
+                playSound(Velox.Sounds.Materialize, 0.45, 0.9 + (i * 0.08))
+                Tween(data.Label, {
+                    Position = UDim2.new(0.5, data.TargetX, 0.5, -10),
+                    TextTransparency = 0,
+                    TextColor3 = (i <= 5) and Color3.fromRGB(255, 255, 255) or themeObj.Accent
+                }, 0.65, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                Tween(data.Scale, {Scale = 1.0}, 0.65, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            end)
+            task.wait(0.14)
+        end
+
+        task.wait(0.35)
+        playSound(Velox.Sounds.Harmonic, 0.6, 1.0)
+        Tween(subTitle, {TextTransparency = 0}, 0.8, Enum.EasingStyle.Quad)
+
+        local pulseStart = tick()
+        local pulseConn
+        pulseConn = RunService.RenderStepped:Connect(function()
+            local elapsed = tick() - pulseStart
+            local wave = (math.sin(elapsed * 4) + 1) / 2
+            subTitle.TextColor3 = Color3.fromRGB(
+                math.floor(themeObj.Accent.R * 255 * (0.8 + 0.2 * wave)),
+                math.floor(themeObj.Accent.G * 255 * (0.8 + 0.2 * wave)),
+                math.floor(themeObj.Accent.B * 255 * (0.8 + 0.2 * wave))
+            )
+        end)
+
+        task.wait(2.2)
+        if pulseConn then pulseConn:Disconnect() end
+
+        for _, data in pairs(letterLabels) do
+            Tween(data.Label, {
+                Position = UDim2.new(0.5, data.TargetX * 1.6, 0.5, -40),
+                TextTransparency = 1
+            }, 0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+            Tween(data.Scale, {Scale = 1.4}, 0.6, Enum.EasingStyle.Quad)
+        end
+        Tween(subTitle, {TextTransparency = 1, Position = UDim2.new(0.5, 0, 0.5, 90)}, 0.5, Enum.EasingStyle.Quad)
+
+        task.wait(0.65)
+        screen:Destroy()
+        if onComplete then onComplete() end
+    end)
 end
 
 function Velox:Notify(opts)
     opts = opts or {}
-    local title = opts.Title or "Notification"
-    local content = opts.Content or ""
-    local notifType = opts.Type or "Info"
-    local duration = opts.Duration or 3.5
+    local nTitle    = opts.Title or "Notification"
+    local nContent  = opts.Content or ""
+    local nDuration = opts.Duration or 3.5
+    local nType     = opts.Type or "Info"
+    local nTheme    = opts.Theme or self.Themes.Obsidian
 
-    ensureNotifs()
-    playSound(self.Sounds.Notify, 0.35)
-
-    local colors = {
-        Success = self.Themes.Obsidian.Success,
-        Error   = self.Themes.Obsidian.Error,
-        Warning = self.Themes.Obsidian.Warning,
-        Info    = self.Themes.Obsidian.Info,
+    local typeColors = {
+        Success = nTheme.Success,
+        Error   = nTheme.Error,
+        Warning = nTheme.Warning,
+        Info    = nTheme.Accent,
     }
-    local typeColor = colors[notifType] or colors.Info
+    local col = typeColors[nType] or nTheme.Accent
 
-    local notif = Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
-        Size = UDim2.fromOffset(300, 72),
+    local container = GuiParent:FindFirstChild("Velox_Notifications")
+    if not container then
+        local sg = Create("ScreenGui", {
+            Name = "Velox_Notifications",
+            DisplayOrder = 100,
+            ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+            ResetOnSpawn = false,
+            Parent = GuiParent,
+        })
+        container = Create("Frame", {
+            Name = "NotifyList",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, 320, 1, -40),
+            Position = UDim2.new(1, -330, 0, 20),
+            Parent = sg,
+        })
+        list(container, 10, Enum.FillDirection.Vertical)
+    end
+
+    local card = Create("Frame", {
+        BackgroundColor3 = nTheme.Background,
+        Size = UDim2.new(1, 0, 0, 68),
+        Position = UDim2.fromOffset(340, 0),
         ClipsDescendants = true,
-        Parent = notifHolder
+        Parent = container,
     })
-    corner(notif, 10)
-    AddLitStroke(notif, {BorderLight = Color3.fromRGB(255, 255, 255), Accent = typeColor, BorderDark = Color3.fromRGB(35, 38, 48)}, 1, 0.5)
+    corner(card, 10)
+    AddLitStroke(card, {Accent = col}, 1.2, 0.4)
 
-    local strip = Create("Frame", {
-        BackgroundColor3 = typeColor,
+    local bar = Create("Frame", {
+        BackgroundColor3 = col,
         Size = UDim2.new(0, 4, 1, 0),
-        BorderSizePixel = 0,
-        Parent = notif
+        Parent = card,
     })
-    corner(strip, 2)
+    corner(bar, 2)
 
     Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -24, 0, 18),
-        Position = UDim2.fromOffset(16, 10),
+        Size = UDim2.new(1, -24, 0, 20),
+        Position = UDim2.fromOffset(14, 10),
         Font = Fonts.Bold,
-        Text = title,
-        TextColor3 = self.Themes.Obsidian.Text,
+        Text = nTitle,
+        TextColor3 = nTheme.Text,
         TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = notif
+        Parent = card,
     })
 
     Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -24, 0, 32),
-        Position = UDim2.fromOffset(16, 28),
+        Size = UDim2.new(1, -24, 0, 30),
+        Position = UDim2.fromOffset(14, 30),
         Font = Fonts.Main,
-        Text = content,
-        TextColor3 = self.Themes.Obsidian.TextDim,
+        Text = nContent,
+        TextColor3 = nTheme.TextDim,
         TextSize = 11,
         TextWrapped = true,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = notif
+        Parent = card,
     })
 
-    local timerBar = Create("Frame", {
-        BackgroundColor3 = typeColor,
-        Size = UDim2.new(1, 0, 0, 2),
-        Position = UDim2.new(0, 0, 1, -2),
-        BorderSizePixel = 0,
-        Parent = notif
-    })
-    Tween(timerBar, {Size = UDim2.new(0, 0, 0, 2)}, duration, Enum.EasingStyle.Linear)
+    playSound(self.Sounds.Notify, 0.4)
+    Tween(card, {Position = UDim2.fromOffset(0, 0)}, 0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 
-    local nScale = Create("UIScale", {Scale = 0.8, Parent = notif})
-    Tween(nScale, {Scale = 1.0}, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-
-    task.delay(duration, function()
-        Tween(nScale, {Scale = 0.8}, 0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-        Tween(notif, {BackgroundTransparency = 1}, 0.2)
-        task.wait(0.22)
-        if notif and notif.Parent then notif:Destroy() end
+    task.delay(nDuration, function()
+        local out = Tween(card, {Position = UDim2.fromOffset(340, 0)}, 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+        out.Completed:Connect(function() card:Destroy() end)
     end)
 end
 
-----------------------------------------------------------------
--- 3. MOBILE TOGGLE PILL
-----------------------------------------------------------------
 function Velox:CreateMobileToggle(onToggle)
+    local old = GuiParent:FindFirstChild("Velox_MobileToggle")
+    if old then old:Destroy() end
+
     local toggleGui = Create("ScreenGui", {
         Name = "Velox_MobileToggle",
-        DisplayOrder = 100,
+        DisplayOrder = 120,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         ResetOnSpawn = false,
-        Parent = GuiParent
+        Parent = GuiParent,
     })
 
     local bubble = Create("TextButton", {
-        Name = "VeloxBubble",
-        BackgroundColor3 = Color3.fromRGB(15, 17, 23),
-        Size = UDim2.fromOffset(44, 44),
-        Position = UDim2.fromOffset(18, 120),
-        Text = "",
-        AutoButtonColor = false,
-        Parent = toggleGui
-    })
-    corner(bubble, 22)
-    AddLitStroke(bubble, self.Themes.Obsidian, 1.2, 0.4)
-    MakeDraggable(bubble, bubble)
-
-    Create("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.fromScale(1, 1),
-        Font = Fonts.Black,
+        Name = "Bubble",
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        Size = UDim2.fromOffset(48, 48),
+        Position = UDim2.new(0, 24, 0.35, 0),
         Text = "V",
+        Font = Fonts.Black,
         TextColor3 = self.Themes.Obsidian.Accent,
         TextSize = 22,
-        Parent = bubble
+        AutoButtonColor = false,
+        Visible = false,
+        Parent = toggleGui,
     })
+    corner(bubble, 24)
+    AddLitStroke(bubble, self.Themes.Obsidian, 1.4, 0.3)
+    MakeDraggable(bubble, bubble)
+
+    local bScale = Create("UIScale", {Scale = 1, Parent = bubble})
 
     AddBouncyClick(bubble, function()
-        if onToggle then onToggle() end
+        if onToggle then onToggle(bubble, bScale) end
     end)
 
-    return toggleGui
+    return {Gui = toggleGui, Button = bubble, Scale = bScale}
 end
 
-----------------------------------------------------------------
--- 4. 3D OVERHEAD NAMETAG SYSTEM & MESH SYNC
-----------------------------------------------------------------
--- Decodes or applies a custom tag
 function Velox:ApplyNametagToPlayer(player, tagConfig)
     if not player or not tagConfig then return end
 
@@ -613,23 +673,28 @@ function Velox:ApplyNametagToPlayer(player, tagConfig)
         local head = char:WaitForChild("Head", 5)
         if not head then return end
 
-        local old = head:FindFirstChild("VeloxNametag")
+        local old = GuiParent:FindFirstChild("VeloxTag_" .. player.UserId)
         if old then old:Destroy() end
 
-        local tagColor = tagConfig.Color or Color3.fromRGB(90, 140, 255)
-        local tagTitle = tagConfig.Title or "SCRIPT USER"
-        local tagSubtitle = tagConfig.Subtitle or "Verified"
-        local tagIcon = tagConfig.Icon or Velox.Icons.Crown
-        local animType = tagConfig.Animation or "None"
+        local roleData = self.Roles[tagConfig.Role or self.ActiveRole] or self.Roles.Owner
+        local tagColor = tagConfig.Color or roleData.Color or Color3.fromRGB(90, 140, 255)
+        local tagTitle = tagConfig.Title or roleData.Title or "SCRIPT USER"
+        local tagSubtitle = tagConfig.Subtitle or roleData.Subtitle or "Verified Tagholder"
+        local tagIcon = tagConfig.Icon or roleData.Icon or Velox.Icons.Crown
+        local animType = tagConfig.Animation or roleData.Animation or "None"
 
         local billboard = Instance.new("BillboardGui")
-        billboard.Name = "VeloxNametag"
+        billboard.Name = "VeloxTag_" .. player.UserId
         billboard.Adornee = head
-        billboard.Size = UDim2.fromOffset(200, 54)
-        billboard.StudsOffset = Vector3.new(0, tagConfig.Height or 2.8, 0)
+        billboard.Size = UDim2.new(4.2, 0, 1.35, 0)
+        billboard.StudsOffset = Vector3.new(0, tagConfig.Height or 2.3, 0)
+        billboard.DistanceLowerLimit = 10
+        billboard.DistanceUpperLimit = 75
+        billboard.MaxDistance = tagConfig.MaxDistance or 85
         billboard.AlwaysOnTop = true
         billboard.ResetOnSpawn = false
-        billboard.Parent = head
+        billboard.Enabled = self.NametagsEnabled
+        billboard.Parent = GuiParent
 
         local pill = Create("Frame", {
             BackgroundColor3 = tagConfig.BgColor or Color3.fromRGB(12, 13, 18),
@@ -638,69 +703,79 @@ function Velox:ApplyNametagToPlayer(player, tagConfig)
             ClipsDescendants = true,
             Parent = billboard
         })
-        corner(pill, 12)
+        corner(pill, 9)
         local stroke = AddLitStroke(pill, {BorderLight = Color3.fromRGB(255, 255, 255), Accent = tagColor, BorderDark = Color3.fromRGB(30, 30, 40)}, 1.2, 0.4)
 
-        -- Custom Background Image if provided
         if tagConfig.BgImage and tagConfig.BgImage ~= "" then
+            local resolvedBg = Velox.LoadWebAsset(tagConfig.BgImage)
             Create("ImageLabel", {
                 BackgroundTransparency = 1,
-                Image = tagConfig.BgImage,
+                Image = resolvedBg,
                 ScaleType = Enum.ScaleType.Crop,
                 Size = UDim2.fromScale(1, 1),
                 Parent = pill
             })
         end
 
-        -- Icon / PFP Image
         local iconImg = nil
         if tagIcon and tagIcon ~= "" then
+            local resolvedIcon = Velox.LoadWebAsset(tagIcon)
             iconImg = Create("ImageLabel", {
                 BackgroundTransparency = 1,
-                Image = tagIcon,
+                Image = resolvedIcon,
                 ImageColor3 = (tagIcon:find("rbxassetid") or tagIcon:find("http")) and Color3.fromRGB(255, 255, 255) or tagColor,
-                Size = UDim2.fromOffset(24, 24),
-                Position = UDim2.fromOffset(10, 15),
+                Size = UDim2.fromScale(0.18, 0.65),
+                Position = UDim2.fromScale(0.04, 0.18),
                 Parent = pill
             })
-            corner(iconImg, 6)
+            corner(iconImg, 4)
         end
 
-        local textX = (tagIcon and tagIcon ~= "") and 40 or 14
-        local textW = (tagIcon and tagIcon ~= "") and -50 or -28
+        local textX = (tagIcon and tagIcon ~= "") and 0.24 or 0.08
+        local textW = (tagIcon and tagIcon ~= "") and 0.72 or 0.88
 
         local titleLabel = Create("TextLabel", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, textW, 0, 20),
-            Position = UDim2.fromOffset(textX, 8),
+            Size = UDim2.new(textW, 0, 0.45, 0),
+            Position = UDim2.new(textX, 0, 0.1, 0),
             Font = Fonts.Bold,
             Text = tagTitle,
             TextColor3 = Color3.fromRGB(255, 255, 255),
-            TextSize = 13,
+            TextScaled = true,
             TextXAlignment = Enum.TextXAlignment.Left,
-            TextTruncate = Enum.TextTruncate.AtEnd,
             Parent = pill
         })
 
         local subtitleLabel = Create("TextLabel", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, textW, 0, 14),
-            Position = UDim2.fromOffset(textX, 28),
+            Size = UDim2.new(textW, 0, 0.35, 0),
+            Position = UDim2.new(textX, 0, 0.52, 0),
             Font = Fonts.Semi,
             Text = tagSubtitle,
             TextColor3 = tagColor,
-            TextSize = 10,
+            TextScaled = true,
             TextXAlignment = Enum.TextXAlignment.Left,
-            TextTruncate = Enum.TextTruncate.AtEnd,
             Parent = pill
         })
 
-        -- Custom Animation Loop
-        if animType == "Rainbow" then
+        if player == LocalPlayer then
+            task.spawn(function()
+                while billboard and billboard.Parent do
+                    local cam = workspace.CurrentCamera
+                    if cam and head and head.Parent then
+                        local dist = (cam.CFrame.Position - head.Position).Magnitude
+                        billboard.Enabled = self.NametagsEnabled and (dist >= 2.0)
+                    end
+                    RunService.Heartbeat:Wait()
+                end
+            end)
+        end
+
+        if animType == "Rainbow" or animType == "Chroma Wave" then
             task.spawn(function()
                 local hue = 0
                 while billboard and billboard.Parent do
-                    hue = (hue + 0.01) % 1
+                    hue = (hue + 0.012) % 1
                     local col = Color3.fromHSV(hue, 0.85, 1)
                     subtitleLabel.TextColor3 = col
                     if stroke then stroke.Color = col end
@@ -710,7 +785,7 @@ function Velox:ApplyNametagToPlayer(player, tagConfig)
         elseif animType == "Pulse" then
             task.spawn(function()
                 while billboard and billboard.Parent do
-                    Tween(pill, {BackgroundTransparency = 0.4}, 0.8)
+                    Tween(pill, {BackgroundTransparency = 0.5}, 0.8)
                     task.wait(0.8)
                     Tween(pill, {BackgroundTransparency = 0.1}, 0.8)
                     task.wait(0.8)
@@ -720,8 +795,18 @@ function Velox:ApplyNametagToPlayer(player, tagConfig)
             task.spawn(function()
                 local t = 0
                 while billboard and billboard.Parent do
-                    t = t + 0.05
-                    billboard.StudsOffset = Vector3.new(0, (tagConfig.Height or 2.8) + (math.sin(t) * 0.25), 0)
+                    t = t + 0.06
+                    billboard.StudsOffset = Vector3.new(0, (tagConfig.Height or 2.3) + (math.sin(t) * 0.2), 0)
+                    RunService.Heartbeat:Wait()
+                end
+            end)
+        elseif animType == "Neon Glow" then
+            task.spawn(function()
+                local t = 0
+                while billboard and billboard.Parent do
+                    t = t + 0.08
+                    local alpha = (math.sin(t) + 1) / 2
+                    if stroke then stroke.Transparency = 0.15 + (alpha * 0.6) end
                     RunService.Heartbeat:Wait()
                 end
             end)
@@ -735,126 +820,132 @@ end
 function Velox:CreateNametag(options)
     options = options or {}
     local player = options.Player or LocalPlayer
+    self.RegisteredTags[player.UserId] = options
     self:ApplyNametagToPlayer(player, options)
 end
 
--- Export Nametag String Code (Compact JSON Base64)
-function Velox:ExportNametagCode(config)
-    local raw = HttpService:JSONEncode({
-        Title = config.Title or "USER",
-        Subtitle = config.Subtitle or "VIP",
-        ColorR = math.round((config.Color or Color3.new(1, 1, 1)).R * 255),
-        ColorG = math.round((config.Color or Color3.new(1, 1, 1)).G * 255),
-        ColorB = math.round((config.Color or Color3.new(1, 1, 1)).B * 255),
-        Icon = config.Icon or "",
-        Animation = config.Animation or "None",
-        BgImage = config.BgImage or "",
+function Velox:SetPlayerRole(player, roleName, customRole)
+    if customRole then
+        self.Roles[roleName] = customRole
+    end
+    self.ActiveRole = roleName
+    local rData = self.Roles[roleName] or self.Roles.Free
+    self:CreateNametag({
+        Player = player or LocalPlayer,
+        Role = roleName,
+        Title = rData.Title,
+        Subtitle = rData.Subtitle,
+        Color = rData.Color,
+        Icon = rData.Icon,
+        Animation = rData.Animation,
+        Height = 2.3
     })
-    local encoded = ""
-    local ok, res = pcall(function()
-        if syn and syn.crypt then
-            return syn.crypt.base64.encode(raw)
-        end
-        return raw -- fallback
-    end)
-    return "TAG-" .. (ok and res or raw)
 end
 
--- Decode Nametag String Code
-function Velox:DecodeNametagCode(code)
-    if not code or type(code) ~= "string" then return nil end
-    local payload = code:gsub("^TAG%-", "")
-    local ok, decoded = pcall(function()
-        if syn and syn.crypt then
-            return syn.crypt.base64.decode(payload)
+function Velox:GetRole(player)
+    return self.ActiveRole or "Free"
+end
+
+function Velox:HasRole(player, reqRole)
+    local curRole = self.ActiveRole or "Free"
+    local curP = (self.Roles[curRole] and self.Roles[curRole].Priority) or 0
+    local reqP = (self.Roles[reqRole] and self.Roles[reqRole].Priority) or 0
+    return curP >= reqP
+end
+
+function Velox:ExportNametagCode(config)
+    local serialized = {
+        T = config.Title or "VIP",
+        S = config.Subtitle or "Verified",
+        C = config.Color and {math.floor(config.Color.R * 255), math.floor(config.Color.G * 255), math.floor(config.Color.B * 255)} or {90, 140, 255},
+        I = config.Icon or "",
+        A = config.Animation or "None",
+        B = config.BgImage or "",
+        R = self.ActiveRole or "Free",
+        H = config.Height or 2.3,
+        U = LocalPlayer.UserId,
+        V = 2
+    }
+    local jsonStr = HttpService:JSONEncode(serialized)
+    local b64 = nil
+    pcall(function()
+        if syn and syn.crypt and syn.crypt.base64 then
+            b64 = syn.crypt.base64.encode(jsonStr)
+        elseif crypt and crypt.base64decode then
+            b64 = crypt.base64encode(jsonStr)
         end
-        return payload
     end)
-    local succ, data = pcall(function() return HttpService:JSONDecode(ok and decoded or payload) end)
-    if succ and data then
+    if not b64 then
+        b64 = ""
+        for i = 1, #jsonStr do
+            b64 = b64 .. string.format("%02X", string.byte(jsonStr, i))
+        end
+    end
+    return "VELOX-TAG-" .. b64
+end
+
+function Velox:DecodeNametagCode(code)
+    if not code or not code:find("^VELOX%-TAG%-") then return nil end
+    local payload = code:gsub("^VELOX%-TAG%-", "")
+    local jsonStr = nil
+    pcall(function()
+        if syn and syn.crypt and syn.crypt.base64 then
+            jsonStr = syn.crypt.base64.decode(payload)
+        elseif crypt and crypt.base64decode then
+            jsonStr = crypt.base64decode(payload)
+        end
+    end)
+    if not jsonStr then
+        pcall(function()
+            local str = ""
+            for hex in payload:gmatch("..") do
+                str = str .. string.char(tonumber(hex, 16))
+            end
+            jsonStr = str
+        end)
+    end
+    if not jsonStr then return nil end
+    local ok, data = pcall(function() return HttpService:JSONDecode(jsonStr) end)
+    if ok and data then
         return {
-            Title = data.Title,
-            Subtitle = data.Subtitle,
-            Color = Color3.fromRGB(data.ColorR or 90, data.ColorG or 140, data.ColorB or 255),
-            Icon = data.Icon,
-            Animation = data.Animation,
-            BgImage = data.BgImage,
+            Title = data.T,
+            Subtitle = data.S,
+            Color = data.C and Color3.fromRGB(data.C[1], data.C[2], data.C[3]) or Color3.fromRGB(90, 140, 255),
+            Icon = data.I,
+            Animation = data.A,
+            BgImage = data.B,
+            Role = data.R,
+            Height = data.H or 2.3,
+            UserId = data.U
         }
     end
     return nil
 end
 
--- P2P Mesh & Cloud Sync Listener (Zero-cost across all script users)
-function Velox:InitializeNametagSync(cloudUrl)
-    -- 1. In-game Character Attribute Mesh Sync (100% Free, Native)
-    local function syncPlayer(plr)
-        local function checkAttr(char)
-            if not char then return end
-            char:GetAttributeChangedSignal("VeloxCustomTag"):Connect(function()
-                local tagCode = char:GetAttribute("VeloxCustomTag")
-                if tagCode then
-                    local cfg = Velox:DecodeNametagCode(tagCode)
-                    if cfg then Velox:ApplyNametagToPlayer(plr, cfg) end
-                end
-            end)
-            local existing = char:GetAttribute("VeloxCustomTag")
-            if existing then
-                local cfg = Velox:DecodeNametagCode(existing)
-                if cfg then Velox:ApplyNametagToPlayer(plr, cfg) end
-            end
-        end
-        if plr.Character then checkAttr(plr.Character) end
-        plr.CharacterAdded:Connect(checkAttr)
-    end
+function Velox:OpenCustomizer(opts)
+    opts = opts or {}
+    local winTarget = opts.Window
 
-    for _, p in ipairs(Players:GetPlayers()) do syncPlayer(p) end
-    Players.PlayerAdded:Connect(syncPlayer)
-
-    -- 2. Optional Free GitHub Gist / JSON sync (Unlimited free requests)
-    if cloudUrl and cloudUrl ~= "" then
-        task.spawn(function()
-            local succ, content = pcall(function() return game:HttpGet(cloudUrl) end)
-            if succ and content then
-                local ok, data = pcall(function() return HttpService:JSONDecode(content) end)
-                if ok and data then
-                    for userIdStr, tagCode in pairs(data) do
-                        local uid = tonumber(userIdStr)
-                        local targetPlr = Players:GetPlayerByUserId(uid)
-                        if targetPlr then
-                            local cfg = Velox:DecodeNametagCode(tagCode)
-                            if cfg then Velox:ApplyNametagToPlayer(targetPlr, cfg) end
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
-----------------------------------------------------------------
--- 5. NAMETAG STUDIO / EDITOR MODAL (User Customizer & Code Exporter)
-----------------------------------------------------------------
-function Velox:OpenNametagEditor(onExport)
     local editorGui = Create("ScreenGui", {
-        Name = "Velox_NametagStudio",
-        DisplayOrder = 150,
+        Name = "Velox_StudioPro",
+        DisplayOrder = 180,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         ResetOnSpawn = false,
         Parent = GuiParent
     })
 
     local modal = Create("Frame", {
-        Name = "StudioFrame",
+        Name = "StudioProModal",
         BackgroundColor3 = self.Themes.Obsidian.Background,
-        Size = UDim2.fromOffset(480, 520),
+        Size = UDim2.fromOffset(580, 580),
         Position = UDim2.fromScale(0.5, 0.5),
         AnchorPoint = Vector2.new(0.5, 0.5),
         ClipsDescendants = false,
         Parent = editorGui
     })
     corner(modal, 14)
-    AddLitStroke(modal, self.Themes.Obsidian, 1.2, 0.5)
+    AddLitStroke(modal, self.Themes.Obsidian, 1.4, 0.5)
 
-    -- Ambient Shadow
     Create("ImageLabel", {
         BackgroundTransparency = 1,
         Image = "rbxassetid://6014261993",
@@ -868,21 +959,36 @@ function Velox:OpenNametagEditor(onExport)
         Parent = modal
     })
 
-    -- TitleBar
     local titleBar = Create("Frame", {
         BackgroundColor3 = self.Themes.Obsidian.Secondary,
-        Size = UDim2.new(1, 0, 0, 44),
+        Size = UDim2.new(1, 0, 0, 46),
         Parent = modal
     })
     corner(titleBar, 14)
+    Create("Frame", {
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 0, 12),
+        Position = UDim2.fromOffset(0, 34),
+        Parent = titleBar
+    })
     MakeDraggable(titleBar, modal)
+
+    Create("ImageLabel", {
+        BackgroundTransparency = 1,
+        Image = self.Icons.Palette,
+        ImageColor3 = self.Themes.Obsidian.Accent,
+        Size = UDim2.fromOffset(20, 20),
+        Position = UDim2.fromOffset(14, 13),
+        Parent = titleBar
+    })
 
     Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -60, 1, 0),
-        Position = UDim2.fromOffset(16, 0),
+        Size = UDim2.new(1, -90, 1, 0),
+        Position = UDim2.fromOffset(42, 0),
         Font = Fonts.Bold,
-        Text = "NAMETAG STUDIO • CREATOR & EXPORTER",
+        Text = "VELOX STUDIO PRO • SCRIPT CUSTOMIZER",
         TextColor3 = self.Themes.Obsidian.Text,
         TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -891,170 +997,952 @@ function Velox:OpenNametagEditor(onExport)
 
     local closeBtn = Create("TextButton", {
         BackgroundColor3 = self.Themes.Obsidian.Tertiary,
-        Size = UDim2.fromOffset(26, 26),
-        Position = UDim2.new(1, -34, 0.5, -13),
+        Size = UDim2.fromOffset(28, 28),
+        Position = UDim2.new(1, -38, 0.5, -14),
         Font = Fonts.Bold,
         Text = "×",
         TextColor3 = self.Themes.Obsidian.TextDim,
-        TextSize = 16,
+        TextSize = 18,
         AutoButtonColor = false,
         Parent = titleBar
     })
-    corner(closeBtn, 6)
+    corner(closeBtn, 7)
     AddBouncyClick(closeBtn, function() editorGui:Destroy() end)
 
-    -- Live Preview Card
-    local previewCard = Create("Frame", {
-        BackgroundColor3 = Color3.fromRGB(15, 17, 23),
-        Size = UDim2.new(1, -32, 0, 90),
-        Position = UDim2.fromOffset(16, 56),
+    local navBar = Create("Frame", {
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        Size = UDim2.new(1, -28, 0, 34),
+        Position = UDim2.fromOffset(14, 52),
         Parent = modal
     })
-    corner(previewCard, 10)
-    AddLitStroke(previewCard, self.Themes.Obsidian, 1, 0.6)
+    corner(navBar, 8)
+    list(navBar, 6, Enum.FillDirection.Horizontal)
 
-    local pfpSample = Create("ImageLabel", {
-        BackgroundTransparency = 1,
-        Image = self.Icons.Crown,
-        Size = UDim2.fromOffset(28, 28),
-        Position = UDim2.fromOffset(20, 31),
-        Parent = previewCard
-    })
+    local activeTab = "Nametags"
+    local studioPages = {}
+    local navButtons = {}
 
-    local previewTitle = Create("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -70, 0, 22),
-        Position = UDim2.fromOffset(56, 22),
-        Font = Fonts.Bold,
-        Text = "👑 CUSTOM VIP 👑",
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        TextSize = 15,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = previewCard
-    })
-
-    local previewSubtitle = Create("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -70, 0, 16),
-        Position = UDim2.fromOffset(56, 46),
-        Font = Fonts.Semi,
-        Text = "Verified Tagholder",
-        TextColor3 = self.Themes.Obsidian.Accent,
-        TextSize = 11,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = previewCard
-    })
-
-    -- Form Controls Container
-    local form = Create("ScrollingFrame", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -32, 0, 300),
-        Position = UDim2.fromOffset(16, 156),
-        CanvasSize = UDim2.new(0, 0, 0, 320),
-        ScrollBarThickness = 2,
-        BorderSizePixel = 0,
-        Parent = modal
-    })
-    list(form, 8)
-
-    local function createInputRow(labelText, placeholder, defaultVal)
-        local card = Create("Frame", {
-            BackgroundColor3 = self.Themes.Obsidian.Secondary,
-            Size = UDim2.new(1, 0, 0, 48),
-            Parent = form
+    local tabNames = {"Nametags", "UI Theme & FX", "Audio"}
+    for _, tName in ipairs(tabNames) do
+        local nb = Create("TextButton", {
+            BackgroundColor3 = (tName == activeTab) and self.Themes.Obsidian.Tertiary or self.Themes.Obsidian.Secondary,
+            Size = UDim2.new(0.32, 0, 1, 0),
+            Font = Fonts.Bold,
+            Text = tName,
+            TextColor3 = (tName == activeTab) and self.Themes.Obsidian.Accent or self.Themes.Obsidian.TextDim,
+            TextSize = 11,
+            AutoButtonColor = false,
+            Parent = navBar
         })
-        corner(card, 8)
-        AddLitStroke(card, self.Themes.Obsidian, 1, 0.75)
+        corner(nb, 6)
+        navButtons[tName] = nb
+    end
 
-        Create("TextLabel", {
+    local pageHost = Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -28, 1, -156),
+        Position = UDim2.fromOffset(14, 94),
+        Parent = modal
+    })
+
+    local function makePage(name)
+        local sf = Create("ScrollingFrame", {
+            Name = name,
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, -16, 0, 16),
-            Position = UDim2.fromOffset(10, 4),
-            Font = Fonts.Semi,
-            Text = labelText,
+            Size = UDim2.fromScale(1, 1),
+            CanvasSize = UDim2.new(0, 0, 0, 560),
+            ScrollBarThickness = 2,
+            BorderSizePixel = 0,
+            Visible = (name == activeTab),
+            Parent = pageHost
+        })
+        list(sf, 10)
+        studioPages[name] = sf
+        return sf
+    end
+
+    local nametagPage = makePage("Nametags")
+    local uiFxPage    = makePage("UI Theme & FX")
+    local audioPage   = makePage("Audio")
+
+    local function switchStudioTab(tab)
+        activeTab = tab
+        for t, page in pairs(studioPages) do
+            page.Visible = (t == tab)
+        end
+        for t, btn in pairs(navButtons) do
+            local isSel = (t == tab)
+            btn.BackgroundColor3 = isSel and self.Themes.Obsidian.Tertiary or self.Themes.Obsidian.Secondary
+            btn.TextColor3 = isSel and self.Themes.Obsidian.Accent or self.Themes.Obsidian.TextDim
+        end
+    end
+
+    for tName, btn in pairs(navButtons) do
+        AddBouncyClick(btn, function() switchStudioTab(tName) end)
+    end
+
+    local curRole = self.ActiveRole or "Owner"
+    local rObj = self.Roles[curRole] or self.Roles.Owner
+    local tagColor = rObj.Color
+    local tagAnim  = rObj.Animation
+    local tagIcon  = rObj.Icon
+    local tagTitle = rObj.Title
+    local tagSub   = rObj.Subtitle
+    local tagBg    = ""
+    local tagH     = 2.3
+
+    local previewStage = Create("Frame", {
+        BackgroundColor3 = Color3.fromRGB(13, 14, 20),
+        Size = UDim2.new(1, 0, 0, 104),
+        Parent = nametagPage
+    })
+    corner(previewStage, 10)
+    AddLitStroke(previewStage, self.Themes.Obsidian, 1, 0.75)
+
+    local previewTagPill = Create("Frame", {
+        BackgroundColor3 = Color3.fromRGB(10, 11, 15),
+        Size = UDim2.fromOffset(250, 54),
+        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        ClipsDescendants = true,
+        Parent = previewStage
+    })
+    corner(previewTagPill, 9)
+    local previewStroke = AddLitStroke(previewTagPill, {BorderLight = Color3.fromRGB(255, 255, 255), Accent = tagColor, BorderDark = Color3.fromRGB(40, 45, 60)}, 1.2, 0.4)
+
+    local previewBgImg = Create("ImageLabel", {
+        BackgroundTransparency = 1,
+        Image = "",
+        ScaleType = Enum.ScaleType.Crop,
+        Size = UDim2.fromScale(1, 1),
+        Parent = previewTagPill
+    })
+
+    local previewIconImg = Create("ImageLabel", {
+        BackgroundTransparency = 1,
+        Image = tagIcon,
+        ImageColor3 = tagColor,
+        Size = UDim2.fromOffset(26, 26),
+        Position = UDim2.fromOffset(10, 14),
+        Parent = previewTagPill
+    })
+    corner(previewIconImg, 4)
+
+    local previewTitleLabel = Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -48, 0, 20),
+        Position = UDim2.fromOffset(42, 8),
+        Font = Fonts.Bold,
+        Text = tagTitle,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = previewTagPill
+    })
+
+    local previewSubLabel = Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -48, 0, 16),
+        Position = UDim2.fromOffset(42, 28),
+        Font = Fonts.Semi,
+        Text = tagSub,
+        TextColor3 = tagColor,
+        TextSize = 10,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = previewTagPill
+    })
+
+    task.spawn(function()
+        local hue = 0
+        local t = 0
+        while editorGui and editorGui.Parent do
+            if tagAnim == "Rainbow" or tagAnim == "Chroma Wave" then
+                hue = (hue + 0.015) % 1
+                local c = Color3.fromHSV(hue, 0.85, 1)
+                previewSubLabel.TextColor3 = c
+                previewIconImg.ImageColor3 = c
+                if previewStroke then previewStroke.Color = c end
+            elseif tagAnim == "Pulse" then
+                t = t + 0.08
+                local alpha = (math.sin(t) + 1) / 2
+                previewTagPill.BackgroundTransparency = 0.1 + (alpha * 0.4)
+            elseif tagAnim == "Bobbing" then
+                t = t + 0.08
+                previewTagPill.Position = UDim2.new(0.5, 0, 0.5, math.sin(t) * 5)
+            elseif tagAnim == "Neon Glow" then
+                t = t + 0.1
+                local alpha = (math.sin(t) + 1) / 2
+                if previewStroke then previewStroke.Transparency = 0.2 + (alpha * 0.6) end
+            else
+                previewTagPill.BackgroundTransparency = 0
+                previewTagPill.Position = UDim2.fromScale(0.5, 0.5)
+                previewSubLabel.TextColor3 = tagColor
+                previewIconImg.ImageColor3 = tagColor
+                if previewStroke then
+                    previewStroke.Color = tagColor
+                    previewStroke.Transparency = 0.4
+                end
+            end
+            RunService.RenderStepped:Wait()
+        end
+    end)
+
+    local function makeHeader(parent, txt)
+        local l = Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, 16),
+            Font = Fonts.Bold,
+            Text = txt:upper(),
             TextColor3 = self.Themes.Obsidian.TextDim,
             TextSize = 10,
             TextXAlignment = Enum.TextXAlignment.Left,
-            Parent = card
+            Parent = parent
         })
+        return l
+    end
 
-        local tb = Create("TextBox", {
-            BackgroundColor3 = self.Themes.Obsidian.Tertiary,
-            Size = UDim2.new(1, -20, 0, 22),
-            Position = UDim2.fromOffset(10, 22),
-            Font = Fonts.Main,
-            PlaceholderText = placeholder,
-            PlaceholderColor3 = self.Themes.Obsidian.TextDark,
-            Text = defaultVal or "",
+    local roleBanner = Create("Frame", {
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        Size = UDim2.new(1, 0, 0, 32),
+        Parent = nametagPage
+    })
+    corner(roleBanner, 6)
+    AddLitStroke(roleBanner, {Accent = rObj.Color}, 1, 0.6)
+
+    Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.fromScale(1, 1),
+        Font = Fonts.Bold,
+        Text = "DEVELOPER ASSIGNED ROLE: " .. rObj.Badge .. " (LOCKED)",
+        TextColor3 = rObj.Color,
+        TextSize = 11,
+        Parent = roleBanner
+    })
+
+    makeHeader(nametagPage, "Custom Title & Subtitle")
+    local titleCard = Create("Frame", {
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        Size = UDim2.new(1, 0, 0, 44),
+        Parent = nametagPage
+    })
+    corner(titleCard, 8)
+    AddLitStroke(titleCard, self.Themes.Obsidian, 1, 0.75)
+
+    local titleTB = Create("TextBox", {
+        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        Size = UDim2.new(1, -16, 0, 26),
+        Position = UDim2.fromOffset(8, 9),
+        Font = Fonts.Main,
+        Text = tagTitle,
+        PlaceholderText = "Custom Nametag Title...",
+        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
+        TextColor3 = self.Themes.Obsidian.Text,
+        TextSize = 11,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ClearTextOnFocus = false,
+        Parent = titleCard
+    })
+    corner(titleTB, 5)
+    titleTB:GetPropertyChangedSignal("Text"):Connect(function()
+        tagTitle = titleTB.Text
+        previewTitleLabel.Text = tagTitle
+    end)
+
+    local subCard = Create("Frame", {
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        Size = UDim2.new(1, 0, 0, 44),
+        Parent = nametagPage
+    })
+    corner(subCard, 8)
+    AddLitStroke(subCard, self.Themes.Obsidian, 1, 0.75)
+
+    local subTB = Create("TextBox", {
+        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        Size = UDim2.new(1, -16, 0, 26),
+        Position = UDim2.fromOffset(8, 9),
+        Font = Fonts.Main,
+        Text = tagSub,
+        PlaceholderText = "Custom Subtitle / Bio...",
+        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
+        TextColor3 = self.Themes.Obsidian.Text,
+        TextSize = 11,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ClearTextOnFocus = false,
+        Parent = subCard
+    })
+    corner(subTB, 5)
+    subTB:GetPropertyChangedSignal("Text"):Connect(function()
+        tagSub = subTB.Text
+        previewSubLabel.Text = tagSub
+    end)
+
+    makeHeader(nametagPage, "Animation FX")
+    local animRow = Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 28),
+        Parent = nametagPage
+    })
+    list(animRow, 6, Enum.FillDirection.Horizontal)
+
+    local animModes = {"Rainbow", "Pulse", "Bobbing", "Neon Glow", "None"}
+    local animButtons = {}
+    for _, aMode in ipairs(animModes) do
+        local ab = Create("TextButton", {
+            BackgroundColor3 = (aMode == tagAnim) and self.Themes.Obsidian.Accent or self.Themes.Obsidian.Secondary,
+            Size = UDim2.new(0, 92, 1, 0),
+            Font = Fonts.Semi,
+            Text = aMode,
+            TextColor3 = (aMode == tagAnim) and Color3.new(1, 1, 1) or self.Themes.Obsidian.TextDim,
+            TextSize = 10,
+            AutoButtonColor = false,
+            Parent = animRow
+        })
+        corner(ab, 6)
+        animButtons[aMode] = ab
+        AddBouncyClick(ab, function()
+            tagAnim = aMode
+            for m, b in pairs(animButtons) do
+                local sel = (m == tagAnim)
+                b.BackgroundColor3 = sel and self.Themes.Obsidian.Accent or self.Themes.Obsidian.Secondary
+                b.TextColor3 = sel and Color3.new(1, 1, 1) or self.Themes.Obsidian.TextDim
+            end
+        end)
+    end
+
+    makeHeader(nametagPage, "Color Accents")
+    local colRow = Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 30),
+        Parent = nametagPage
+    })
+    list(colRow, 8, Enum.FillDirection.Horizontal)
+
+    local swatches = {
+        Color3.fromRGB(90, 140, 255),
+        Color3.fromRGB(255, 205, 50),
+        Color3.fromRGB(185, 110, 255),
+        Color3.fromRGB(80, 220, 150),
+        Color3.fromRGB(255, 80, 80),
+        Color3.fromRGB(255, 140, 60),
+        Color3.fromRGB(240, 245, 255),
+        Color3.fromRGB(0, 210, 255),
+    }
+    for _, col in ipairs(swatches) do
+        local sb = Create("TextButton", {
+            BackgroundColor3 = col,
+            Size = UDim2.fromOffset(26, 26),
+            Text = "",
+            AutoButtonColor = false,
+            Parent = colRow
+        })
+        corner(sb, 13)
+        AddLitStroke(sb, {BorderLight = Color3.new(1, 1, 1), Accent = col, BorderDark = Color3.fromRGB(20, 20, 20)}, 1, 0.4)
+        AddBouncyClick(sb, function()
+            tagColor = col
+            previewSubLabel.TextColor3 = col
+            previewIconImg.ImageColor3 = col
+            if previewStroke then previewStroke.Color = col end
+        end)
+    end
+
+    makeHeader(nametagPage, "Custom Icon & Background (Any Image Address / Google Images / GIFs)")
+    local iconBgCard = Create("Frame", {
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        Size = UDim2.new(1, 0, 0, 80),
+        Parent = nametagPage
+    })
+    corner(iconBgCard, 8)
+    AddLitStroke(iconBgCard, self.Themes.Obsidian, 1, 0.75)
+
+    local iconTB = Create("TextBox", {
+        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        Size = UDim2.new(1, -16, 0, 24),
+        Position = UDim2.fromOffset(8, 8),
+        Font = Fonts.Main,
+        Text = tagIcon,
+        PlaceholderText = "Paste any image address (Google Images / Discord / Imgur)...",
+        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
+        TextColor3 = self.Themes.Obsidian.Text,
+        TextSize = 10,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ClearTextOnFocus = false,
+        Parent = iconBgCard
+    })
+    corner(iconTB, 5)
+    iconTB.FocusLost:Connect(function()
+        tagIcon = iconTB.Text
+        task.spawn(function()
+            local resolved = Velox.LoadWebAsset(tagIcon)
+            previewIconImg.Image = resolved
+        end)
+    end)
+
+    local bgTB = Create("TextBox", {
+        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        Size = UDim2.new(1, -16, 0, 24),
+        Position = UDim2.fromOffset(8, 42),
+        Font = Fonts.Main,
+        Text = tagBg,
+        PlaceholderText = "Paste any background address (Google Images / GIFs)...",
+        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
+        TextColor3 = self.Themes.Obsidian.Text,
+        TextSize = 10,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ClearTextOnFocus = false,
+        Parent = iconBgCard
+    })
+    corner(bgTB, 5)
+    bgTB.FocusLost:Connect(function()
+        tagBg = bgTB.Text
+        task.spawn(function()
+            local resolved = Velox.LoadWebAsset(tagBg)
+            previewBgImg.Image = resolved
+        end)
+    end)
+
+    makeHeader(uiFxPage, "Window Theme Selector")
+    local themeGrid = Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 68),
+        Parent = uiFxPage
+    })
+    list(themeGrid, 6, Enum.FillDirection.Horizontal)
+
+    local themes = {"Obsidian", "Midnight", "TokyoPurple", "Cyberpunk", "Emerald", "Crimson"}
+    for _, thKey in ipairs(themes) do
+        local thData = self.Themes[thKey]
+        local tb = Create("TextButton", {
+            BackgroundColor3 = thData.Secondary,
+            Size = UDim2.new(0.155, 0, 1, 0),
+            Font = Fonts.Semi,
+            Text = thKey,
+            TextColor3 = thData.Accent,
+            TextSize = 9,
+            AutoButtonColor = false,
+            Parent = themeGrid
+        })
+        corner(tb, 6)
+        AddLitStroke(tb, {Accent = thData.Accent}, 1, 0.6)
+
+        AddBouncyClick(tb, function()
+            if winTarget and winTarget.SetTheme then
+                winTarget.SetTheme(thKey)
+            end
+        end)
+    end
+
+    makeHeader(uiFxPage, "Custom UI Background Image or GIF (Any Image Address)")
+    local uiBgCard = Create("Frame", {
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        Size = UDim2.new(1, 0, 0, 48),
+        Parent = uiFxPage
+    })
+    corner(uiBgCard, 8)
+    AddLitStroke(uiBgCard, self.Themes.Obsidian, 1, 0.75)
+
+    local uiBgTB = Create("TextBox", {
+        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        Size = UDim2.new(1, -16, 0, 26),
+        Position = UDim2.fromOffset(8, 11),
+        Font = Fonts.Main,
+        PlaceholderText = "Paste any image/GIF address (Google / Discord / Imgur)...",
+        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
+        TextColor3 = self.Themes.Obsidian.Text,
+        TextSize = 10,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ClearTextOnFocus = false,
+        Parent = uiBgCard
+    })
+    corner(uiBgTB, 5)
+    uiBgTB.FocusLost:Connect(function()
+        if winTarget and winTarget.SetBackgroundImage then
+            winTarget.SetBackgroundImage(uiBgTB.Text)
+        end
+    end)
+
+    makeHeader(uiFxPage, "Custom UI Logo (Any Image Address)")
+    local logoCard = Create("Frame", {
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        Size = UDim2.new(1, 0, 0, 48),
+        Parent = uiFxPage
+    })
+    corner(logoCard, 8)
+    AddLitStroke(logoCard, self.Themes.Obsidian, 1, 0.75)
+
+    local logoTB = Create("TextBox", {
+        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        Size = UDim2.new(1, -16, 0, 26),
+        Position = UDim2.fromOffset(8, 11),
+        Font = Fonts.Main,
+        PlaceholderText = "Paste any image/GIF address for Window Logo...",
+        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
+        TextColor3 = self.Themes.Obsidian.Text,
+        TextSize = 10,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ClearTextOnFocus = false,
+        Parent = logoCard
+    })
+    corner(logoTB, 5)
+    logoTB.FocusLost:Connect(function()
+        if winTarget and winTarget.SetLogo then
+            winTarget.SetLogo(logoTB.Text)
+        end
+    end)
+
+    makeHeader(uiFxPage, "Cinematic Visual FX")
+    local function makeFxToggle(parent, txt, callback)
+        local c = Create("Frame", {
+            BackgroundColor3 = self.Themes.Obsidian.Secondary,
+            Size = UDim2.new(1, 0, 0, 36),
+            Parent = parent
+        })
+        corner(c, 8)
+        AddLitStroke(c, self.Themes.Obsidian, 1, 0.75)
+
+        Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -60, 1, 0),
+            Position = UDim2.fromOffset(12, 0),
+            Font = Fonts.Semi,
+            Text = txt,
             TextColor3 = self.Themes.Obsidian.Text,
             TextSize = 11,
             TextXAlignment = Enum.TextXAlignment.Left,
-            ClearTextOnFocus = false,
-            Parent = card
+            Parent = c
         })
-        corner(tb, 5)
-        return tb
+
+        local sw = Create("TextButton", {
+            BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+            Size = UDim2.fromOffset(36, 18),
+            Position = UDim2.new(1, -48, 0.5, -9),
+            Text = "",
+            AutoButtonColor = false,
+            Parent = c
+        })
+        corner(sw, 9)
+
+        local dot = Create("Frame", {
+            BackgroundColor3 = Color3.new(1, 1, 1),
+            Size = UDim2.fromOffset(12, 12),
+            Position = UDim2.fromOffset(3, 3),
+            Parent = sw
+        })
+        corner(dot, 6)
+
+        local enabled = false
+        AddBouncyClick(sw, function()
+            enabled = not enabled
+            if enabled then
+                Tween(sw, {BackgroundColor3 = self.Themes.Obsidian.Accent}, 0.2)
+                Tween(dot, {Position = UDim2.fromOffset(21, 3)}, 0.2)
+            else
+                Tween(sw, {BackgroundColor3 = self.Themes.Obsidian.Tertiary}, 0.2)
+                Tween(dot, {Position = UDim2.fromOffset(3, 3)}, 0.2)
+            end
+            if callback then callback(enabled) end
+        end)
     end
 
-    local titleInput = createInputRow("Nametag Title Text", "e.g. 👑 SCRIPT OWNER 👑", "👑 CUSTOM VIP 👑")
-    local subInput   = createInputRow("Nametag Subtitle Text", "e.g. Verified Supporter", "Verified Tagholder")
-    local iconInput  = createInputRow("Icon Image Link or Asset ID", "rbxassetid://... or image url", self.Icons.Crown)
-    local animInput  = createInputRow("Animation Type (None / Rainbow / Pulse / Bobbing)", "None / Rainbow / Pulse / Bobbing", "Rainbow")
-
-    titleInput:GetPropertyChangedSignal("Text"):Connect(function()
-        previewTitle.Text = titleInput.Text
+    makeFxToggle(uiFxPage, "CRT Scanlines Overlay", function(val)
+        if winTarget and winTarget.ToggleScanlines then winTarget.ToggleScanlines(val) end
     end)
-    subInput:GetPropertyChangedSignal("Text"):Connect(function()
-        previewSubtitle.Text = subInput.Text
+    makeFxToggle(uiFxPage, "Cinematic Vignette Border", function(val)
+        if winTarget and winTarget.ToggleVignette then winTarget.ToggleVignette(val) end
     end)
-    iconInput:GetPropertyChangedSignal("Text"):Connect(function()
-        pfpSample.Image = iconInput.Text
+    makeFxToggle(uiFxPage, "RGB Chroma Rainbow Border Cycle", function(val)
+        if winTarget and winTarget.ToggleRainbowBorder then winTarget.ToggleRainbowBorder(val) end
     end)
 
-    -- Export Button (Copies Code to Clipboard)
-    local exportBtn = Create("TextButton", {
-        BackgroundColor3 = self.Themes.Obsidian.Accent,
-        Size = UDim2.new(1, -32, 0, 42),
-        Position = UDim2.new(0, 16, 1, -54),
-        Font = Fonts.Bold,
-        Text = "🚀 EXPORT & COPY NAMETAG CODE",
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        TextSize = 13,
-        AutoButtonColor = false,
+    makeHeader(audioPage, "Audio & Sound Effects")
+    makeFxToggle(audioPage, "Enable Sound Effects", function(val)
+        Velox.Sounds.Enabled = val
+    end)
+
+    local footer = Create("Frame", {
+        BackgroundColor3 = self.Themes.Obsidian.Background,
+        Size = UDim2.new(1, -28, 0, 48),
+        Position = UDim2.new(0, 14, 1, -56),
         Parent = modal
     })
+    list(footer, 8, Enum.FillDirection.Horizontal)
+
+    local testCharBtn = Create("TextButton", {
+        BackgroundColor3 = Color3.fromRGB(35, 90, 60),
+        Size = UDim2.new(0.44, 0, 1, 0),
+        Font = Fonts.Bold,
+        Text = "🎮 TEST IN GAME",
+        TextColor3 = Color3.fromRGB(240, 255, 245),
+        TextSize = 12,
+        AutoButtonColor = false,
+        Parent = footer
+    })
+    corner(testCharBtn, 8)
+    AddLitStroke(testCharBtn, {BorderLight = Color3.new(1, 1, 1), Accent = Color3.fromRGB(80, 220, 150), BorderDark = Color3.fromRGB(20, 40, 30)}, 1, 0.5)
+
+    AddBouncyClick(testCharBtn, function()
+        local tagConfig = {
+            Title = tagTitle,
+            Subtitle = tagSub,
+            Color = tagColor,
+            Icon = tagIcon,
+            Animation = tagAnim,
+            BgImage = tagBg,
+            Role = curRole,
+            Height = tagH,
+            MaxDistance = 85
+        }
+        Velox:ApplyNametagToPlayer(LocalPlayer, tagConfig)
+        Velox:Notify({
+            Title = "Nametag Applied In-Game!",
+            Content = "Your 3D overhead tag is now live on your character.",
+            Type = "Success",
+            Duration = 3.5
+        })
+    end)
+
+    local exportBtn = Create("TextButton", {
+        BackgroundColor3 = self.Themes.Obsidian.Accent,
+        Size = UDim2.new(0.54, 0, 1, 0),
+        Font = Fonts.Bold,
+        Text = "🚀 EXPORT & COPY CODE",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 12,
+        AutoButtonColor = false,
+        Parent = footer
+    })
     corner(exportBtn, 8)
+    AddLitStroke(exportBtn, self.Themes.Obsidian, 1.2, 0.4)
 
     AddBouncyClick(exportBtn, function()
         local tagConfig = {
-            Title = titleInput.Text,
-            Subtitle = subInput.Text,
-            Color = self.Themes.Obsidian.Accent,
-            Icon = iconInput.Text,
-            Animation = animInput.Text
+            Title = tagTitle,
+            Subtitle = tagSub,
+            Color = tagColor,
+            Icon = tagIcon,
+            Animation = tagAnim,
+            BgImage = tagBg,
+            Role = curRole,
+            Height = tagH,
+            MaxDistance = 85
         }
         local exportCode = Velox:ExportNametagCode(tagConfig)
-
-        if setclipboard then
-            setclipboard(exportCode)
-        end
+        if setclipboard then setclipboard(exportCode) end
 
         Velox:Notify({
             Title = "Nametag Code Exported!",
-            Content = "Copied to clipboard! Send this code to the script owner with your payment to activate it.",
+            Content = "Copied to clipboard! Send this code to the script developer with your payment to activate your permanent tag.",
             Type = "Success",
             Duration = 5.0
         })
 
-        if onExport then onExport(exportCode, tagConfig) end
+        if opts.onExport then opts.onExport(exportCode, tagConfig) end
     end)
 
     return editorGui
 end
 
-----------------------------------------------------------------
--- 6. HIGH-LEVEL WINDOW CONSTRUCTOR
-----------------------------------------------------------------
+function Velox:OpenNametagEditor(onExport)
+    return self:OpenCustomizer({onExport = onExport})
+end
+
+function Velox:CreateSubWindow(opts)
+    opts = opts or {}
+    local subTitle = opts.Title or "Mini UI"
+    local size = opts.Size or UDim2.fromOffset(300, 240)
+    local theme = opts.Theme or self.Themes.Obsidian
+
+    local subGui = Create("ScreenGui", {
+        Name = "Velox_SubWin_" .. HttpService:GenerateGUID(false):sub(1, 6),
+        DisplayOrder = 60,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+        ResetOnSpawn = false,
+        Parent = GuiParent
+    })
+
+    local frame = Create("Frame", {
+        Name = "MiniWindow",
+        BackgroundColor3 = theme.Background,
+        Size = size,
+        Position = UDim2.fromScale(0.65, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        ClipsDescendants = false,
+        Visible = false,
+        Parent = subGui
+    })
+    corner(frame, 10)
+    AddLitStroke(frame, theme, 1, 0.6)
+
+    Create("ImageLabel", {
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://6014261993",
+        ImageColor3 = theme.Shadow,
+        ImageTransparency = 0.4,
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(49, 49, 450, 450),
+        Size = UDim2.new(1, 40, 1, 40),
+        Position = UDim2.fromOffset(-20, -20),
+        ZIndex = 0,
+        Parent = frame
+    })
+
+    local titleBar = Create("Frame", {
+        BackgroundColor3 = theme.Secondary,
+        Size = UDim2.new(1, 0, 0, 36),
+        Parent = frame
+    })
+    corner(titleBar, 10)
+    Create("Frame", {
+        BackgroundColor3 = theme.Secondary,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 0, 10),
+        Position = UDim2.fromOffset(0, 26),
+        Parent = titleBar
+    })
+    MakeDraggable(titleBar, frame)
+
+    Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -70, 1, 0),
+        Position = UDim2.fromOffset(12, 0),
+        Font = Fonts.Bold,
+        Text = subTitle,
+        TextColor3 = theme.Text,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = titleBar
+    })
+
+    local closeB = Create("TextButton", {
+        BackgroundColor3 = theme.Tertiary,
+        Size = UDim2.fromOffset(22, 22),
+        Position = UDim2.new(1, -28, 0.5, -11),
+        Font = Fonts.Bold,
+        Text = "×",
+        TextColor3 = theme.TextDim,
+        TextSize = 15,
+        AutoButtonColor = false,
+        Parent = titleBar
+    })
+    corner(closeB, 5)
+
+    local minB = Create("TextButton", {
+        BackgroundColor3 = theme.Tertiary,
+        Size = UDim2.fromOffset(22, 22),
+        Position = UDim2.new(1, -54, 0.5, -11),
+        Font = Fonts.Bold,
+        Text = "–",
+        TextColor3 = theme.TextDim,
+        TextSize = 14,
+        AutoButtonColor = false,
+        Parent = titleBar
+    })
+    corner(minB, 5)
+
+    local container = Create("ScrollingFrame", {
+        Name = "Container",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -16, 1, -44),
+        Position = UDim2.fromOffset(8, 40),
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        ScrollBarThickness = 2,
+        BorderSizePixel = 0,
+        Parent = frame
+    })
+    local subLayout = list(container, 6)
+    subLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        container.CanvasSize = UDim2.new(0, 0, 0, subLayout.AbsoluteContentSize.Y + 8)
+    end)
+
+    AddBouncyClick(closeB, function() frame.Visible = false end)
+
+    local isMin = false
+    AddBouncyClick(minB, function()
+        isMin = not isMin
+        if isMin then
+            container.Visible = false
+            minB.Text = "+"
+            Tween(frame, {Size = UDim2.fromOffset(size.X.Offset, 36)}, 0.2)
+        else
+            minB.Text = "–"
+            local t = Tween(frame, {Size = size}, 0.2)
+            t.Completed:Connect(function() if not isMin then container.Visible = true end end)
+        end
+    end)
+
+    local subWindowObj = {
+        Frame = frame,
+        Container = container,
+        Show = function() frame.Visible = true end,
+        Hide = function() frame.Visible = false end,
+        Toggle = function() frame.Visible = not frame.Visible end,
+    }
+
+    function subWindowObj:CreateToggle(opts)
+        opts = opts or {}
+        local tName = opts.Name or "Toggle"
+        local state = opts.Default or false
+        local cb = opts.Callback
+
+        local card = Create("Frame", {
+            BackgroundColor3 = theme.Secondary,
+            Size = UDim2.new(1, 0, 0, 34),
+            Parent = container
+        })
+        corner(card, 6)
+        AddLitStroke(card, theme, 1, 0.75)
+
+        Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -50, 1, 0),
+            Position = UDim2.fromOffset(8, 0),
+            Font = Fonts.Semi,
+            Text = tName,
+            TextColor3 = theme.Text,
+            TextSize = 11,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Parent = card
+        })
+
+        local sw = Create("TextButton", {
+            BackgroundColor3 = state and theme.Accent or theme.Tertiary,
+            Size = UDim2.fromOffset(34, 18),
+            Position = UDim2.new(1, -42, 0.5, -9),
+            Text = "",
+            AutoButtonColor = false,
+            Parent = card
+        })
+        corner(sw, 9)
+
+        local dot = Create("Frame", {
+            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+            Size = UDim2.fromOffset(12, 12),
+            Position = state and UDim2.fromOffset(19, 3) or UDim2.fromOffset(3, 3),
+            Parent = sw
+        })
+        corner(dot, 6)
+
+        AddBouncyClick(sw, function()
+            state = not state
+            playSound(Velox.Sounds.Toggle, 0.28)
+            if state then
+                Tween(sw, {BackgroundColor3 = theme.Accent}, 0.18)
+                Tween(dot, {Position = UDim2.fromOffset(19, 3)}, 0.18)
+            else
+                Tween(sw, {BackgroundColor3 = theme.Tertiary}, 0.18)
+                Tween(dot, {Position = UDim2.fromOffset(3, 3)}, 0.18)
+            end
+            if cb then cb(state) end
+        end)
+    end
+
+    function subWindowObj:CreateSlider(opts)
+        opts = opts or {}
+        local sName = opts.Name or "Slider"
+        local minVal = opts.Min or 0
+        local maxVal = opts.Max or 100
+        local curVal = opts.Default or minVal
+        local suffix = opts.Suffix or ""
+        local cb = opts.Callback
+
+        local card = Create("Frame", {
+            BackgroundColor3 = theme.Secondary,
+            Size = UDim2.new(1, 0, 0, 44),
+            Parent = container
+        })
+        corner(card, 6)
+        AddLitStroke(card, theme, 1, 0.75)
+
+        Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -60, 0, 16),
+            Position = UDim2.fromOffset(8, 4),
+            Font = Fonts.Semi,
+            Text = sName,
+            TextColor3 = theme.Text,
+            TextSize = 10,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Parent = card
+        })
+
+        local valLbl = Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.fromOffset(50, 16),
+            Position = UDim2.new(1, -58, 0, 4),
+            Font = Fonts.Bold,
+            Text = tostring(curVal) .. suffix,
+            TextColor3 = theme.Accent,
+            TextSize = 10,
+            TextXAlignment = Enum.TextXAlignment.Right,
+            Parent = card
+        })
+
+        local track = Create("TextButton", {
+            BackgroundColor3 = theme.InputBackground,
+            Size = UDim2.new(1, -16, 0, 6),
+            Position = UDim2.fromOffset(8, 26),
+            Text = "",
+            AutoButtonColor = false,
+            Parent = card
+        })
+        corner(track, 3)
+
+        local fill = Create("Frame", {
+            BackgroundColor3 = theme.Accent,
+            Size = UDim2.fromScale(math.clamp((curVal - minVal) / (maxVal - minVal), 0, 1), 1),
+            Parent = track
+        })
+        corner(fill, 3)
+
+        local sliding = false
+        local function update(input)
+            local relX = math.clamp((input.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
+            curVal = math.round(minVal + (relX * (maxVal - minVal)))
+            valLbl.Text = tostring(curVal) .. suffix
+            fill.Size = UDim2.fromScale(relX, 1)
+            if cb then cb(curVal) end
+        end
+
+        track.InputBegan:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+                sliding = true
+                update(inp)
+            end
+        end)
+        UserInputService.InputEnded:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+                sliding = false
+            end
+        end)
+        UserInputService.InputChanged:Connect(function(inp)
+            if sliding and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
+                update(inp)
+            end
+        end)
+    end
+
+    function subWindowObj:CreateButton(opts)
+        opts = opts or {}
+        local bName = opts.Name or "Button"
+        local cb = opts.Callback
+
+        local btn = Create("TextButton", {
+            BackgroundColor3 = theme.Tertiary,
+            Size = UDim2.new(1, 0, 0, 28),
+            Font = Fonts.Bold,
+            Text = bName,
+            TextColor3 = theme.Text,
+            TextSize = 11,
+            AutoButtonColor = false,
+            Parent = container
+        })
+        corner(btn, 6)
+        AddLitStroke(btn, theme, 1, 0.6)
+        AddBouncyClick(btn, cb)
+    end
+
+    return subWindowObj
+end
+
 function Velox:CreateWindow(cfg)
     cfg = cfg or {}
     local title        = cfg.Title or "Velox UI"
@@ -1062,35 +1950,56 @@ function Velox:CreateWindow(cfg)
     local size         = cfg.Size or UDim2.fromOffset(680, 480)
     local minKey       = cfg.MinimizeKey or Enum.KeyCode.RightControl
     local themeKey     = cfg.Theme or "Obsidian"
+    local orientation  = cfg.Orientation or "Vertical"
     local showProfile  = cfg.ShowProfile ~= false
     local showSearch   = cfg.ShowSearch ~= false
     local showSettings = cfg.ShowSettings ~= false
     local showMobileToggle = cfg.MobileToggle ~= false
-    local nametagsEnabled = cfg.Nametags == true
+    local customRole   = cfg.Role or "Owner"
+    local bgImgUrl     = cfg.BackgroundImage or ""
+    local logoImgUrl   = cfg.Logo or ""
 
+    self.ActiveRole = customRole
     local theme = self.Themes[themeKey] or self.Themes.Obsidian
     local accentColor = theme.Accent
+
+    local accentSubscribers = {}
+    local function notifyAccentChange(newCol)
+        accentColor = newCol
+        for _, fn in ipairs(accentSubscribers) do fn(newCol) end
+    end
+
+    if cfg.Nametags then
+        local def = cfg.DefaultNametag or {}
+        def.Role = customRole
+        self:CreateNametag(def)
+    end
 
     local gui = Create("ScreenGui", {
         Name = "Velox_" .. HttpService:GenerateGUID(false):sub(1, 8),
         ResetOnSpawn = false,
         DisplayOrder = 50,
-        Parent = GuiParent
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+        Parent = GuiParent,
     })
+
+    local centerPosition = UDim2.fromScale(0.5, 0.5)
 
     local main = Create("Frame", {
         Name = "Main",
         BackgroundColor3 = theme.Background,
         Size = size,
-        Position = UDim2.fromScale(0.5, 0.5),
+        Position = centerPosition,
         AnchorPoint = Vector2.new(0.5, 0.5),
         ClipsDescendants = false,
         Visible = false,
-        Parent = gui
+        Parent = gui,
     })
-    corner(main, 14)
-    local mainStroke = AddLitStroke(main, theme, 1, 0.5)
-    local mainScale = Create("UIScale", {Scale = 0.85, Parent = main})
+    corner(main, 12)
+    local mainStroke = AddLitStroke(main, theme, 1.2, 0.4)
+    table.insert(accentSubscribers, function(c) mainStroke.Color = c end)
+
+    local mainScale = Create("UIScale", {Scale = 1, Parent = main})
 
     Create("ImageLabel", {
         BackgroundTransparency = 1,
@@ -1099,47 +2008,88 @@ function Velox:CreateWindow(cfg)
         ImageTransparency = 0.35,
         ScaleType = Enum.ScaleType.Slice,
         SliceCenter = Rect.new(49, 49, 450, 450),
-        Size = UDim2.new(1, 70, 1, 70),
-        Position = UDim2.fromOffset(-35, -35),
+        Size = UDim2.new(1, 60, 1, 60),
+        Position = UDim2.fromOffset(-30, -30),
         ZIndex = 0,
-        Parent = main
+        Parent = main,
     })
 
-    -- Header
-    local header = Create("Frame", {
+    local bgImageLabel = Create("ImageLabel", {
+        Name = "CustomBackground",
+        BackgroundTransparency = 1,
+        Image = Velox.LoadWebAsset(bgImgUrl),
+        ScaleType = Enum.ScaleType.Crop,
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 1,
+        Parent = main
+    })
+    corner(bgImageLabel, 12)
+
+    local scanlinesFrame = Create("Frame", {
+        Name = "Scanlines",
+        BackgroundTransparency = 1,
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 2,
+        Visible = false,
+        Parent = main
+    })
+    corner(scanlinesFrame, 12)
+
+    local vignetteFrame = Create("ImageLabel", {
+        Name = "Vignette",
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://6014261993",
+        ImageColor3 = Color3.fromRGB(0, 0, 0),
+        ImageTransparency = 0.5,
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(49, 49, 450, 450),
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 2,
+        Visible = false,
+        Parent = main
+    })
+    corner(vignetteFrame, 12)
+
+    local titleBar = Create("Frame", {
         Name = "TitleBar",
         BackgroundColor3 = theme.Secondary,
-        Size = UDim2.new(1, 0, 0, 54),
-        BorderSizePixel = 0,
-        Parent = main
+        Size = UDim2.new(1, 0, 0, 52),
+        ZIndex = 3,
+        Parent = main,
     })
-    corner(header, 14)
-    local headerBottomPatch = Create("Frame", {
+    corner(titleBar, 12)
+    Create("Frame", {
         BackgroundColor3 = theme.Secondary,
         BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 0, 16),
-        Position = UDim2.fromOffset(0, 38),
-        Parent = header
+        Size = UDim2.new(1, 0, 0, 12),
+        Position = UDim2.fromOffset(0, 40),
+        ZIndex = 3,
+        Parent = titleBar,
     })
-    MakeDraggable(header, main)
+    MakeDraggable(titleBar, main)
 
+    local profilePillBtn = nil
     local titleXOffset = 16
 
     if showProfile then
-        local profilePill = Create("Frame", {
+        profilePillBtn = Create("TextButton", {
             BackgroundColor3 = theme.InputBackground,
-            Size = UDim2.fromOffset(180, 38),
-            Position = UDim2.fromOffset(10, 8),
-            Parent = header
+            Size = UDim2.fromOffset(190, 38),
+            Position = UDim2.fromOffset(10, 7),
+            Text = "",
+            AutoButtonColor = false,
+            ZIndex = 4,
+            Parent = titleBar
         })
-        corner(profilePill, 19)
-        AddLitStroke(profilePill, theme, 1, 0.6)
+        corner(profilePillBtn, 19)
+        AddLitStroke(profilePillBtn, theme, 1, 0.6)
 
         local avatarImg = Create("ImageLabel", {
             BackgroundTransparency = 1,
             Size = UDim2.fromOffset(30, 30),
             Position = UDim2.fromOffset(4, 4),
-            Parent = profilePill
+            ZIndex = 5,
+            Parent = profilePillBtn
         })
         corner(avatarImg, 15)
 
@@ -1147,11 +2097,10 @@ function Velox:CreateWindow(cfg)
             BackgroundColor3 = theme.Success,
             Size = UDim2.fromOffset(8, 8),
             Position = UDim2.fromOffset(24, 24),
-            ZIndex = 3,
-            Parent = profilePill
+            ZIndex = 6,
+            Parent = profilePillBtn
         })
         corner(statusDot, 4)
-        AddLitStroke(statusDot, theme, 1, 0.3)
 
         task.spawn(function()
             local thumb = "rbxthumb://type=AvatarHeadShot&id=" .. LocalPlayer.UserId .. "&w=150&h=150"
@@ -1164,808 +2113,1180 @@ function Velox:CreateWindow(cfg)
 
         Create("TextLabel", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, -44, 0, 16),
-            Position = UDim2.fromOffset(38, 4),
+            Size = UDim2.new(1, -78, 0, 16),
+            Position = UDim2.fromOffset(40, 4),
             Font = Fonts.Bold,
             Text = LocalPlayer.DisplayName,
             TextColor3 = theme.Text,
             TextSize = 11,
             TextXAlignment = Enum.TextXAlignment.Left,
             TextTruncate = Enum.TextTruncate.AtEnd,
-            Parent = profilePill
+            ZIndex = 5,
+            Parent = profilePillBtn
         })
+
+        local rData = self.Roles[self.ActiveRole] or self.Roles.Owner
+        local roleBadgeText = Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -78, 0, 14),
+            Position = UDim2.fromOffset(40, 20),
+            Font = Fonts.Semi,
+            Text = rData.Badge,
+            TextColor3 = rData.Color,
+            TextSize = 9,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ZIndex = 5,
+            Parent = profilePillBtn
+        })
+
+        local roleDot = Create("Frame", {
+            BackgroundColor3 = rData.Color,
+            Size = UDim2.fromOffset(18, 18),
+            Position = UDim2.new(1, -24, 0.5, -9),
+            ZIndex = 5,
+            Parent = profilePillBtn
+        })
+        corner(roleDot, 9)
 
         Create("TextLabel", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, -44, 0, 14),
-            Position = UDim2.fromOffset(38, 19),
-            Font = Fonts.Main,
-            Text = "@" .. LocalPlayer.Name,
-            TextColor3 = theme.TextDark,
-            TextSize = 10,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextTruncate = Enum.TextTruncate.AtEnd,
-            Parent = profilePill
-        })
-
-        Create("Frame", {
-            BackgroundColor3 = theme.Quaternary,
-            BorderSizePixel = 0,
-            Size = UDim2.fromOffset(1, 26),
-            Position = UDim2.fromOffset(198, 14),
-            Parent = header
+            Size = UDim2.fromScale(1, 1),
+            Font = Fonts.Bold,
+            Text = "↗",
+            TextColor3 = Color3.fromRGB(0, 0, 0),
+            TextSize = 11,
+            ZIndex = 6,
+            Parent = roleDot
         })
 
         titleXOffset = 210
     end
 
+    local titleGroup = Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 220, 1, 0),
+        Position = UDim2.fromOffset(titleXOffset, 0),
+        ZIndex = 4,
+        Parent = titleBar,
+    })
+
+    local logoImg = nil
+    if logoImgUrl ~= "" then
+        logoImg = Create("ImageLabel", {
+            BackgroundTransparency = 1,
+            Image = Velox.LoadWebAsset(logoImgUrl),
+            Size = UDim2.fromOffset(26, 26),
+            Position = UDim2.fromOffset(0, 13),
+            ZIndex = 5,
+            Parent = titleGroup
+        })
+        corner(logoImg, 5)
+    end
+
+    local titleTxtOffset = logoImg and 32 or 0
+
     local titleLabel = Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(0, 240, 0, 20),
-        Position = UDim2.fromOffset(titleXOffset, 9),
+        Size = UDim2.new(1, -titleTxtOffset, 0, 20),
+        Position = UDim2.fromOffset(titleTxtOffset, 9),
         Font = Fonts.Bold,
-        Text = title,
+        Text = title:upper(),
         TextColor3 = theme.Text,
-        TextSize = 15,
+        TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
-        TextTruncate = Enum.TextTruncate.AtEnd,
-        Parent = header
+        ZIndex = 5,
+        Parent = titleGroup,
     })
 
-    local subtitleLabel = Create("TextLabel", {
+    local subTitleLabel = Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(0, 240, 0, 14),
-        Position = UDim2.fromOffset(titleXOffset, 28),
+        Size = UDim2.new(1, -titleTxtOffset, 0, 14),
+        Position = UDim2.fromOffset(titleTxtOffset, 29),
         Font = Fonts.Semi,
         Text = subTitle,
-        TextColor3 = theme.TextDark,
-        TextSize = 11,
+        TextColor3 = accentColor,
+        TextSize = 10,
         TextXAlignment = Enum.TextXAlignment.Left,
-        TextTruncate = Enum.TextTruncate.AtEnd,
-        Parent = header
+        ZIndex = 5,
+        Parent = titleGroup,
     })
+    table.insert(accentSubscribers, function(c) subTitleLabel.TextColor3 = c end)
 
-    local controls = Create("Frame", {
+    local winControls = Create("Frame", {
         BackgroundTransparency = 1,
-        Size = UDim2.fromOffset(108, 32),
-        Position = UDim2.new(1, -118, 0.5, -16),
-        Parent = header
+        Size = UDim2.fromOffset(130, 32),
+        Position = UDim2.new(1, -140, 0.5, -16),
+        ZIndex = 4,
+        Parent = titleBar,
     })
+    list(winControls, 6, Enum.FillDirection.Horizontal)
 
-    local settingsBtn = Create("TextButton", {
-        BackgroundColor3 = theme.Tertiary,
-        Size = UDim2.fromOffset(30, 30),
-        Position = UDim2.fromOffset(0, 1),
-        Text = "",
-        AutoButtonColor = false,
-        Visible = showSettings,
-        Parent = controls
-    })
-    corner(settingsBtn, 6)
-    local gearIcon = Create("ImageLabel", {
-        BackgroundTransparency = 1,
-        Image = self.Icons.Settings,
-        ImageColor3 = theme.TextDim,
-        Size = UDim2.fromOffset(16, 16),
-        Position = UDim2.fromScale(0.5, 0.5),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Parent = settingsBtn
-    })
+    local function makeControlBtn(iconText, cb)
+        local btn = Create("TextButton", {
+            BackgroundColor3 = theme.Tertiary,
+            Size = UDim2.fromOffset(30, 30),
+            Font = Fonts.Bold,
+            Text = iconText,
+            TextColor3 = theme.TextDim,
+            TextSize = 13,
+            AutoButtonColor = false,
+            ZIndex = 5,
+            Parent = winControls,
+        })
+        corner(btn, 6)
+        AddLitStroke(btn, theme, 1, 0.6)
+        AddBouncyClick(btn, cb)
+        return btn
+    end
 
-    local minBtn = Create("TextButton", {
-        BackgroundColor3 = theme.Tertiary,
-        Size = UDim2.fromOffset(30, 30),
-        Position = UDim2.fromOffset(36, 1),
-        Font = Fonts.Bold,
-        Text = "–",
-        TextColor3 = theme.TextDim,
-        TextSize = 16,
-        AutoButtonColor = false,
-        Parent = controls
-    })
-    corner(minBtn, 6)
+    local settingsOpen = false
+    local settingsDrawer = nil
 
-    local closeBtn = Create("TextButton", {
-        BackgroundColor3 = theme.Tertiary,
-        Size = UDim2.fromOffset(30, 30),
-        Position = UDim2.fromOffset(72, 1),
-        Font = Fonts.Bold,
-        Text = "×",
-        TextColor3 = theme.TextDim,
-        TextSize = 18,
-        AutoButtonColor = false,
-        Parent = controls
-    })
-    corner(closeBtn, 6)
+    if showSettings then
+        makeControlBtn("⚙", function()
+            settingsOpen = not settingsOpen
+            if settingsDrawer then
+                if settingsOpen then
+                    settingsDrawer.Visible = true
+                    Tween(settingsDrawer, {Position = UDim2.new(1, 8, 0, 0)}, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                else
+                    local t = Tween(settingsDrawer, {Position = UDim2.new(1, -40, 0, 0)}, 0.2, Enum.EasingStyle.Quad)
+                    t.Completed:Connect(function()
+                        if not settingsOpen then settingsDrawer.Visible = false end
+                    end)
+                end
+            end
+        end)
+    end
+
+    local isMinimized = false
+    makeControlBtn("–", function()
+        isMinimized = not isMinimized
+        if isMinimized then
+            Tween(main, {Size = UDim2.fromOffset(size.X.Offset, 52)}, 0.25, Enum.EasingStyle.Quad)
+        else
+            Tween(main, {Size = size}, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        end
+    end)
+
+    local mobileBubbleObj = nil
+
+    local function shrinkToCircle()
+        local bubblePos = UDim2.new(0, 24, 0.35, 0)
+        Tween(main, {
+            Size = UDim2.fromOffset(48, 48),
+            Position = bubblePos
+        }, 0.32, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+        Tween(mainScale, {Scale = 0.15}, 0.32, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+
+        task.delay(0.32, function()
+            main.Visible = false
+            main.Size = size
+            main.Position = centerPosition
+            mainScale.Scale = 1.0
+
+            if mobileBubbleObj then
+                mobileBubbleObj.Button.Visible = true
+                mobileBubbleObj.Scale.Scale = 0.2
+                Tween(mobileBubbleObj.Scale, {Scale = 1.0}, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            end
+        end)
+    end
+
+    local function restoreFromCircle()
+        if mobileBubbleObj then
+            Tween(mobileBubbleObj.Scale, {Scale = 0.2}, 0.18, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+            task.delay(0.18, function()
+                mobileBubbleObj.Button.Visible = false
+                main.Visible = true
+                main.Size = UDim2.fromOffset(48, 48)
+                main.Position = UDim2.new(0, 24, 0.35, 0)
+                mainScale.Scale = 0.15
+
+                Tween(main, {
+                    Size = size,
+                    Position = centerPosition
+                }, 0.38, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                Tween(mainScale, {Scale = 1.0}, 0.38, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            end)
+        else
+            main.Visible = true
+        end
+    end
+
+    makeControlBtn("×", shrinkToCircle)
+
+    if showMobileToggle then
+        mobileBubbleObj = self:CreateMobileToggle(function()
+            restoreFromCircle()
+        end)
+    end
 
     local bodyWrapper = Create("Frame", {
         Name = "BodyWrapper",
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 1, -54),
-        Position = UDim2.fromOffset(0, 54),
+        Size = UDim2.new(1, 0, 1, -52),
+        Position = UDim2.fromOffset(0, 52),
         ClipsDescendants = true,
-        Parent = main
+        ZIndex = 3,
+        Parent = main,
     })
 
-    local sidebar = Create("Frame", {
-        Name = "Sidebar",
-        BackgroundColor3 = theme.Secondary,
-        Size = UDim2.new(0, 165, 1, 0),
-        Position = UDim2.fromOffset(0, 0),
-        BorderSizePixel = 0,
-        Parent = bodyWrapper
-    })
-    corner(sidebar, 14)
-    Create("Frame", {
-        BackgroundColor3 = theme.Secondary,
-        BorderSizePixel = 0,
-        Size = UDim2.new(0, 16, 1, 0),
-        Position = UDim2.new(1, -16, 0, 0),
-        Parent = sidebar
-    })
-
-    local searchInput = nil
-    local tabTopOffset = 10
-
-    if showSearch then
-        local searchCard = Create("Frame", {
-            BackgroundColor3 = theme.Tertiary,
-            Size = UDim2.new(1, -16, 0, 32),
-            Position = UDim2.fromOffset(8, 10),
-            Parent = sidebar
-        })
-        corner(searchCard, 7)
-        AddLitStroke(searchCard, theme, 1, 0.75)
-
-        Create("ImageLabel", {
-            BackgroundTransparency = 1,
-            Image = self.Icons.Search,
-            ImageColor3 = theme.TextDark,
-            Size = UDim2.fromOffset(14, 14),
-            Position = UDim2.fromOffset(8, 9),
-            Parent = searchCard
-        })
-
-        searchInput = Create("TextBox", {
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, -28, 1, 0),
-            Position = UDim2.fromOffset(26, 0),
-            Font = Fonts.Main,
-            PlaceholderText = "Search...",
-            PlaceholderColor3 = theme.TextDark,
-            Text = "",
-            TextColor3 = theme.Text,
-            TextSize = 12,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            ClearTextOnFocus = false,
-            Parent = searchCard
-        })
-
-        tabTopOffset = 48
-    end
-
-    local tabScroll = Create("ScrollingFrame", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -12, 1, -(tabTopOffset + 14)),
-        Position = UDim2.fromOffset(6, tabTopOffset),
-        CanvasSize = UDim2.new(0, 0, 0, 0),
-        ScrollBarThickness = 2,
-        ScrollBarImageColor3 = theme.Tertiary,
-        BorderSizePixel = 0,
-        Parent = sidebar
-    })
-    local tabLayout = list(tabScroll, 5)
-    tabLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        tabScroll.CanvasSize = UDim2.new(0, 0, 0, tabLayout.AbsoluteContentSize.Y + 10)
-    end)
-
-    local content = Create("Frame", {
-        Name = "Content",
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -180, 1, -12),
-        Position = UDim2.fromOffset(173, 6),
-        Parent = bodyWrapper
-    })
-
-    -- Side Drawer Customizer Modal
-    local settingsModal = Create("Frame", {
-        Name = "SideSettingsDrawer",
-        BackgroundColor3 = theme.Secondary,
-        Size = UDim2.new(0, 240, 1, 0),
-        Position = UDim2.new(1, 10, 0, 0),
+    local homeOverlay = Create("Frame", {
+        Name = "HomeOverlay",
+        BackgroundColor3 = theme.Background,
+        Size = UDim2.new(1, 0, 1, -52),
+        Position = UDim2.fromOffset(0, 52),
+        ClipsDescendants = true,
         Visible = false,
-        ClipsDescendants = true,
-        ZIndex = 50,
+        ZIndex = 10,
         Parent = main
     })
-    corner(settingsModal, 14)
-    AddLitStroke(settingsModal, theme, 1, 0.6)
-    pad(settingsModal, 14, 14, 14, 14)
-    list(settingsModal, 8)
+    corner(homeOverlay, 12)
 
-    local customizerTitle = Create("TextLabel", {
+    local homeScroll = Create("ScrollingFrame", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 0, 20),
+        Size = UDim2.new(1, -20, 1, -16),
+        Position = UDim2.fromOffset(10, 8),
+        CanvasSize = UDim2.new(0, 0, 0, 640),
+        ScrollBarThickness = 2,
+        BorderSizePixel = 0,
+        ZIndex = 11,
+        Parent = homeOverlay
+    })
+    list(homeScroll, 10)
+
+    local homeTopBar = Create("Frame", {
+        BackgroundColor3 = theme.Secondary,
+        Size = UDim2.new(1, 0, 0, 40),
+        ZIndex = 12,
+        Parent = homeScroll
+    })
+    corner(homeTopBar, 8)
+    AddLitStroke(homeTopBar, theme, 1, 0.75)
+
+    Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -120, 1, 0),
+        Position = UDim2.fromOffset(12, 0),
         Font = Fonts.Bold,
-        Text = "PLAYER CUSTOMIZER",
-        TextColor3 = accentColor,
+        Text = "PLAYER DASHBOARD & SERVER EXPLORER",
+        TextColor3 = theme.Text,
         TextSize = 12,
         TextXAlignment = Enum.TextXAlignment.Left,
-        ZIndex = 51,
-        Parent = settingsModal
+        ZIndex = 13,
+        Parent = homeTopBar
     })
 
-    local themeBox = Create("Frame", {
+    local backBtn = Create("TextButton", {
         BackgroundColor3 = theme.Tertiary,
-        Size = UDim2.new(1, 0, 0, 60),
-        ZIndex = 51,
-        Parent = settingsModal
-    })
-    corner(themeBox, 8)
-    Create("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -16, 0, 18),
-        Position = UDim2.fromOffset(8, 6),
-        Font = Fonts.Semi,
-        Text = "Theme Preset Palette",
-        TextColor3 = theme.Text,
-        TextSize = 11,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        ZIndex = 52,
-        Parent = themeBox
-    })
-    local swatchHolder = Create("Frame", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -16, 0, 26),
-        Position = UDim2.fromOffset(8, 26),
-        ZIndex = 52,
-        Parent = themeBox
-    })
-    list(swatchHolder, 6, Enum.FillDirection.Horizontal)
-
-    local accentSubscribers = {}
-    local function notifyAccent(newColor)
-        accentColor = newColor
-        Tween(customizerTitle, {TextColor3 = newColor}, 0.25)
-        for _, sub in ipairs(accentSubscribers) do pcall(sub, newColor) end
-    end
-
-    for tName, tData in pairs(self.Themes) do
-        local sw = Create("TextButton", {
-            BackgroundColor3 = tData.Accent,
-            Size = UDim2.fromOffset(24, 24),
-            Text = "",
-            AutoButtonColor = false,
-            ZIndex = 53,
-            Parent = swatchHolder
-        })
-        corner(sw, 12)
-        AddLitStroke(sw, theme, 1, 0.4)
-        AddBouncyClick(sw, function()
-            notifyAccent(tData.Accent)
-            Velox:Notify({
-                Title = "Theme Applied",
-                Content = "Switched to " .. tName .. " theme palette.",
-                Type = "Success",
-                Duration = 2.5
-            })
-        end)
-    end
-
-    -- UI Zoom Slider
-    local scaleBox = Create("Frame", {
-        BackgroundColor3 = theme.Tertiary,
-        Size = UDim2.new(1, 0, 0, 52),
-        ZIndex = 51,
-        Parent = settingsModal
-    })
-    corner(scaleBox, 8)
-    local scaleLabel = Create("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -16, 0, 18),
-        Position = UDim2.fromOffset(8, 6),
-        Font = Fonts.Semi,
-        Text = "UI Zoom Scale: 100%",
-        TextColor3 = theme.Text,
-        TextSize = 11,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        ZIndex = 52,
-        Parent = scaleBox
-    })
-    local scaleTrack = Create("Frame", {
-        BackgroundColor3 = theme.Quaternary,
-        Size = UDim2.new(1, -16, 0, 6),
-        Position = UDim2.fromOffset(8, 30),
-        ZIndex = 52,
-        Parent = scaleBox
-    })
-    corner(scaleTrack, 3)
-    local scaleFill = Create("Frame", {
-        BackgroundColor3 = accentColor,
-        Size = UDim2.fromScale(0.5, 1),
-        BorderSizePixel = 0,
-        ZIndex = 53,
-        Parent = scaleTrack
-    })
-    corner(scaleFill, 3)
-    table.insert(accentSubscribers, function(c) scaleFill.BackgroundColor3 = c end)
-
-    local scaleDragging = false
-    scaleTrack.InputBegan:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-            scaleDragging = true
-        end
-    end)
-    UserInputService.InputEnded:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-            scaleDragging = false
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(inp)
-        if scaleDragging and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
-            local rel = math.clamp((inp.Position.X - scaleTrack.AbsolutePosition.X) / scaleTrack.AbsoluteSize.X, 0, 1)
-            scaleFill.Size = UDim2.fromScale(rel, 1)
-            local scaleVal = 0.8 + (rel * 0.4)
-            mainScale.Scale = scaleVal
-            scaleLabel.Text = string.format("UI Zoom Scale: %d%%", math.round(scaleVal * 100))
-        end
-    end)
-
-    -- Sound Toggle
-    local sfxBox = Create("Frame", {
-        BackgroundColor3 = theme.Tertiary,
-        Size = UDim2.new(1, 0, 0, 40),
-        ZIndex = 51,
-        Parent = settingsModal
-    })
-    corner(sfxBox, 8)
-    Create("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -60, 1, 0),
-        Position = UDim2.fromOffset(10, 0),
-        Font = Fonts.Semi,
-        Text = "Interface Sounds",
-        TextColor3 = theme.Text,
-        TextSize = 11,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        ZIndex = 52,
-        Parent = sfxBox
-    })
-    local sfxToggleBtn = Create("TextButton", {
-        BackgroundColor3 = Velox.Sounds.Enabled and accentColor or theme.Quaternary,
-        Size = UDim2.fromOffset(40, 20),
-        Position = UDim2.new(1, -50, 0.5, -10),
-        Text = "",
+        Size = UDim2.fromOffset(100, 26),
+        Position = UDim2.new(1, -108, 0.5, -13),
+        Font = Fonts.Bold,
+        Text = "← BACK TO UI",
+        TextColor3 = theme.Accent,
+        TextSize = 10,
         AutoButtonColor = false,
-        ZIndex = 52,
-        Parent = sfxBox
+        ZIndex = 13,
+        Parent = homeTopBar
     })
-    corner(sfxToggleBtn, 10)
-    local sfxDot = Create("Frame", {
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        Size = UDim2.fromOffset(14, 14),
-        Position = Velox.Sounds.Enabled and UDim2.fromOffset(23, 3) or UDim2.fromOffset(3, 3),
-        ZIndex = 53,
-        Parent = sfxToggleBtn
-    })
-    corner(sfxDot, 7)
-    AddBouncyClick(sfxToggleBtn, function()
-        Velox.Sounds.Enabled = not Velox.Sounds.Enabled
-        if Velox.Sounds.Enabled then
-            Tween(sfxToggleBtn, {BackgroundColor3 = accentColor}, 0.2)
-            Tween(sfxDot, {Position = UDim2.fromOffset(23, 3)}, 0.2)
-        else
-            Tween(sfxToggleBtn, {BackgroundColor3 = theme.Quaternary}, 0.2)
-            Tween(sfxDot, {Position = UDim2.fromOffset(3, 3)}, 0.2)
-        end
-    end)
-    table.insert(accentSubscribers, function(c)
-        if Velox.Sounds.Enabled then sfxToggleBtn.BackgroundColor3 = c end
+    corner(backBtn, 6)
+    AddLitStroke(backBtn, theme, 1, 0.6)
+
+    AddBouncyClick(backBtn, function()
+        homeOverlay.Visible = false
+        bodyWrapper.Visible = true
     end)
 
-    -- Nametag Studio Open Button (Inside Customizer)
-    if nametagsEnabled then
-        local studioBtn = Create("TextButton", {
-            BackgroundColor3 = theme.Tertiary,
-            Size = UDim2.new(1, 0, 0, 36),
-            Font = Fonts.Bold,
-            Text = "🏷️ Open Nametag Studio",
-            TextColor3 = accentColor,
-            TextSize = 11,
-            AutoButtonColor = false,
-            ZIndex = 51,
-            Parent = settingsModal
+    local pCard = Create("Frame", {
+        BackgroundColor3 = theme.Secondary,
+        Size = UDim2.new(1, 0, 0, 68),
+        ZIndex = 12,
+        Parent = homeScroll
+    })
+    corner(pCard, 8)
+    AddLitStroke(pCard, theme, 1, 0.75)
+
+    local pfpLg = Create("ImageLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.fromOffset(48, 48),
+        Position = UDim2.fromOffset(12, 10),
+        ZIndex = 13,
+        Parent = pCard
+    })
+    corner(pfpLg, 24)
+    AddLitStroke(pfpLg, theme, 1, 0.5)
+
+    task.spawn(function()
+        local thumb = "rbxthumb://type=AvatarHeadShot&id=" .. LocalPlayer.UserId .. "&w=150&h=150"
+        pcall(function()
+            local c, r = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+            if c and r then thumb = c end
+        end)
+        pfpLg.Image = thumb
+    end)
+
+    Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -80, 0, 18),
+        Position = UDim2.fromOffset(70, 12),
+        Font = Fonts.Bold,
+        Text = LocalPlayer.DisplayName .. " (@" .. LocalPlayer.Name .. ")",
+        TextColor3 = theme.Text,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 13,
+        Parent = pCard
+    })
+
+    local rDat = self.Roles[self.ActiveRole] or self.Roles.Owner
+    Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -80, 0, 14),
+        Position = UDim2.fromOffset(70, 34),
+        Font = Fonts.Semi,
+        Text = "Role: " .. rDat.Badge .. " • Account Age: " .. LocalPlayer.AccountAge .. " days • ID: " .. LocalPlayer.UserId,
+        TextColor3 = rDat.Color,
+        TextSize = 10,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 13,
+        Parent = pCard
+    })
+
+    local statsGrid = Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 52),
+        ZIndex = 12,
+        Parent = homeScroll
+    })
+    list(statsGrid, 8, Enum.FillDirection.Horizontal)
+
+    local function makeStatCard(tTxt, defVal, col)
+        local c = Create("Frame", {
+            BackgroundColor3 = theme.Secondary,
+            Size = UDim2.new(0.315, 0, 1, 0),
+            ZIndex = 13,
+            Parent = statsGrid
         })
-        corner(studioBtn, 8)
-        AddLitStroke(studioBtn, theme, 1, 0.5)
-        AddBouncyClick(studioBtn, function()
-            Velox:OpenNametagEditor()
+        corner(c, 8)
+        AddLitStroke(c, theme, 1, 0.75)
+
+        Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, 16),
+            Position = UDim2.fromOffset(0, 6),
+            Font = Fonts.Semi,
+            Text = tTxt,
+            TextColor3 = theme.TextDark,
+            TextSize = 9,
+            ZIndex = 14,
+            Parent = c
+        })
+
+        local vl = Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, 22),
+            Position = UDim2.fromOffset(0, 22),
+            Font = Fonts.Bold,
+            Text = defVal,
+            TextColor3 = col or theme.Text,
+            TextSize = 13,
+            ZIndex = 14,
+            Parent = c
+        })
+        return vl
+    end
+
+    local fpsLbl = makeStatCard("FPS ENGINE", "60 FPS", theme.Success)
+    local pingLbl = makeStatCard("NETWORK PING", "45 ms", theme.Info)
+    local memLbl = makeStatCard("MEMORY USAGE", "420 MB", theme.Warning)
+
+    task.spawn(function()
+        local lastTime = tick()
+        local frameCount = 0
+        RunService.RenderStepped:Connect(function()
+            frameCount = frameCount + 1
+            local now = tick()
+            if now - lastTime >= 1.0 then
+                local fps = math.round(frameCount / (now - lastTime))
+                fpsLbl.Text = tostring(fps) .. " FPS"
+                frameCount = 0
+                lastTime = now
+
+                pcall(function()
+                    local ping = math.round(LocalPlayer:GetNetworkPing() * 1000)
+                    pingLbl.Text = tostring(ping) .. " ms"
+                end)
+
+                pcall(function()
+                    local mem = math.round(StatsService:GetTotalMemoryUsageMb())
+                    memLbl.Text = tostring(mem) .. " MB"
+                end)
+            end
+        end)
+    end)
+
+    local pListCard = Create("Frame", {
+        BackgroundColor3 = theme.Secondary,
+        Size = UDim2.new(1, 0, 0, 36),
+        ZIndex = 12,
+        Parent = homeScroll
+    })
+    corner(pListCard, 8)
+    AddLitStroke(pListCard, theme, 1, 0.75)
+
+    local pListHeader = Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0.5, 0, 1, 0),
+        Position = UDim2.fromOffset(12, 0),
+        Font = Fonts.Bold,
+        Text = "PLAYERS IN SERVER (" .. #Players:GetPlayers() .. ")",
+        TextColor3 = theme.Text,
+        TextSize = 11,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 13,
+        Parent = pListCard
+    })
+
+    local playerRowsContainer = Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 300),
+        ZIndex = 12,
+        Parent = homeScroll
+    })
+    list(playerRowsContainer, 6)
+
+    local function refreshPlayerList()
+        for _, ch in ipairs(playerRowsContainer:GetChildren()) do
+            if ch:IsA("Frame") then ch:Destroy() end
+        end
+
+        local allPlayers = Players:GetPlayers()
+        pListHeader.Text = "PLAYERS IN SERVER (" .. #allPlayers .. ")"
+
+        for _, plr in ipairs(allPlayers) do
+            local row = Create("Frame", {
+                BackgroundColor3 = theme.Secondary,
+                Size = UDim2.new(1, 0, 0, 44),
+                ZIndex = 13,
+                Parent = playerRowsContainer
+            })
+            corner(row, 6)
+            AddLitStroke(row, theme, 1, 0.75)
+
+            local pHead = Create("ImageLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.fromOffset(28, 28),
+                Position = UDim2.fromOffset(8, 8),
+                ZIndex = 14,
+                Parent = row
+            })
+            corner(pHead, 14)
+
+            task.spawn(function()
+                local th = "rbxthumb://type=AvatarHeadShot&id=" .. plr.UserId .. "&w=100&h=100"
+                pcall(function()
+                    local c, r = Players:GetUserThumbnailAsync(plr.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+                    if c and r then th = c end
+                end)
+                pHead.Image = th
+            end)
+
+            Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0.4, 0, 0, 16),
+                Position = UDim2.fromOffset(44, 6),
+                Font = Fonts.Bold,
+                Text = plr.DisplayName .. " (@" .. plr.Name .. ")",
+                TextColor3 = (plr == LocalPlayer) and theme.Accent or theme.Text,
+                TextSize = 10,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                ZIndex = 14,
+                Parent = row
+            })
+
+            local distLabel = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0.4, 0, 0, 14),
+                Position = UDim2.fromOffset(44, 22),
+                Font = Fonts.Main,
+                Text = (plr == LocalPlayer) and "[You]" or "Calculating...",
+                TextColor3 = theme.TextDark,
+                TextSize = 9,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                ZIndex = 14,
+                Parent = row
+            })
+
+            if plr ~= LocalPlayer then
+                task.spawn(function()
+                    while row and row.Parent do
+                        if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                            local d = math.round((plr.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
+                            distLabel.Text = tostring(d) .. " studs away"
+                        else
+                            distLabel.Text = "Unknown distance"
+                        end
+                        task.wait(1.5)
+                    end
+                end)
+
+                local actions = Create("Frame", {
+                    BackgroundTransparency = 1,
+                    Size = UDim2.fromOffset(180, 26),
+                    Position = UDim2.new(1, -188, 0.5, -13),
+                    ZIndex = 14,
+                    Parent = row
+                })
+                list(actions, 4, Enum.FillDirection.Horizontal)
+
+                local tpBtn = Create("TextButton", {
+                    BackgroundColor3 = theme.Tertiary,
+                    Size = UDim2.fromOffset(56, 26),
+                    Font = Fonts.Bold,
+                    Text = "WARP",
+                    TextColor3 = theme.Success,
+                    TextSize = 9,
+                    AutoButtonColor = false,
+                    ZIndex = 15,
+                    Parent = actions
+                })
+                corner(tpBtn, 5)
+                AddBouncyClick(tpBtn, function()
+                    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+                        Velox:Notify({
+                            Title = "Teleported",
+                            Content = "Warped to " .. plr.DisplayName,
+                            Type = "Success",
+                            Duration = 2.5
+                        })
+                    end
+                end)
+
+                local specBtn = Create("TextButton", {
+                    BackgroundColor3 = theme.Tertiary,
+                    Size = UDim2.fromOffset(56, 26),
+                    Font = Fonts.Bold,
+                    Text = "VIEW",
+                    TextColor3 = theme.Info,
+                    TextSize = 9,
+                    AutoButtonColor = false,
+                    ZIndex = 15,
+                    Parent = actions
+                })
+                corner(specBtn, 5)
+                AddBouncyClick(specBtn, function()
+                    if plr.Character and plr.Character:FindFirstChildOfClass("Humanoid") then
+                        workspace.CurrentCamera.CameraSubject = plr.Character:FindFirstChildOfClass("Humanoid")
+                        Velox:Notify({
+                            Title = "Spectating " .. plr.DisplayName,
+                            Content = "Click your profile pill to return to your character.",
+                            Type = "Info",
+                            Duration = 3.5
+                        })
+                    end
+                end)
+
+                local copyBtn = Create("TextButton", {
+                    BackgroundColor3 = theme.Tertiary,
+                    Size = UDim2.fromOffset(56, 26),
+                    Font = Fonts.Bold,
+                    Text = "COPY ID",
+                    TextColor3 = theme.TextDim,
+                    TextSize = 9,
+                    AutoButtonColor = false,
+                    ZIndex = 15,
+                    Parent = actions
+                })
+                corner(copyBtn, 5)
+                AddBouncyClick(copyBtn, function()
+                    if setclipboard then setclipboard(tostring(plr.UserId)) end
+                    Velox:Notify({
+                        Title = "ID Copied",
+                        Content = "Copied UserId " .. plr.UserId .. " to clipboard.",
+                        Type = "Success",
+                        Duration = 2
+                    })
+                end)
+            end
+        end
+    end
+
+    refreshPlayerList()
+    Players.PlayerAdded:Connect(refreshPlayerList)
+    Players.PlayerRemoving:Connect(refreshPlayerList)
+
+    if profilePillBtn then
+        AddBouncyClick(profilePillBtn, function()
+            local opening = not homeOverlay.Visible
+            if opening then
+                bodyWrapper.Visible = false
+                homeOverlay.Visible = true
+                if workspace.CurrentCamera and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+                    workspace.CurrentCamera.CameraSubject = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                end
+                refreshPlayerList()
+            else
+                homeOverlay.Visible = false
+                bodyWrapper.Visible = true
+            end
         end)
     end
 
-    AddBouncyClick(settingsBtn, function()
-        settingsModal.Visible = not settingsModal.Visible
-        if settingsModal.Visible then
-            Tween(gearIcon, {Rotation = gearIcon.Rotation + 90}, 0.3)
-            settingsModal.Position = UDim2.new(1, -10, 0, 0)
-            Tween(settingsModal, {Position = UDim2.new(1, 10, 0, 0)}, 0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-        end
-    end)
+    local sidebarWidth = (orientation == "Horizontal") and 0 or 170
+    local tabButtonsContainer = nil
+    local contentContainer = nil
 
-    local minimized = false
-    local origSize = size
-    AddBouncyClick(minBtn, function()
-        minimized = not minimized
-        if minimized then
-            bodyWrapper.Visible = false
-            headerBottomPatch.Visible = false
-            settingsModal.Visible = false
-            minBtn.Text = "+"
-            Tween(main, {Size = UDim2.fromOffset(origSize.X.Offset, 54)}, 0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-        else
-            minBtn.Text = "–"
-            local t = Tween(main, {Size = origSize}, 0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-            t.Completed:Connect(function()
-                if not minimized then
-                    bodyWrapper.Visible = true
-                    headerBottomPatch.Visible = true
+    if orientation == "Horizontal" then
+        local topTabBar = Create("Frame", {
+            BackgroundColor3 = theme.Secondary,
+            Size = UDim2.new(1, 0, 0, 36),
+            Parent = bodyWrapper
+        })
+        tabButtonsContainer = Create("ScrollingFrame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -20, 1, 0),
+            Position = UDim2.fromOffset(10, 0),
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            ScrollBarThickness = 0,
+            BorderSizePixel = 0,
+            Parent = topTabBar
+        })
+        local hLayout = list(tabButtonsContainer, 6, Enum.FillDirection.Horizontal)
+        hLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            tabButtonsContainer.CanvasSize = UDim2.new(0, hLayout.AbsoluteContentSize.X + 16, 0, 0)
+        end)
+
+        contentContainer = Create("Frame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -20, 1, -44),
+            Position = UDim2.fromOffset(10, 40),
+            Parent = bodyWrapper
+        })
+    else
+        local sidebar = Create("Frame", {
+            BackgroundColor3 = theme.Secondary,
+            Size = UDim2.new(0, sidebarWidth, 1, 0),
+            Parent = bodyWrapper,
+        })
+
+        if showSearch then
+            local searchBox = Create("Frame", {
+                BackgroundColor3 = theme.InputBackground,
+                Size = UDim2.new(1, -16, 0, 30),
+                Position = UDim2.fromOffset(8, 8),
+                Parent = sidebar,
+            })
+            corner(searchBox, 6)
+            AddLitStroke(searchBox, theme, 1, 0.8)
+
+            Create("ImageLabel", {
+                BackgroundTransparency = 1,
+                Image = self.Icons.Search,
+                ImageColor3 = theme.TextDark,
+                Size = UDim2.fromOffset(14, 14),
+                Position = UDim2.fromOffset(8, 8),
+                Parent = searchBox,
+            })
+
+            local searchInput = Create("TextBox", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -30, 1, 0),
+                Position = UDim2.fromOffset(26, 0),
+                Font = Fonts.Main,
+                PlaceholderText = "Filter widgets...",
+                PlaceholderColor3 = theme.TextDark,
+                Text = "",
+                TextColor3 = theme.Text,
+                TextSize = 11,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                ClearTextOnFocus = false,
+                Parent = searchBox,
+            })
+        end
+
+        local searchH = showSearch and 46 or 8
+        tabButtonsContainer = Create("ScrollingFrame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -16, 1, -(searchH + 8)),
+            Position = UDim2.fromOffset(8, searchH),
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            ScrollBarThickness = 2,
+            BorderSizePixel = 0,
+            Parent = sidebar,
+        })
+        local sLayout = list(tabButtonsContainer, 4)
+        sLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            tabButtonsContainer.CanvasSize = UDim2.new(0, 0, 0, sLayout.AbsoluteContentSize.Y + 8)
+        end)
+
+        contentContainer = Create("Frame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -(sidebarWidth + 20), 1, -16),
+            Position = UDim2.fromOffset(sidebarWidth + 10, 8),
+            Parent = bodyWrapper,
+        })
+    end
+
+    local tabs = {}
+    local currentTab = nil
+
+    local win = {
+        Tabs = tabs,
+        Gui = gui,
+        Main = main,
+        OpenCustomizer = function() self:OpenCustomizer({Window = win}) end,
+        SetTheme = function(k)
+            local th = Velox.Themes[k]
+            if th then
+                theme = th
+                main.BackgroundColor3 = th.Background
+                notifyAccentChange(th.Accent)
+            end
+        end,
+        SetBackgroundImage = function(url)
+            task.spawn(function()
+                local resolved = Velox.LoadWebAsset(url)
+                bgImageLabel.Image = resolved
+            end)
+        end,
+        SetLogo = function(url)
+            task.spawn(function()
+                local resolved = Velox.LoadWebAsset(url)
+                if logoImg then logoImg.Image = resolved end
+            end)
+        end,
+        ToggleScanlines = function(val) scanlinesFrame.Visible = val end,
+        ToggleVignette = function(val) vignetteFrame.Visible = val end,
+        ToggleRainbowBorder = function(val)
+            task.spawn(function()
+                local hue = 0
+                while val and main and main.Parent do
+                    hue = (hue + 0.01) % 1
+                    mainStroke.Color = Color3.fromHSV(hue, 0.8, 1)
+                    RunService.Heartbeat:Wait()
+                end
+                if not val and mainStroke then
+                    mainStroke.Color = theme.Accent
                 end
             end)
         end
-    end)
-
-    AddBouncyClick(closeBtn, function()
-        playSound(Velox.Sounds.Click, 0.4)
-        bodyWrapper.Visible = false
-        headerBottomPatch.Visible = false
-        settingsModal.Visible = false
-        Tween(mainScale, {Scale = 0.72}, 0.22, Enum.EasingStyle.Back, Enum.EasingDirection.In)
-        Tween(main, {BackgroundTransparency = 1}, 0.22, Enum.EasingStyle.Quart)
-        Tween(header, {BackgroundTransparency = 1}, 0.22, Enum.EasingStyle.Quart)
-        task.wait(0.24)
-        main.Visible = false
-        if not showMobileToggle then gui:Destroy() end
-    end)
-
-    UserInputService.InputBegan:Connect(function(inp, gpe)
-        if not gpe and inp.KeyCode == minKey then
-            main.Visible = not main.Visible
-            playSound(Velox.Sounds.Click, 0.3)
-        end
-    end)
-
-    if showMobileToggle then
-        Velox:CreateMobileToggle(function()
-            main.Visible = not main.Visible
-            if main.Visible then
-                bodyWrapper.Visible = not minimized
-                headerBottomPatch.Visible = not minimized
-                main.BackgroundTransparency = 0
-                header.BackgroundTransparency = 0
-                mainScale.Scale = 0.85
-                Tween(mainScale, {Scale = 1.0}, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-            end
-        end)
-    end
-
-    -- Nametags optional initialization
-    if nametagsEnabled then
-        Velox:InitializeNametagSync(cfg.NametagCloudUrl)
-        if cfg.DefaultNametag then
-            Velox:CreateNametag(cfg.DefaultNametag)
-        end
-    end
-
-    --------------------------------------------------------
-    -- WINDOW OBJECT API
-    --------------------------------------------------------
-    local win = {
-        ScreenGui = gui,
-        Main = main,
-        Tabs = {},
-        CurrentTab = nil,
-        Flags = {},
-        Theme = theme,
-        SetTitle = function(newTitle) titleLabel.Text = newTitle end,
-        SetSubTitle = function(newSub) subtitleLabel.Text = newSub end,
-        SetAccent = notifyAccent,
-        OpenNametagStudio = function() Velox:OpenNametagEditor() end,
     }
 
-    if searchInput then
-        searchInput:GetPropertyChangedSignal("Text"):Connect(function()
-            local q = searchInput.Text:lower()
-            if win.CurrentTab and win.CurrentTab.Elements then
-                for _, el in ipairs(win.CurrentTab.Elements) do
-                    if el.Name and el.Frame then
-                        el.Frame.Visible = (q == "" or el.Name:lower():find(q) ~= nil)
+    if showSettings then
+        settingsDrawer = Create("Frame", {
+            Name = "SideSettingsDrawer",
+            BackgroundColor3 = theme.Secondary,
+            Size = UDim2.fromOffset(210, size.Y.Offset),
+            Position = UDim2.new(1, -40, 0, 0),
+            ClipsDescendants = true,
+            Visible = false,
+            ZIndex = 25,
+            Parent = main
+        })
+        corner(settingsDrawer, 12)
+        AddLitStroke(settingsDrawer, theme, 1.2, 0.4)
+
+        local dTitle = Create("Frame", {
+            BackgroundColor3 = theme.Tertiary,
+            Size = UDim2.new(1, 0, 0, 42),
+            ZIndex = 26,
+            Parent = settingsDrawer
+        })
+        corner(dTitle, 12)
+
+        Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -40, 1, 0),
+            Position = UDim2.fromOffset(14, 0),
+            Font = Fonts.Bold,
+            Text = "SETTINGS",
+            TextColor3 = theme.Text,
+            TextSize = 12,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ZIndex = 27,
+            Parent = dTitle
+        })
+
+        local dClose = Create("TextButton", {
+            BackgroundColor3 = theme.Secondary,
+            Size = UDim2.fromOffset(24, 24),
+            Position = UDim2.new(1, -32, 0.5, -12),
+            Font = Fonts.Bold,
+            Text = "×",
+            TextColor3 = theme.TextDim,
+            TextSize = 16,
+            AutoButtonColor = false,
+            ZIndex = 27,
+            Parent = dTitle
+        })
+        corner(dClose, 5)
+        AddBouncyClick(dClose, function()
+            settingsOpen = false
+            local t = Tween(settingsDrawer, {Position = UDim2.new(1, -40, 0, 0)}, 0.2, Enum.EasingStyle.Quad)
+            t.Completed:Connect(function() settingsDrawer.Visible = false end)
+        end)
+
+        local dScroll = Create("ScrollingFrame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -16, 1, -50),
+            Position = UDim2.fromOffset(8, 46),
+            CanvasSize = UDim2.new(0, 0, 0, 420),
+            ScrollBarThickness = 2,
+            BorderSizePixel = 0,
+            ZIndex = 26,
+            Parent = settingsDrawer
+        })
+        list(dScroll, 8)
+
+        local function makeSettingsHeader(txt)
+            local l = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 0, 16),
+                Font = Fonts.Bold,
+                Text = txt:upper(),
+                TextColor3 = theme.TextDark,
+                TextSize = 9,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                ZIndex = 27,
+                Parent = dScroll
+            })
+            return l
+        end
+
+        makeSettingsHeader("UI Theme")
+        local themePillRow = Create("Frame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, 56),
+            ZIndex = 27,
+            Parent = dScroll
+        })
+        local tGrid = Create("UIGridLayout", {
+            CellSize = UDim2.new(0.31, 0, 0, 24),
+            CellPadding = UDim2.new(0, 4, 0, 4),
+            Parent = themePillRow
+        })
+        for _, tKey in ipairs({"Obsidian", "Midnight", "TokyoPurple", "Cyberpunk", "Emerald", "Crimson"}) do
+            local tp = Create("TextButton", {
+                BackgroundColor3 = self.Themes[tKey].Secondary,
+                Font = Fonts.Semi,
+                Text = tKey:sub(1, 5),
+                TextColor3 = self.Themes[tKey].Accent,
+                TextSize = 9,
+                AutoButtonColor = false,
+                ZIndex = 28,
+                Parent = themePillRow
+            })
+            corner(tp, 5)
+            AddLitStroke(tp, {Accent = self.Themes[tKey].Accent}, 1, 0.6)
+            AddBouncyClick(tp, function() win.SetTheme(tKey) end)
+        end
+
+        makeSettingsHeader("UI Scale")
+        local scaleCard = Create("Frame", {
+            BackgroundColor3 = theme.Tertiary,
+            Size = UDim2.new(1, 0, 0, 46),
+            ZIndex = 27,
+            Parent = dScroll
+        })
+        corner(scaleCard, 6)
+        AddLitStroke(scaleCard, theme, 1, 0.7)
+
+        local scaleLbl = Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -16, 0, 14),
+            Position = UDim2.fromOffset(8, 4),
+            Font = Fonts.Semi,
+            Text = "Window Scale: 100%",
+            TextColor3 = theme.Text,
+            TextSize = 10,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ZIndex = 28,
+            Parent = scaleCard
+        })
+
+        local scaleTrack = Create("TextButton", {
+            BackgroundColor3 = theme.InputBackground,
+            Size = UDim2.new(1, -16, 0, 6),
+            Position = UDim2.fromOffset(8, 26),
+            Text = "",
+            AutoButtonColor = false,
+            ZIndex = 28,
+            Parent = scaleCard
+        })
+        corner(scaleTrack, 3)
+
+        local scaleFill = Create("Frame", {
+            BackgroundColor3 = theme.Accent,
+            Size = UDim2.fromScale(0.5, 1),
+            ZIndex = 29,
+            Parent = scaleTrack
+        })
+        corner(scaleFill, 3)
+
+        local scaleKnob = Create("Frame", {
+            BackgroundColor3 = Color3.new(1, 1, 1),
+            Size = UDim2.fromOffset(10, 10),
+            Position = UDim2.new(1, -5, 0.5, -5),
+            ZIndex = 30,
+            Parent = scaleFill
+        })
+        corner(scaleKnob, 5)
+
+        local slidingScale = false
+        local function updateScale(input)
+            local relX = math.clamp((input.Position.X - scaleTrack.AbsolutePosition.X) / scaleTrack.AbsoluteSize.X, 0, 1)
+            local currentS = 0.75 + (relX * 0.5)
+            scaleLbl.Text = "Window Scale: " .. math.round(currentS * 100) .. "%"
+            scaleFill.Size = UDim2.fromScale(relX, 1)
+            mainScale.Scale = currentS
+        end
+
+        scaleTrack.InputBegan:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+                slidingScale = true
+                updateScale(inp)
+            end
+        end)
+        UserInputService.InputEnded:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+                slidingScale = false
+            end
+        end)
+        UserInputService.InputChanged:Connect(function(inp)
+            if slidingScale and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
+                updateScale(inp)
+            end
+        end)
+
+        if cfg.Nametags == true then
+            makeSettingsHeader("Display Nametag")
+            local tagToggleCard = Create("Frame", {
+                BackgroundColor3 = theme.Tertiary,
+                Size = UDim2.new(1, 0, 0, 34),
+                ZIndex = 27,
+                Parent = dScroll
+            })
+            corner(tagToggleCard, 6)
+            AddLitStroke(tagToggleCard, theme, 1, 0.7)
+
+            Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -44, 1, 0),
+                Position = UDim2.fromOffset(8, 0),
+                Font = Fonts.Semi,
+                Text = "Show Overhead Tag",
+                TextColor3 = theme.Text,
+                TextSize = 10,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                ZIndex = 28,
+                Parent = tagToggleCard
+            })
+
+            local tagSw = Create("TextButton", {
+                BackgroundColor3 = self.NametagsEnabled and theme.Accent or theme.Secondary,
+                Size = UDim2.fromOffset(30, 16),
+                Position = UDim2.new(1, -36, 0.5, -8),
+                Text = "",
+                AutoButtonColor = false,
+                ZIndex = 28,
+                Parent = tagToggleCard
+            })
+            corner(tagSw, 8)
+
+            local tagDot = Create("Frame", {
+                BackgroundColor3 = Color3.new(1, 1, 1),
+                Size = UDim2.fromOffset(10, 10),
+                Position = self.NametagsEnabled and UDim2.fromOffset(17, 3) or UDim2.fromOffset(3, 3),
+                ZIndex = 29,
+                Parent = tagSw
+            })
+            corner(tagDot, 5)
+
+            AddBouncyClick(tagSw, function()
+                self.NametagsEnabled = not self.NametagsEnabled
+                if self.NametagsEnabled then
+                    Tween(tagSw, {BackgroundColor3 = theme.Accent}, 0.2)
+                    Tween(tagDot, {Position = UDim2.fromOffset(17, 3)}, 0.2)
+                else
+                    Tween(tagSw, {BackgroundColor3 = theme.Secondary}, 0.2)
+                    Tween(tagDot, {Position = UDim2.fromOffset(3, 3)}, 0.2)
+                end
+                for _, g in ipairs(GuiParent:GetChildren()) do
+                    if g.Name:find("VeloxTag_") and g:IsA("BillboardGui") then
+                        g.Enabled = self.NametagsEnabled
                     end
                 end
-            end
+            end)
+        end
+
+        local studioBtn = Create("TextButton", {
+            BackgroundColor3 = theme.Accent,
+            Size = UDim2.new(1, 0, 0, 32),
+            Font = Fonts.Bold,
+            Text = "🎨 OPEN STUDIO PRO",
+            TextColor3 = Color3.new(1, 1, 1),
+            TextSize = 10,
+            AutoButtonColor = false,
+            ZIndex = 27,
+            Parent = dScroll
+        })
+        corner(studioBtn, 6)
+        AddBouncyClick(studioBtn, function()
+            self:OpenCustomizer({Window = win})
+        end)
+
+        local unloadBtn = Create("TextButton", {
+            BackgroundColor3 = theme.Tertiary,
+            Size = UDim2.new(1, 0, 0, 28),
+            Font = Fonts.Semi,
+            Text = "Unload Velox UI",
+            TextColor3 = theme.Error,
+            TextSize = 10,
+            AutoButtonColor = false,
+            ZIndex = 27,
+            Parent = dScroll
+        })
+        corner(unloadBtn, 6)
+        AddLitStroke(unloadBtn, {Accent = theme.Error}, 1, 0.6)
+        AddBouncyClick(unloadBtn, function()
+            gui:Destroy()
         end)
     end
 
-    --------------------------------------------------------
-    -- TAB CONSTRUCTOR
-    --------------------------------------------------------
-    function win:CreateTab(name, iconId)
-        local tabData = {
-            Name = name,
-            Elements = {},
-        }
+    UserInputService.InputBegan:Connect(function(input, gpe)
+        if not gpe and input.KeyCode == minKey then
+            if main.Visible then
+                shrinkToCircle()
+            else
+                restoreFromCircle()
+            end
+        end
+    end)
 
+    function win:CreateTab(tabName, tabIcon)
+        local isHoriz = (orientation == "Horizontal")
         local tabBtn = Create("TextButton", {
-            BackgroundColor3 = theme.Tertiary,
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 34),
+            BackgroundColor3 = theme.Secondary,
+            Size = isHoriz and UDim2.fromOffset(120, 28) or UDim2.new(1, 0, 0, 34),
             Text = "",
             AutoButtonColor = false,
-            Parent = tabScroll
+            Parent = tabButtonsContainer,
         })
-        corner(tabBtn, 8)
+        corner(tabBtn, 6)
 
-        local tabIcon = nil
-        if iconId then
-            tabIcon = Create("ImageLabel", {
+        local tabPill = Create("Frame", {
+            BackgroundColor3 = accentColor,
+            Size = isHoriz and UDim2.new(1, 0, 0, 2) or UDim2.new(0, 3, 0.6, 0),
+            Position = isHoriz and UDim2.new(0, 0, 1, -2) or UDim2.new(0, 2, 0.2, 0),
+            Visible = false,
+            Parent = tabBtn,
+        })
+        corner(tabPill, 2)
+        table.insert(accentSubscribers, function(c) tabPill.BackgroundColor3 = c end)
+
+        local iconImg = nil
+        if tabIcon then
+            iconImg = Create("ImageLabel", {
                 BackgroundTransparency = 1,
-                Image = iconId,
+                Image = tabIcon,
                 ImageColor3 = theme.TextDark,
                 Size = UDim2.fromOffset(16, 16),
                 Position = UDim2.fromOffset(10, 9),
-                Parent = tabBtn
+                Parent = tabBtn,
             })
         end
 
+        local textX = tabIcon and 32 or 12
         local tabLabel = Create("TextLabel", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, iconId and -36 or -16, 1, 0),
-            Position = UDim2.fromOffset(iconId and 32 or 10, 0),
+            Size = UDim2.new(1, -(textX + 6), 1, 0),
+            Position = UDim2.fromOffset(textX, 0),
             Font = Fonts.Semi,
-            Text = name,
-            TextColor3 = theme.TextDim,
-            TextSize = 12,
+            Text = tabName,
+            TextColor3 = theme.TextDark,
+            TextSize = 11,
             TextXAlignment = Enum.TextXAlignment.Left,
-            Parent = tabBtn
+            Parent = tabBtn,
         })
-
-        local tabActiveIndicator = Create("Frame", {
-            BackgroundColor3 = accentColor,
-            Size = UDim2.fromOffset(3, 18),
-            Position = UDim2.fromOffset(0, 8),
-            Visible = false,
-            Parent = tabBtn
-        })
-        corner(tabActiveIndicator, 2)
-        table.insert(accentSubscribers, function(c) tabActiveIndicator.BackgroundColor3 = c end)
 
         local tabContainer = Create("ScrollingFrame", {
-            Name = name .. "_Tab",
+            Name = "Tab_" .. tabName,
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 1, 0),
+            Size = UDim2.fromScale(1, 1),
             CanvasSize = UDim2.new(0, 0, 0, 0),
-            ScrollBarThickness = 3,
-            ScrollBarImageColor3 = theme.Tertiary,
+            ScrollBarThickness = 2,
             BorderSizePixel = 0,
             Visible = false,
-            Parent = content
+            Parent = contentContainer,
         })
-        local tabElemLayout = list(tabContainer, 7)
-        tabElemLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            tabContainer.CanvasSize = UDim2.new(0, 0, 0, tabElemLayout.AbsoluteContentSize.Y + 12)
+        local tabLayout = list(tabContainer, 8)
+        tabLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            tabContainer.CanvasSize = UDim2.new(0, 0, 0, tabLayout.AbsoluteContentSize.Y + 12)
         end)
-        tabData.Container = tabContainer
+
+        local tabData = {
+            Button = tabBtn,
+            Container = tabContainer,
+            Label = tabLabel,
+            Icon = iconImg,
+            Pill = tabPill,
+            Elements = {},
+        }
 
         local function activateTab()
-            for _, t in ipairs(win.Tabs) do
-                t.Container.Visible = false
-                Tween(t.Button, {BackgroundTransparency = 1}, 0.2)
-                Tween(t.Label, {TextColor3 = theme.TextDim}, 0.2)
-                if t.Icon then Tween(t.Icon, {ImageColor3 = theme.TextDark}, 0.2) end
-                t.Indicator.Visible = false
+            if currentTab then
+                currentTab.Container.Visible = false
+                currentTab.Pill.Visible = false
+                currentTab.Label.TextColor3 = theme.TextDark
+                if currentTab.Icon then currentTab.Icon.ImageColor3 = theme.TextDark end
+                Tween(currentTab.Button, {BackgroundColor3 = theme.Secondary}, 0.15)
             end
-            tabContainer.Visible = true
-            Tween(tabBtn, {BackgroundTransparency = 0.5}, 0.2)
-            Tween(tabLabel, {TextColor3 = theme.Text}, 0.2)
-            if tabIcon then Tween(tabIcon, {ImageColor3 = accentColor}, 0.2) end
-            tabActiveIndicator.Visible = true
-            win.CurrentTab = tabData
+
+            currentTab = tabData
+            tabData.Container.Visible = true
+            tabData.Pill.Visible = true
+            tabData.Label.TextColor3 = theme.Text
+            if tabData.Icon then tabData.Icon.ImageColor3 = accentColor end
+            Tween(tabBtn, {BackgroundColor3 = theme.Tertiary}, 0.2)
+            playSound(Velox.Sounds.Click, 0.3)
         end
 
-        tabBtn.MouseButton1Click:Connect(function()
-            playSound(Velox.Sounds.Click, 0.25)
-            activateTab()
-        end)
+        AddBouncyClick(tabBtn, activateTab)
+        if not currentTab then activateTab() end
 
-        tabData.Button = tabBtn
-        tabData.Label = tabLabel
-        tabData.Icon = tabIcon
-        tabData.Indicator = tabActiveIndicator
-
-        table.insert(win.Tabs, tabData)
-
-        if #win.Tabs == 1 then
-            activateTab()
-        end
-
-        --------------------------------------------------------
-        -- TAB WIDGETS
-        --------------------------------------------------------
         function tabData:CreateSection(txt)
             local sec = Create("Frame", {
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -6, 0, 24),
+                Size = UDim2.new(1, -6, 0, 22),
                 Parent = tabContainer
             })
-            local l = Create("TextLabel", {
+            local lbl = Create("TextLabel", {
                 BackgroundTransparency = 1,
                 Size = UDim2.new(1, 0, 1, 0),
                 Font = Fonts.Bold,
                 Text = txt:upper(),
                 TextColor3 = accentColor,
-                TextSize = 11,
+                TextSize = 10,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Parent = sec
             })
-            table.insert(accentSubscribers, function(c) l.TextColor3 = c end)
+            table.insert(accentSubscribers, function(c) lbl.TextColor3 = c end)
             return sec
         end
 
-        function tabData:CreateButton(opts)
+        function tabData:CreateModuleButton(opts)
             opts = opts or {}
-            local btnName = opts.Name or "Button"
-            local desc = opts.Description
-            local cb = opts.Callback
+            local modName = opts.Name or "Module"
+            local desc = opts.Description or "Click to open floating sub-window"
+            local subWin = opts.SubWindow or Velox:CreateSubWindow({Title = modName .. " Settings", Theme = theme, Size = opts.Size})
 
-            local h = desc and 46 or 36
             local card = Create("TextButton", {
                 BackgroundColor3 = theme.Secondary,
-                Size = UDim2.new(1, -6, 0, h),
+                Size = UDim2.new(1, -6, 0, 48),
                 Text = "",
                 AutoButtonColor = false,
-                Parent = tabContainer
-            })
-            corner(card, 8)
-            AddLitStroke(card, theme, 1, 0.75)
-
-            Create("TextLabel", {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -40, 0, 20),
-                Position = UDim2.fromOffset(12, desc and 6 or 8),
-                Font = Fonts.Semi,
-                Text = btnName,
-                TextColor3 = theme.Text,
-                TextSize = 12,
-                TextXAlignment = Enum.TextXAlignment.Left,
-                Parent = card
-            })
-
-            if desc then
-                Create("TextLabel", {
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, -40, 0, 14),
-                    Position = UDim2.fromOffset(12, 24),
-                    Font = Fonts.Main,
-                    Text = desc,
-                    TextColor3 = theme.TextDark,
-                    TextSize = 10,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = card
-                })
-            end
-
-            Create("ImageLabel", {
-                BackgroundTransparency = 1,
-                Image = Velox.Icons.Flame,
-                ImageColor3 = theme.TextDark,
-                Size = UDim2.fromOffset(14, 14),
-                Position = UDim2.new(1, -26, 0.5, -7),
-                Parent = card
-            })
-
-            AddBouncyClick(card, function() if cb then cb() end end)
-            table.insert(tabData.Elements, {Name = btnName, Frame = card})
-            return card
-        end
-
-        function tabData:CreateToggle(opts)
-            opts = opts or {}
-            local tName = opts.Name or "Toggle"
-            local desc = opts.Description
-            local state = opts.Default or false
-            local cb = opts.Callback
-
-            local h = desc and 46 or 36
-            local card = Create("Frame", {
-                BackgroundColor3 = theme.Secondary,
-                Size = UDim2.new(1, -6, 0, h),
-                Parent = tabContainer
-            })
-            corner(card, 8)
-            AddLitStroke(card, theme, 1, 0.75)
-
-            Create("TextLabel", {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -60, 0, 20),
-                Position = UDim2.fromOffset(12, desc and 6 or 8),
-                Font = Fonts.Semi,
-                Text = tName,
-                TextColor3 = theme.Text,
-                TextSize = 12,
-                TextXAlignment = Enum.TextXAlignment.Left,
-                Parent = card
-            })
-
-            if desc then
-                Create("TextLabel", {
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, -60, 0, 14),
-                    Position = UDim2.fromOffset(12, 24),
-                    Font = Fonts.Main,
-                    Text = desc,
-                    TextColor3 = theme.TextDark,
-                    TextSize = 10,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = card
-                })
-            end
-
-            local switch = Create("TextButton", {
-                BackgroundColor3 = state and accentColor or theme.Tertiary,
-                Size = UDim2.fromOffset(38, 20),
-                Position = UDim2.new(1, -50, 0.5, -10),
-                Text = "",
-                AutoButtonColor = false,
-                Parent = card
-            })
-            corner(switch, 10)
-            AddLitStroke(switch, theme, 1, 0.6)
-
-            local dot = Create("Frame", {
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                Size = UDim2.fromOffset(14, 14),
-                Position = state and UDim2.fromOffset(21, 3) or UDim2.fromOffset(3, 3),
-                Parent = switch
-            })
-            corner(dot, 7)
-
-            local function setToggle(val)
-                state = val
-                playSound(Velox.Sounds.Toggle, 0.28)
-                if state then
-                    Tween(switch, {BackgroundColor3 = accentColor}, 0.2)
-                    Tween(dot, {Position = UDim2.fromOffset(21, 3)}, 0.2)
-                else
-                    Tween(switch, {BackgroundColor3 = theme.Tertiary}, 0.2)
-                    Tween(dot, {Position = UDim2.fromOffset(3, 3)}, 0.2)
-                end
-                if cb then cb(state) end
-            end
-
-            AddBouncyClick(switch, function() setToggle(not state) end)
-            table.insert(accentSubscribers, function(c)
-                if state then switch.BackgroundColor3 = c end
-            end)
-
-            table.insert(tabData.Elements, {Name = tName, Frame = card})
-            return {
-                Set = setToggle,
-                Value = function() return state end
-            }
-        end
-
-        function tabData:CreateSlider(opts)
-            opts = opts or {}
-            local sName = opts.Name or "Slider"
-            local min = opts.Min or 0
-            local max = opts.Max or 100
-            local def = opts.Default or min
-            local suffix = opts.Suffix or ""
-            local cb = opts.Callback
-            local currentVal = def
-
-            local card = Create("Frame", {
-                BackgroundColor3 = theme.Secondary,
-                Size = UDim2.new(1, -6, 0, 52),
                 Parent = tabContainer
             })
             corner(card, 8)
@@ -1975,81 +3296,290 @@ function Velox:CreateWindow(cfg)
                 BackgroundTransparency = 1,
                 Size = UDim2.new(1, -80, 0, 20),
                 Position = UDim2.fromOffset(12, 6),
-                Font = Fonts.Semi,
-                Text = sName,
+                Font = Fonts.Bold,
+                Text = modName,
                 TextColor3 = theme.Text,
                 TextSize = 12,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Parent = card
             })
 
+            Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -80, 0, 14),
+                Position = UDim2.fromOffset(12, 26),
+                Font = Fonts.Main,
+                Text = desc,
+                TextColor3 = theme.TextDark,
+                TextSize = 10,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card
+            })
+
+            local openBadge = Create("Frame", {
+                BackgroundColor3 = theme.Tertiary,
+                Size = UDim2.fromOffset(60, 24),
+                Position = UDim2.new(1, -70, 0.5, -12),
+                Parent = card
+            })
+            corner(openBadge, 6)
+            AddLitStroke(openBadge, theme, 1, 0.6)
+
+            local badgeText = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.fromScale(1, 1),
+                Font = Fonts.Bold,
+                Text = "OPEN ↗",
+                TextColor3 = accentColor,
+                TextSize = 10,
+                Parent = openBadge
+            })
+            table.insert(accentSubscribers, function(c) badgeText.TextColor3 = c end)
+
+            AddBouncyClick(card, function()
+                subWin.Toggle()
+            end)
+
+            table.insert(tabData.Elements, {Name = modName, Frame = card})
+            return subWin
+        end
+
+        function tabData:CreateButton(opts)
+            opts = opts or {}
+            local bName = opts.Name or "Button"
+            local desc  = opts.Description
+            local cb    = opts.Callback
+
+            local h = desc and 48 or 36
+            local card = Create("TextButton", {
+                BackgroundColor3 = theme.Secondary,
+                Size = UDim2.new(1, -6, 0, h),
+                Text = "",
+                AutoButtonColor = false,
+                Parent = tabContainer,
+            })
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.75)
+
+            Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -40, 0, 18),
+                Position = UDim2.fromOffset(12, desc and 6 or 9),
+                Font = Fonts.Semi,
+                Text = bName,
+                TextColor3 = theme.Text,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card,
+            })
+
+            if desc then
+                Create("TextLabel", {
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -40, 0, 14),
+                    Position = UDim2.fromOffset(12, 26),
+                    Font = Fonts.Main,
+                    Text = desc,
+                    TextColor3 = theme.TextDark,
+                    TextSize = 10,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = card,
+                })
+            end
+
+            AddBouncyClick(card, cb)
+            table.insert(tabData.Elements, {Name = bName, Frame = card})
+            return card
+        end
+
+        function tabData:CreateToggle(opts)
+            opts = opts or {}
+            local tName = opts.Name or "Toggle"
+            local desc  = opts.Description
+            local state = opts.Default or false
+            local cb    = opts.Callback
+
+            local h = desc and 48 or 36
+            local card = Create("Frame", {
+                BackgroundColor3 = theme.Secondary,
+                Size = UDim2.new(1, -6, 0, h),
+                Parent = tabContainer,
+            })
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.75)
+
+            Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -65, 0, 18),
+                Position = UDim2.fromOffset(12, desc and 6 or 9),
+                Font = Fonts.Semi,
+                Text = tName,
+                TextColor3 = theme.Text,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card,
+            })
+
+            if desc then
+                Create("TextLabel", {
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -65, 0, 14),
+                    Position = UDim2.fromOffset(12, 26),
+                    Font = Fonts.Main,
+                    Text = desc,
+                    TextColor3 = theme.TextDark,
+                    TextSize = 10,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = card,
+                })
+            end
+
+            local sw = Create("TextButton", {
+                BackgroundColor3 = state and accentColor or theme.Tertiary,
+                Size = UDim2.fromOffset(36, 18),
+                Position = UDim2.new(1, -48, 0.5, -9),
+                Text = "",
+                AutoButtonColor = false,
+                Parent = card,
+            })
+            corner(sw, 9)
+
+            local dot = Create("Frame", {
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                Size = UDim2.fromOffset(12, 12),
+                Position = state and UDim2.fromOffset(21, 3) or UDim2.fromOffset(3, 3),
+                Parent = sw,
+            })
+            corner(dot, 6)
+
+            AddBouncyClick(sw, function()
+                state = not state
+                playSound(Velox.Sounds.Toggle, 0.3)
+                if state then
+                    Tween(sw, {BackgroundColor3 = accentColor}, 0.2)
+                    Tween(dot, {Position = UDim2.fromOffset(21, 3)}, 0.2)
+                else
+                    Tween(sw, {BackgroundColor3 = theme.Tertiary}, 0.2)
+                    Tween(dot, {Position = UDim2.fromOffset(3, 3)}, 0.2)
+                end
+                if cb then cb(state) end
+            end)
+
+            table.insert(tabData.Elements, {Name = tName, Frame = card})
+            return {
+                Set = function(newVal)
+                    state = newVal
+                    sw.BackgroundColor3 = state and accentColor or theme.Tertiary
+                    dot.Position = state and UDim2.fromOffset(21, 3) or UDim2.fromOffset(3, 3)
+                    if cb then cb(state) end
+                end,
+                Value = function() return state end,
+            }
+        end
+
+        function tabData:CreateSlider(opts)
+            opts = opts or {}
+            local sName  = opts.Name or "Slider"
+            local minVal = opts.Min or 0
+            local maxVal = opts.Max or 100
+            local curVal = opts.Default or minVal
+            local suffix = opts.Suffix or ""
+            local cb     = opts.Callback
+
+            local card = Create("Frame", {
+                BackgroundColor3 = theme.Secondary,
+                Size = UDim2.new(1, -6, 0, 52),
+                Parent = tabContainer,
+            })
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.75)
+
+            Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -80, 0, 18),
+                Position = UDim2.fromOffset(12, 6),
+                Font = Fonts.Semi,
+                Text = sName,
+                TextColor3 = theme.Text,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card,
+            })
+
             local valLbl = Create("TextLabel", {
                 BackgroundTransparency = 1,
-                Size = UDim2.fromOffset(60, 20),
-                Position = UDim2.new(1, -72, 0, 6),
+                Size = UDim2.fromOffset(70, 18),
+                Position = UDim2.new(1, -82, 0, 6),
                 Font = Fonts.Bold,
-                Text = tostring(currentVal) .. suffix,
+                Text = tostring(curVal) .. suffix,
                 TextColor3 = accentColor,
                 TextSize = 12,
                 TextXAlignment = Enum.TextXAlignment.Right,
-                Parent = card
+                Parent = card,
             })
             table.insert(accentSubscribers, function(c) valLbl.TextColor3 = c end)
 
-            local track = Create("Frame", {
-                BackgroundColor3 = theme.Quaternary,
+            local track = Create("TextButton", {
+                BackgroundColor3 = theme.InputBackground,
                 Size = UDim2.new(1, -24, 0, 6),
-                Position = UDim2.fromOffset(12, 32),
-                Parent = card
+                Position = UDim2.fromOffset(12, 34),
+                Text = "",
+                AutoButtonColor = false,
+                Parent = card,
             })
             corner(track, 3)
 
             local fill = Create("Frame", {
                 BackgroundColor3 = accentColor,
-                Size = UDim2.fromScale(math.clamp((def - min) / (max - min), 0, 1), 1),
-                BorderSizePixel = 0,
-                Parent = track
+                Size = UDim2.fromScale(math.clamp((curVal - minVal) / (maxVal - minVal), 0, 1), 1),
+                Parent = track,
             })
             corner(fill, 3)
             table.insert(accentSubscribers, function(c) fill.BackgroundColor3 = c end)
 
-            local dragging = false
-            local function updateSlider(inp)
-                local rel = math.clamp((inp.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
-                fill.Size = UDim2.fromScale(rel, 1)
-                local val = math.floor(min + (rel * (max - min)))
-                currentVal = val
-                valLbl.Text = tostring(val) .. suffix
-                if cb then cb(val) end
+            local knob = Create("Frame", {
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                Size = UDim2.fromOffset(12, 12),
+                Position = UDim2.new(1, -6, 0.5, -6),
+                Parent = fill,
+            })
+            corner(knob, 6)
+
+            local sliding = false
+            local function update(input)
+                local relX = math.clamp((input.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
+                curVal = math.round(minVal + (relX * (maxVal - minVal)))
+                valLbl.Text = tostring(curVal) .. suffix
+                fill.Size = UDim2.fromScale(relX, 1)
+                if cb then cb(curVal) end
             end
 
             track.InputBegan:Connect(function(inp)
                 if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-                    dragging = true
-                    updateSlider(inp)
+                    sliding = true
+                    update(inp)
                 end
             end)
             UserInputService.InputEnded:Connect(function(inp)
                 if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-                    dragging = false
+                    sliding = false
                 end
             end)
             UserInputService.InputChanged:Connect(function(inp)
-                if dragging and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
-                    updateSlider(inp)
+                if sliding and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
+                    update(inp)
                 end
             end)
 
             table.insert(tabData.Elements, {Name = sName, Frame = card})
             return {
                 Set = function(newVal)
-                    currentVal = math.clamp(newVal, min, max)
-                    local rel = (currentVal - min) / (max - min)
-                    fill.Size = UDim2.fromScale(rel, 1)
-                    valLbl.Text = tostring(currentVal) .. suffix
-                    if cb then cb(currentVal) end
+                    curVal = math.clamp(newVal, minVal, maxVal)
+                    valLbl.Text = tostring(curVal) .. suffix
+                    fill.Size = UDim2.fromScale((curVal - minVal) / (maxVal - minVal), 1)
+                    if cb then cb(curVal) end
                 end,
-                Value = function() return currentVal end
+                Value = function() return curVal end,
             }
         end
 
@@ -2058,158 +3588,121 @@ function Velox:CreateWindow(cfg)
             local dName = opts.Name or "Dropdown"
             local items = opts.Items or {}
             local isMulti = opts.MultiSelect or false
+            local cur = opts.Default or (isMulti and {} or items[1])
             local cb = opts.Callback
-            local selected = isMulti and {} or (opts.Default or items[1] or "Select...")
-            local isOpen = false
 
+            local open = false
             local card = Create("Frame", {
                 BackgroundColor3 = theme.Secondary,
-                Size = UDim2.new(1, -6, 0, 38),
-                ClipsDescendants = false,
-                Parent = tabContainer
+                Size = UDim2.new(1, -6, 0, 48),
+                ClipsDescendants = true,
+                Parent = tabContainer,
             })
             corner(card, 8)
             AddLitStroke(card, theme, 1, 0.75)
 
             Create("TextLabel", {
                 BackgroundTransparency = 1,
-                Size = UDim2.new(0, 140, 1, 0),
-                Position = UDim2.fromOffset(12, 0),
+                Size = UDim2.new(0.5, 0, 0, 20),
+                Position = UDim2.fromOffset(12, 14),
                 Font = Fonts.Semi,
                 Text = dName,
                 TextColor3 = theme.Text,
                 TextSize = 12,
                 TextXAlignment = Enum.TextXAlignment.Left,
-                Parent = card
+                Parent = card,
             })
 
             local trigger = Create("TextButton", {
                 BackgroundColor3 = theme.Tertiary,
-                Size = UDim2.new(0, 150, 0, 26),
-                Position = UDim2.new(1, -162, 0.5, -13),
+                Size = UDim2.new(0.46, 0, 0, 26),
+                Position = UDim2.new(0.52, 0, 0, 11),
+                Font = Fonts.Main,
                 Text = "",
                 AutoButtonColor = false,
-                Parent = card
+                Parent = card,
             })
             corner(trigger, 6)
             AddLitStroke(trigger, theme, 1, 0.6)
 
-            local displayLabel = Create("TextLabel", {
+            local triggerLbl = Create("TextLabel", {
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -26, 1, 0),
+                Size = UDim2.new(1, -24, 1, 0),
                 Position = UDim2.fromOffset(8, 0),
-                Font = Fonts.Main,
-                Text = isMulti and "Select items..." or tostring(selected),
-                TextColor3 = theme.TextDim,
-                TextSize = 11,
-                TextTruncate = Enum.TextTruncate.AtEnd,
+                Font = Fonts.Semi,
+                Text = isMulti and "Select..." or tostring(cur),
+                TextColor3 = theme.Text,
+                TextSize = 10,
                 TextXAlignment = Enum.TextXAlignment.Left,
-                Parent = trigger
+                TextTruncate = Enum.TextTruncate.AtEnd,
+                Parent = trigger,
             })
 
-            local dropIcon = Create("TextLabel", {
+            local chevron = Create("TextLabel", {
                 BackgroundTransparency = 1,
                 Size = UDim2.fromOffset(16, 16),
                 Position = UDim2.new(1, -20, 0.5, -8),
                 Font = Fonts.Bold,
                 Text = "▼",
                 TextColor3 = theme.TextDark,
-                TextSize = 9,
-                Parent = trigger
+                TextSize = 8,
+                Parent = trigger,
             })
 
             local dropList = Create("Frame", {
-                BackgroundColor3 = theme.Secondary,
-                Size = UDim2.new(1, 0, 0, math.min(#items * 28 + 6, 140)),
-                Position = UDim2.new(0, 0, 1, 4),
-                Visible = false,
-                ClipsDescendants = true,
-                ZIndex = 30,
-                Parent = trigger
-            })
-            corner(dropList, 8)
-            AddLitStroke(dropList, theme, 1, 0.5)
-
-            local dropScroll = Create("ScrollingFrame", {
                 BackgroundTransparency = 1,
-                Size = UDim2.fromScale(1, 1),
-                CanvasSize = UDim2.new(0, 0, 0, #items * 28 + 6),
-                ScrollBarThickness = 2,
-                BorderSizePixel = 0,
-                ZIndex = 31,
-                Parent = dropList
+                Size = UDim2.new(1, -24, 0, #items * 28),
+                Position = UDim2.fromOffset(12, 48),
+                Parent = card,
             })
-            list(dropScroll, 2)
-            pad(dropScroll, 4, 4, 4, 4)
+            list(dropList, 4)
 
-            local function renderDropdownItems()
-                for _, child in ipairs(dropScroll:GetChildren()) do
-                    if child:IsA("TextButton") then child:Destroy() end
-                end
-                for _, item in ipairs(items) do
-                    local itmBtn = Create("TextButton", {
-                        BackgroundColor3 = theme.Tertiary,
-                        BackgroundTransparency = 1,
-                        Size = UDim2.new(1, 0, 0, 26),
-                        Font = Fonts.Main,
-                        Text = "  " .. tostring(item),
-                        TextColor3 = theme.TextDim,
-                        TextSize = 11,
-                        TextXAlignment = Enum.TextXAlignment.Left,
-                        AutoButtonColor = false,
-                        ZIndex = 32,
-                        Parent = dropScroll
-                    })
-                    corner(itmBtn, 5)
+            for _, item in ipairs(items) do
+                local itemBtn = Create("TextButton", {
+                    BackgroundColor3 = theme.Tertiary,
+                    Size = UDim2.new(1, 0, 0, 24),
+                    Font = Fonts.Main,
+                    Text = "  " .. tostring(item),
+                    TextColor3 = theme.TextDim,
+                    TextSize = 10,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    AutoButtonColor = false,
+                    Parent = dropList,
+                })
+                corner(itemBtn, 4)
 
-                    if not isMulti and item == selected then
-                        itmBtn.TextColor3 = accentColor
-                        itmBtn.BackgroundTransparency = 0.5
-                    elseif isMulti and selected[item] then
-                        itmBtn.TextColor3 = accentColor
-                        itmBtn.BackgroundTransparency = 0.5
+                AddBouncyClick(itemBtn, function()
+                    if isMulti then
+                        if not cur[item] then cur[item] = true else cur[item] = nil end
+                        local selectedCount = 0
+                        for _ in pairs(cur) do selectedCount = selectedCount + 1 end
+                        triggerLbl.Text = selectedCount .. " Selected"
+                        if cb then cb(cur) end
+                    else
+                        cur = item
+                        triggerLbl.Text = tostring(item)
+                        open = false
+                        Tween(card, {Size = UDim2.new(1, -6, 0, 48)}, 0.2)
+                        chevron.Text = "▼"
+                        if cb then cb(cur) end
                     end
-
-                    AddBouncyClick(itmBtn, function()
-                        if isMulti then
-                            selected[item] = not selected[item]
-                            local selList = {}
-                            for k, v in pairs(selected) do if v then table.insert(selList, k) end end
-                            displayLabel.Text = #selList > 0 and table.concat(selList, ", ") or "Select items..."
-                            if cb then cb(selected) end
-                        else
-                            selected = item
-                            displayLabel.Text = tostring(item)
-                            dropList.Visible = false
-                            dropIcon.Text = "▼"
-                            if cb then cb(item) end
-                        end
-                        renderDropdownItems()
-                    end)
-                end
+                end)
             end
 
             AddBouncyClick(trigger, function()
-                isOpen = not isOpen
-                dropList.Visible = isOpen
-                dropIcon.Text = isOpen and "▲" or "▼"
-                if isOpen then renderDropdownItems() end
+                open = not open
+                chevron.Text = open and "▲" or "▼"
+                local targetH = open and (52 + (#items * 28)) or 48
+                Tween(card, {Size = UDim2.new(1, -6, 0, targetH)}, 0.25)
             end)
 
             table.insert(tabData.Elements, {Name = dName, Frame = card})
             return {
                 Set = function(val)
-                    selected = val
-                    displayLabel.Text = tostring(val)
-                    if cb then cb(val) end
+                    cur = val
+                    triggerLbl.Text = isMulti and "Updated" or tostring(val)
                 end,
-                Refresh = function(newItems)
-                    items = newItems or {}
-                    dropList.Size = UDim2.new(1, 0, 0, math.min(#items * 28 + 6, 140))
-                    dropScroll.CanvasSize = UDim2.new(0, 0, 0, #items * 28 + 6)
-                    renderDropdownItems()
-                end,
-                Value = function() return selected end
+                Value = function() return cur end
             }
         end
 
@@ -2285,7 +3778,6 @@ function Velox:CreateWindow(cfg)
         return tabData
     end
 
-    -- Run Forced Background-Free Materialize Reveal
     task.spawn(function()
         Velox:PlayLoadingScreen(theme, function()
             main.Visible = true
@@ -2297,9 +3789,6 @@ function Velox:CreateWindow(cfg)
     return win
 end
 
-----------------------------------------------------------------
--- 7. FREEHAND CUSTOM UI BUILDER API (Velox.createUI)
-----------------------------------------------------------------
 function Velox.createUI(width, height, position, title, themeKey)
     local theme = Velox.Themes[themeKey or "Obsidian"] or Velox.Themes.Obsidian
     local w = width or 400
@@ -2310,6 +3799,7 @@ function Velox.createUI(width, height, position, title, themeKey)
         Name = "Velox_Custom_" .. HttpService:GenerateGUID(false):sub(1, 8),
         ResetOnSpawn = false,
         DisplayOrder = 50,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         Parent = GuiParent
     })
 
@@ -2329,38 +3819,31 @@ function Velox.createUI(width, height, position, title, themeKey)
         BackgroundTransparency = 1,
         Image = "rbxassetid://6014261993",
         ImageColor3 = theme.Shadow,
-        ImageTransparency = 0.35,
+        ImageTransparency = 0.4,
         ScaleType = Enum.ScaleType.Slice,
         SliceCenter = Rect.new(49, 49, 450, 450),
-        Size = UDim2.new(1, 60, 1, 60),
-        Position = UDim2.fromOffset(-30, -30),
+        Size = UDim2.new(1, 40, 1, 40),
+        Position = UDim2.fromOffset(-20, -20),
         ZIndex = 0,
         Parent = frame
     })
 
     local titleBar = Create("Frame", {
         BackgroundColor3 = theme.Secondary,
-        Size = UDim2.new(1, 0, 0, 38),
+        Size = UDim2.new(1, 0, 0, 40),
         Parent = frame
     })
     corner(titleBar, 12)
-    Create("Frame", {
-        BackgroundColor3 = theme.Secondary,
-        BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 0, 12),
-        Position = UDim2.fromOffset(0, 26),
-        Parent = titleBar
-    })
     MakeDraggable(titleBar, frame)
 
     Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -70, 1, 0),
-        Position = UDim2.fromOffset(12, 0),
+        Size = UDim2.new(1, -50, 1, 0),
+        Position = UDim2.fromOffset(14, 0),
         Font = Fonts.Bold,
-        Text = title or "Custom Velox UI",
+        Text = title or "CUSTOM INTERFACE",
         TextColor3 = theme.Text,
-        TextSize = 13,
+        TextSize = 12,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = titleBar
     })
@@ -2368,7 +3851,7 @@ function Velox.createUI(width, height, position, title, themeKey)
     local closeB = Create("TextButton", {
         BackgroundColor3 = theme.Tertiary,
         Size = UDim2.fromOffset(24, 24),
-        Position = UDim2.new(1, -30, 0.5, -12),
+        Position = UDim2.new(1, -32, 0.5, -12),
         Font = Fonts.Bold,
         Text = "×",
         TextColor3 = theme.TextDim,
@@ -2377,54 +3860,57 @@ function Velox.createUI(width, height, position, title, themeKey)
         Parent = titleBar
     })
     corner(closeB, 6)
-    AddBouncyClick(closeB, function() frame.Visible = false end)
+    AddBouncyClick(closeB, function() gui:Destroy() end)
 
-    local container = Create("Frame", {
+    local container = Create("ScrollingFrame", {
         Name = "Container",
         BackgroundTransparency = 1,
         Size = UDim2.new(1, -20, 1, -50),
         Position = UDim2.fromOffset(10, 44),
-        ClipsDescendants = true,
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        ScrollBarThickness = 2,
+        BorderSizePixel = 0,
         Parent = frame
     })
+    local layout = list(container, 6)
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        container.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 8)
+    end)
 
     local customUI = {
         Gui = gui,
         Frame = frame,
-        Container = container,
-        Theme = theme
+        Container = container
     }
-
-    function customUI:AddButton(opts)
-        opts = opts or {}
-        local btn = Create("TextButton", {
-            BackgroundColor3 = theme.Secondary,
-            Size = opts.Size or UDim2.new(1, 0, 0, 36),
-            Position = opts.Position or UDim2.new(0, 0, 0, 0),
-            Font = Fonts.Semi,
-            Text = opts.Text or "Button",
-            TextColor3 = theme.Text,
-            TextSize = 12,
-            AutoButtonColor = false,
-            Parent = opts.Parent or container
-        })
-        corner(btn, 8)
-        AddLitStroke(btn, theme, 1, 0.7)
-        AddBouncyClick(btn, opts.Callback)
-        return btn
-    end
 
     function customUI:AddCard(opts)
         opts = opts or {}
         local card = Create("Frame", {
             BackgroundColor3 = opts.Color or theme.Secondary,
-            Size = opts.Size or UDim2.new(1, 0, 0, 60),
-            Position = opts.Position or UDim2.new(0, 0, 0, 0),
-            Parent = opts.Parent or container
+            Size = opts.Size or UDim2.new(1, 0, 0, 50),
+            Parent = container
         })
         corner(card, opts.Radius or 8)
-        AddLitStroke(card, theme, 1, 0.7)
+        AddLitStroke(card, theme, 1, 0.75)
         return card
+    end
+
+    function customUI:AddButton(opts)
+        opts = opts or {}
+        local btn = Create("TextButton", {
+            BackgroundColor3 = opts.Color or theme.Tertiary,
+            Size = opts.Size or UDim2.new(1, 0, 0, 36),
+            Font = Fonts.Bold,
+            Text = opts.Text or "Button",
+            TextColor3 = theme.Text,
+            TextSize = 11,
+            AutoButtonColor = false,
+            Parent = container
+        })
+        corner(btn, opts.Radius or 8)
+        AddLitStroke(btn, theme, 1, 0.6)
+        AddBouncyClick(btn, opts.Callback)
+        return btn
     end
 
     function customUI:AddToggle(opts)
@@ -2433,15 +3919,14 @@ function Velox.createUI(width, height, position, title, themeKey)
         local card = Create("Frame", {
             BackgroundColor3 = theme.Secondary,
             Size = opts.Size or UDim2.new(1, 0, 0, 36),
-            Position = opts.Position or UDim2.new(0, 0, 0, 0),
-            Parent = opts.Parent or container
+            Parent = container
         })
         corner(card, 8)
-        AddLitStroke(card, theme, 1, 0.7)
+        AddLitStroke(card, theme, 1, 0.75)
 
         Create("TextLabel", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, -55, 1, 0),
+            Size = UDim2.new(1, -50, 1, 0),
             Position = UDim2.fromOffset(10, 0),
             Font = Fonts.Semi,
             Text = opts.Text or "Toggle",
@@ -2487,9 +3972,6 @@ function Velox.createUI(width, height, position, title, themeKey)
     return customUI
 end
 
-----------------------------------------------------------------
--- GLOBAL EXPORT
-----------------------------------------------------------------
 if getgenv then
     getgenv().Velox = Velox
 end
