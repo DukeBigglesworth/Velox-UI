@@ -380,7 +380,6 @@ local function MakeDraggable(handle, target)
             dragging = true
             dragStart = input.Position
             startPos = target.Position
-
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
@@ -398,12 +397,16 @@ local function MakeDraggable(handle, target)
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - dragStart
-            target.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
+            local newX = startPos.X.Offset + delta.X
+            local newY = startPos.Y.Offset + delta.Y
+            local cam = workspace.CurrentCamera
+            if cam then
+                local vs = cam.ViewportSize
+                local sz = target.AbsoluteSize
+                newX = math.clamp(newX, 0, math.max(0, vs.X - sz.X))
+                newY = math.clamp(newY, 0, math.max(0, vs.Y - sz.Y))
+            end
+            target.Position = UDim2.new(0, newX, 0, newY)
         end
     end)
 end
@@ -486,8 +489,8 @@ function Velox:PlayLoadingScreen(theme, onComplete)
         AnchorPoint = Vector2.new(0.5, 0.5),
         Font = Fonts.Semi,
         Text = "L I B R A R Y   B Y   S C H W E I N",
-        TextColor3 = themeObj.Accent,
-        TextSize = 13,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 14,
         TextTransparency = 1,
         Parent = canvas,
     })
@@ -1022,7 +1025,7 @@ function Velox:OpenCustomizer(opts)
     local studioPages = {}
     local navButtons = {}
 
-    local tabNames = {"Nametags", "Audio"}
+    local tabNames = {"Nametags"}
     for _, tName in ipairs(tabNames) do
         local nb = Create("TextButton", {
             BackgroundColor3 = (tName == activeTab) and self.Themes.Obsidian.Tertiary or self.Themes.Obsidian.Secondary,
@@ -1960,7 +1963,14 @@ function Velox:CreateWindow(cfg)
     local logoImgUrl   = cfg.Logo or ""
 
     self.ActiveRole = customRole
-    self.NametagsEnabled = (cfg.Nametags == true)
+    local nametagMode = cfg.Nametags
+    if nametagMode == true then
+        self.NametagsEnabled = true
+    elseif nametagMode == "custom" then
+        self.NametagsEnabled = true
+    else
+        self.NametagsEnabled = false
+    end
     local theme = self.Themes[themeKey] or self.Themes.Obsidian
     local accentColor = theme.Accent
 
@@ -1970,10 +1980,12 @@ function Velox:CreateWindow(cfg)
         for _, fn in ipairs(accentSubscribers) do fn(newCol) end
     end
 
-    if self.NametagsEnabled then
+    if nametagMode == true then
         local def = cfg.DefaultNametag or {}
         def.Role = customRole
         self:CreateNametag(def)
+    elseif nametagMode == "custom" and cfg.CustomNametag then
+        self:CreateNametag(cfg.CustomNametag)
     end
 
     local gui = Create("ScreenGui", {
@@ -3061,7 +3073,7 @@ function Velox:CreateWindow(cfg)
             end
         end)
 
-        if cfg.Nametags == true then
+        if cfg.Nametags == true or cfg.Nametags == "custom" then
             makeSettingsHeader("Display Nametag")
             local tagToggleCard = Create("Frame", {
                 BackgroundColor3 = theme.Tertiary,
@@ -3122,7 +3134,7 @@ function Velox:CreateWindow(cfg)
             end)
         end
 
-        if cfg.Nametags == true then
+        if cfg.Nametags == true or cfg.Nametags == "custom" then
             local studioBtn = Create("TextButton", {
                 BackgroundColor3 = theme.Accent,
                 Size = UDim2.new(1, 0, 0, 32),
@@ -3841,7 +3853,7 @@ function Velox.createUI(width, height, position, title, themeKey)
 
     Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -50, 1, 0),
+        Size = UDim2.new(1, -90, 1, 0),
         Position = UDim2.fromOffset(14, 0),
         Font = Fonts.Bold,
         Text = title or "CUSTOM INTERFACE",
@@ -3865,6 +3877,19 @@ function Velox.createUI(width, height, position, title, themeKey)
     corner(closeB, 6)
     AddBouncyClick(closeB, function() gui:Destroy() end)
 
+    local minB = Create("TextButton", {
+        BackgroundColor3 = theme.Tertiary,
+        Size = UDim2.fromOffset(24, 24),
+        Position = UDim2.new(1, -60, 0.5, -12),
+        Font = Fonts.Bold,
+        Text = "–",
+        TextColor3 = theme.TextDim,
+        TextSize = 16,
+        AutoButtonColor = false,
+        Parent = titleBar
+    })
+    corner(minB, 6)
+
     local container = Create("ScrollingFrame", {
         Name = "Container",
         BackgroundTransparency = 1,
@@ -3880,10 +3905,24 @@ function Velox.createUI(width, height, position, title, themeKey)
         container.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 8)
     end)
 
+    local minimized = false
+    local origSize = UDim2.fromOffset(w, h)
+    AddBouncyClick(minB, function()
+        minimized = not minimized
+        if minimized then
+            container.Visible = false
+            Tween(frame, {Size = UDim2.fromOffset(w, 40)}, 0.25)
+        else
+            container.Visible = true
+            Tween(frame, {Size = origSize}, 0.3, Enum.EasingStyle.Quint)
+        end
+    end)
+
     local customUI = {
         Gui = gui,
         Frame = frame,
-        Container = container
+        Container = container,
+        Theme = theme,
     }
 
     function customUI:AddCard(opts)
