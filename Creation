@@ -1,89 +1,185 @@
 --[[
     ╔══════════════════════════════════════════════════════════════╗
-    ║                       VELOX UI  •  V2                        ║
-    ║       Ultra-Modern • Micro-Interactions • Top-Lit Glass      ║
+    ║                         VELOX UI                             ║
+    ║        The Ultimate Next-Generation Roblox UI Engine         ║
     ║                                                              ║
-    ║  • Lucide Icon Support                                       ║
-    ║  • Dynamic Gradient Strokes (Top-lit border lighting)        ║
-    ║  • Micro-bounce tactile animations (0.98 scale on click)     ║
-    ║  • Real HSV Color Picker with Live Preview                   ║
-    ║  • Precision Slider with Direct Text Input + Suffixes        ║
-    ║  • Searchable & Multi-Select Dropdown                        ║
-    ║  • Keybind with Mode Support (Toggle / Hold / Always)        ║
-    ║  • Sleek Animated Toast Notifications with Countdown Bar     ║
-    ║  • Watermark Overlay (FPS, Ping, User)                       ║
+    ║  • Top-Left Player Display (Avatar, Status Dot, Name)        ║
+    ║  • Custom Window Naming & Subtitles                          ║
+    ║  • 100% Player UI Customizer (Presets & Live Real-Time)      ║
+    ║  • Built-in 3D Overhead Nametag API (Optional per script)    ║
+    ║  • Integrated Sound Effects Engine with Volume & Toggles     ║
+    ║  • Real-time Search Engine filtering widgets                 ║
+    ║  • Top-Lit Ambient Gradient Borders (Obsidian Glass)         ║
     ╚══════════════════════════════════════════════════════════════╝
 ]]
 
-local Velox = {}
-Velox.__index = Velox
-
-----------------------------------------------------------------
--- SERVICES
-----------------------------------------------------------------
-local TweenService        = game:GetService("TweenService")
-local UserInputService    = game:GetService("UserInputService")
-local RunService          = game:GetService("RunService")
-local Players             = game:GetService("Players")
-local HttpService         = game:GetService("HttpService")
-local CoreGui             = game:GetService("CoreGui")
-local Stats               = game:GetService("Stats")
+local TweenService     = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService       = game:GetService("RunService")
+local Players          = game:GetService("Players")
+local HttpService      = game:GetService("HttpService")
+local CoreGui          = game:GetService("CoreGui")
+local SoundService     = game:GetService("SoundService")
 
 local LocalPlayer = Players.LocalPlayer
 
-----------------------------------------------------------------
--- THEME SYSTEM (Obsidian Glass Theme)
-----------------------------------------------------------------
-local Theme = {
-    Background      = Color3.fromRGB(12, 13, 16),
-    Secondary       = Color3.fromRGB(18, 19, 24),
-    Tertiary        = Color3.fromRGB(24, 26, 32),
-    InputBackground = Color3.fromRGB(15, 16, 20),
-    BorderLight     = Color3.fromRGB(255, 255, 255),
-    BorderDark      = Color3.fromRGB(40, 44, 56),
-    
-    Accent          = Color3.fromRGB(100, 140, 255),     -- Electric Blue / Silver
-    AccentGlow      = Color3.fromRGB(130, 165, 255),
-    AccentDark      = Color3.fromRGB(50, 75, 145),
-    
-    Text            = Color3.fromRGB(245, 246, 250),
-    TextDim         = Color3.fromRGB(145, 150, 165),
-    TextDark        = Color3.fromRGB(85, 90, 105),
-    
-    Success         = Color3.fromRGB(75, 215, 145),
-    Error           = Color3.fromRGB(250, 85, 85),
-    Warning         = Color3.fromRGB(255, 190, 65),
-    Info            = Color3.fromRGB(90, 165, 255),
-    
-    Shadow          = Color3.fromRGB(0, 0, 0),
+local function GetGuiParent()
+    local success, cg = pcall(function() return game:GetService("CoreGui") end)
+    if success and cg then
+        local ok, _ = pcall(function() local t = Instance.new("Folder", cg); t:Destroy() end)
+        if ok then return cg end
+    end
+    return LocalPlayer:WaitForChild("PlayerGui")
+end
+
+local GuiParent = GetGuiParent()
+
+local Velox = {
+    Themes = {
+        Obsidian = {
+            Background      = Color3.fromRGB(11, 12, 16),
+            Secondary       = Color3.fromRGB(17, 18, 24),
+            Tertiary        = Color3.fromRGB(24, 26, 34),
+            Quaternary      = Color3.fromRGB(32, 35, 46),
+            CardHover       = Color3.fromRGB(30, 33, 44),
+            InputBackground = Color3.fromRGB(14, 15, 20),
+            BorderLight     = Color3.fromRGB(255, 255, 255),
+            BorderDark      = Color3.fromRGB(45, 48, 62),
+            Accent          = Color3.fromRGB(90, 140, 255),
+            Text            = Color3.fromRGB(250, 250, 255),
+            TextDim         = Color3.fromRGB(170, 175, 190),
+            TextDark        = Color3.fromRGB(115, 120, 138),
+            Success         = Color3.fromRGB(80, 220, 150),
+            Error           = Color3.fromRGB(255, 90, 90),
+            Warning         = Color3.fromRGB(255, 195, 75),
+            Info            = Color3.fromRGB(95, 170, 255),
+            Shadow          = Color3.fromRGB(0, 0, 0),
+        },
+        Midnight = {
+            Background      = Color3.fromRGB(9, 11, 19),
+            Secondary       = Color3.fromRGB(13, 17, 28),
+            Tertiary        = Color3.fromRGB(20, 26, 42),
+            Quaternary      = Color3.fromRGB(28, 36, 58),
+            CardHover       = Color3.fromRGB(24, 32, 52),
+            InputBackground = Color3.fromRGB(11, 14, 23),
+            BorderLight     = Color3.fromRGB(255, 255, 255),
+            BorderDark      = Color3.fromRGB(35, 48, 75),
+            Accent          = Color3.fromRGB(60, 160, 255),
+            Text            = Color3.fromRGB(245, 250, 255),
+            TextDim         = Color3.fromRGB(155, 175, 205),
+            TextDark        = Color3.fromRGB(100, 120, 150),
+            Success         = Color3.fromRGB(80, 220, 150),
+            Error           = Color3.fromRGB(255, 90, 90),
+            Warning         = Color3.fromRGB(255, 195, 75),
+            Info            = Color3.fromRGB(95, 170, 255),
+            Shadow          = Color3.fromRGB(0, 0, 0),
+        },
+        TokyoPurple = {
+            Background      = Color3.fromRGB(13, 10, 18),
+            Secondary       = Color3.fromRGB(20, 15, 28),
+            Tertiary        = Color3.fromRGB(30, 22, 42),
+            Quaternary      = Color3.fromRGB(42, 32, 58),
+            CardHover       = Color3.fromRGB(36, 27, 50),
+            InputBackground = Color3.fromRGB(16, 12, 22),
+            BorderLight     = Color3.fromRGB(255, 255, 255),
+            BorderDark      = Color3.fromRGB(58, 42, 78),
+            Accent          = Color3.fromRGB(185, 110, 255),
+            Text            = Color3.fromRGB(252, 248, 255),
+            TextDim         = Color3.fromRGB(180, 165, 200),
+            TextDark        = Color3.fromRGB(125, 110, 145),
+            Success         = Color3.fromRGB(80, 220, 150),
+            Error           = Color3.fromRGB(255, 90, 90),
+            Warning         = Color3.fromRGB(255, 195, 75),
+            Info            = Color3.fromRGB(185, 110, 255),
+            Shadow          = Color3.fromRGB(0, 0, 0),
+        },
+        Emerald = {
+            Background      = Color3.fromRGB(10, 14, 12),
+            Secondary       = Color3.fromRGB(14, 22, 18),
+            Tertiary        = Color3.fromRGB(22, 34, 28),
+            Quaternary      = Color3.fromRGB(30, 48, 38),
+            CardHover       = Color3.fromRGB(26, 42, 34),
+            InputBackground = Color3.fromRGB(12, 18, 14),
+            BorderLight     = Color3.fromRGB(255, 255, 255),
+            BorderDark      = Color3.fromRGB(40, 65, 52),
+            Accent          = Color3.fromRGB(75, 215, 145),
+            Text            = Color3.fromRGB(245, 255, 250),
+            TextDim         = Color3.fromRGB(160, 195, 175),
+            TextDark        = Color3.fromRGB(105, 135, 120),
+            Success         = Color3.fromRGB(75, 215, 145),
+            Error           = Color3.fromRGB(255, 90, 90),
+            Warning         = Color3.fromRGB(255, 195, 75),
+            Info            = Color3.fromRGB(95, 170, 255),
+            Shadow          = Color3.fromRGB(0, 0, 0),
+        },
+        Crimson = {
+            Background      = Color3.fromRGB(15, 10, 10),
+            Secondary       = Color3.fromRGB(24, 14, 14),
+            Tertiary        = Color3.fromRGB(36, 20, 20),
+            Quaternary      = Color3.fromRGB(50, 28, 28),
+            CardHover       = Color3.fromRGB(44, 24, 24),
+            InputBackground = Color3.fromRGB(18, 11, 11),
+            BorderLight     = Color3.fromRGB(255, 255, 255),
+            BorderDark      = Color3.fromRGB(72, 38, 38),
+            Accent          = Color3.fromRGB(255, 80, 80),
+            Text            = Color3.fromRGB(255, 245, 245),
+            TextDim         = Color3.fromRGB(200, 165, 165),
+            TextDark        = Color3.fromRGB(145, 110, 110),
+            Success         = Color3.fromRGB(80, 220, 150),
+            Error           = Color3.fromRGB(255, 80, 80),
+            Warning         = Color3.fromRGB(255, 195, 75),
+            Info            = Color3.fromRGB(95, 170, 255),
+            Shadow          = Color3.fromRGB(0, 0, 0),
+        },
+    },
+    Sounds = {
+        Enabled   = true,
+        Volume    = 0.35,
+        Click     = "rbxassetid://6895079853",
+        Notify    = "rbxassetid://6026984224",
+        Toggle    = "rbxassetid://6895079853",
+    },
+    Icons = {
+        Flame    = "rbxassetid://10723346993",
+        Home     = "rbxassetid://10723407389",
+        User     = "rbxassetid://10723434557",
+        Settings = "rbxassetid://10734950309",
+        Sword    = "rbxassetid://10734975486",
+        Eye      = "rbxassetid://10723404337",
+        Sliders  = "rbxassetid://10734953491",
+        Search   = "rbxassetid://10734943674",
+        Check    = "rbxassetid://10709790644",
+        Cross    = "rbxassetid://10709790948",
+        Alert    = "rbxassetid://10709791437",
+        Info     = "rbxassetid://10723415903",
+        Key      = "rbxassetid://10723374641",
+        Palette  = "rbxassetid://10734884930",
+        Crown    = "rbxassetid://10709769841",
+    }
+}
+Velox.__index = Velox
+
+local Fonts = {
+    Main  = Enum.Font.GothamMedium,
+    Bold  = Enum.Font.GothamBold,
+    Semi  = Enum.Font.GothamSemibold,
+    Light = Enum.Font.Gotham,
+    Black = Enum.Font.GothamBlack,
 }
 
-----------------------------------------------------------------
--- LUCIDE ICONS MAPPING (Popular Asset IDs)
-----------------------------------------------------------------
-local Icons = {
-    Home        = "rbxassetid://10723407389",
-    User        = "rbxassetid://10723434557",
-    Settings    = "rbxassetid://10734950309",
-    Shield      = "rbxassetid://10734951847",
-    Search      = "rbxassetid://10734943674",
-    Code        = "rbxassetid://10709769841",
-    Sliders     = "rbxassetid://10734953491",
-    Check       = "rbxassetid://10709790644",
-    Cross       = "rbxassetid://10709790948",
-    Alert       = "rbxassetid://10709791437",
-    Info        = "rbxassetid://10723415903",
-    ChevronDown = "rbxassetid://10709790948",
-    Eye         = "rbxassetid://10723404337",
-    Key         = "rbxassetid://10723374641",
-    Palette     = "rbxassetid://10734884930",
-    Copy        = "rbxassetid://10709791097",
-    Flame       = "rbxassetid://10723346993",
-}
+local function playSound(id, vol, pitch)
+    if not id or not Velox.Sounds.Enabled then return end
+    task.spawn(function()
+        local s = Instance.new("Sound")
+        s.SoundId = id
+        s.Volume = (vol or 0.35) * (Velox.Sounds.Volume / 0.35)
+        s.PlaybackSpeed = pitch or 1
+        s.Parent = SoundService
+        s:Play()
+        s.Ended:Connect(function() s:Destroy() end)
+    end)
+end
 
-----------------------------------------------------------------
--- UTILITIES
-----------------------------------------------------------------
 local function Create(className, properties)
     local instance = Instance.new(className)
     for property, value in pairs(properties or {}) do
@@ -108,16 +204,15 @@ local function Tween(object, properties, duration, style, direction)
     return tween
 end
 
-local function AddCorner(parent, radius)
+local function corner(parent, radius)
     return Create("UICorner", {
         CornerRadius = UDim.new(0, radius or 8),
         Parent = parent
     })
 end
 
--- Top-lit light simulation gradient on border
-local function AddLitStroke(parent, thickness, baseTransparency)
-    local stroke = Create("UIStroke", {
+local function AddLitStroke(parent, theme, thickness, baseTransparency)
+    local st = Create("UIStroke", {
         Color = Color3.fromRGB(255, 255, 255),
         Thickness = thickness or 1,
         Transparency = 0,
@@ -126,25 +221,36 @@ local function AddLitStroke(parent, thickness, baseTransparency)
     })
     local grad = Create("UIGradient", {
         Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0.0, Theme.BorderLight),
-            ColorSequenceKeypoint.new(1.0, Theme.BorderDark)
+            ColorSequenceKeypoint.new(0.0, theme.BorderLight),
+            ColorSequenceKeypoint.new(1.0, theme.BorderDark)
         }),
         Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0.0, baseTransparency or 0.65),
-            NumberSequenceKeypoint.new(1.0, (baseTransparency or 0.65) + 0.25)
+            NumberSequenceKeypoint.new(0.0, baseTransparency or 0.7),
+            NumberSequenceKeypoint.new(1.0, math.clamp((baseTransparency or 0.7) + 0.25, 0, 1))
         }),
         Rotation = 90,
-        Parent = stroke
+        Parent = st
     })
-    return stroke, grad
+    return st, grad
 end
 
-local function AddPadding(parent, left, right, top, bottom)
+local function pad(parent, l, r, t, b)
     return Create("UIPadding", {
-        PaddingLeft = UDim.new(0, left or 0),
-        PaddingRight = UDim.new(0, right or 0),
-        PaddingTop = UDim.new(0, top or 0),
-        PaddingBottom = UDim.new(0, bottom or 0),
+        PaddingLeft = UDim.new(0, l or 0),
+        PaddingRight = UDim.new(0, r or 0),
+        PaddingTop = UDim.new(0, t or 0),
+        PaddingBottom = UDim.new(0, b or 0),
+        Parent = parent
+    })
+end
+
+local function list(parent, spacing, dir, h, v)
+    return Create("UIListLayout", {
+        Padding = UDim.new(0, spacing or 8),
+        FillDirection = dir or Enum.FillDirection.Vertical,
+        HorizontalAlignment = h or Enum.HorizontalAlignment.Left,
+        VerticalAlignment = v or Enum.VerticalAlignment.Top,
+        SortOrder = Enum.SortOrder.LayoutOrder,
         Parent = parent
     })
 end
@@ -166,19 +272,16 @@ local function MakeDraggable(dragHandle, targetFrame)
     UserInputService.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
-            Tween(targetFrame, {
-                Position = UDim2.new(
-                    startPos.X.Scale,
-                    startPos.X.Offset + delta.X,
-                    startPos.Y.Scale,
-                    startPos.Y.Offset + delta.Y
-                )
-            }, 0.08, Enum.EasingStyle.Linear)
+            targetFrame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
         end
     end)
 end
 
--- Tactile Click Compression
 local function AddBouncyClick(button, callback)
     local scale = button:FindFirstChildOfClass("UIScale") or Create("UIScale", {Parent = button})
     button.MouseButton1Down:Connect(function()
@@ -191,215 +294,275 @@ local function AddBouncyClick(button, callback)
         Tween(scale, {Scale = 1.0}, 0.2, Enum.EasingStyle.Back)
     end)
     button.MouseButton1Click:Connect(function()
+        playSound(Velox.Sounds.Click, 0.3)
         if callback then callback() end
     end)
 end
 
 ----------------------------------------------------------------
--- NOTIFICATION TOAST SYSTEM (With Animated Timer Bar)
+-- 1. OVERHEAD 3D NAMETAG API (Completely Customizable)
 ----------------------------------------------------------------
-local NotificationHolder = nil
+function Velox:CreateNametag(options)
+    options = options or {}
+    local player = options.Player or LocalPlayer
+    local title = options.Title or "SCRIPT USER"
+    local subtitle = options.Subtitle or "Powered by Velox"
+    local color = options.Color or Color3.fromRGB(90, 140, 255)
+    local icon = options.Icon or self.Icons.Flame
+    local alwaysOnTop = options.AlwaysOnTop ~= false
+    local maxDist = options.MaxDistance or 150
+    local offset = options.Offset or Vector3.new(0, 2.7, 0)
 
-local function EnsureNotificationHolder()
-    if NotificationHolder and NotificationHolder.Parent then return end
+    local currentTag = nil
+
+    local function attach(char)
+        if not char then return end
+        local head = char:WaitForChild("Head", 6)
+        if not head then return end
+
+        local existing = head:FindFirstChild("VeloxNametag")
+        if existing then existing:Destroy() end
+
+        local bb = Create("BillboardGui", {
+            Name = "VeloxNametag",
+            Adornee = head,
+            Size = UDim2.fromOffset(200, 52),
+            StudsOffset = offset,
+            AlwaysOnTop = alwaysOnTop,
+            MaxDistance = maxDist,
+            ResetOnSpawn = false,
+            Parent = head
+        })
+
+        local card = Create("Frame", {
+            BackgroundColor3 = Color3.fromRGB(11, 12, 16),
+            BackgroundTransparency = 0.15,
+            Size = UDim2.fromScale(1, 1),
+            Parent = bb
+        })
+        corner(card, 10)
+        AddLitStroke(card, self.Themes.Obsidian, 1, 0.5)
+
+        local bar = Create("Frame", {
+            BackgroundColor3 = color,
+            Size = UDim2.new(0, 4, 1, -12),
+            Position = UDim2.fromOffset(6, 6),
+            BorderSizePixel = 0,
+            Parent = card
+        })
+        corner(bar, 2)
+
+        local ic = Create("ImageLabel", {
+            BackgroundTransparency = 1,
+            Image = icon,
+            ImageColor3 = color,
+            Size = UDim2.fromOffset(22, 22),
+            Position = UDim2.fromOffset(16, 15),
+            Parent = card
+        })
+
+        local tLabel = Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -48, 0, 18),
+            Position = UDim2.fromOffset(46, 9),
+            Font = Fonts.Bold,
+            Text = title,
+            TextColor3 = Color3.fromRGB(250, 250, 255),
+            TextSize = 13,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Parent = card
+        })
+
+        local sLabel = Create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -48, 0, 14),
+            Position = UDim2.fromOffset(46, 28),
+            Font = Fonts.Main,
+            Text = subtitle,
+            TextColor3 = Color3.fromRGB(170, 175, 190),
+            TextSize = 10,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Parent = card
+        })
+
+        currentTag = {
+            Billboard = bb,
+            Bar = bar,
+            Icon = ic,
+            TitleLabel = tLabel,
+            SubtitleLabel = sLabel,
+            SetTitle = function(newTitle) tLabel.Text = newTitle end,
+            SetSubtitle = function(newSub) sLabel.Text = newSub end,
+            SetColor = function(newCol)
+                Tween(bar, {BackgroundColor3 = newCol}, 0.25)
+                Tween(ic, {ImageColor3 = newCol}, 0.25)
+            end,
+            Destroy = function() bb:Destroy() end
+        }
+        return currentTag
+    end
+
+    attach(player.Character)
+    player.CharacterAdded:Connect(attach)
+
+    return currentTag
+end
+
+----------------------------------------------------------------
+-- 2. NOTIFICATION SYSTEM
+----------------------------------------------------------------
+local notifHolder
+
+local function ensureNotifs()
+    if notifHolder and notifHolder.Parent then return end
     local gui = Create("ScreenGui", {
         Name = "Velox_Notifications",
         ResetOnSpawn = false,
         DisplayOrder = 1000,
-        Parent = (RunService:IsStudio() and LocalPlayer:WaitForChild("PlayerGui")) or CoreGui
+        Parent = GuiParent
     })
-    NotificationHolder = Create("Frame", {
+    notifHolder = Create("Frame", {
         Name = "Holder",
         BackgroundTransparency = 1,
         Size = UDim2.new(0, 320, 1, -40),
-        Position = UDim2.new(1, -340, 0, 20),
+        Position = UDim2.new(1, -340, 0, 24),
         Parent = gui
     })
-    Create("UIListLayout", {
-        Padding = UDim.new(0, 8),
-        HorizontalAlignment = Enum.HorizontalAlignment.Right,
-        VerticalAlignment = Enum.VerticalAlignment.Top,
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Parent = NotificationHolder
-    })
+    list(notifHolder, 8, Enum.FillDirection.Vertical, Enum.HorizontalAlignment.Right, Enum.VerticalAlignment.Top)
 end
 
-function Velox:Notify(options)
-    options = options or {}
-    local title = options.Title or "Notice"
-    local content = options.Content or ""
-    local duration = options.Duration or 3.5
-    local notifType = options.Type or "Info"
+function Velox:Notify(opts)
+    opts = opts or {}
+    local title = opts.Title or "Notice"
+    local content = opts.Content or ""
+    local duration = opts.Duration or 3.5
+    local nType = opts.Type or "Info"
 
-    EnsureNotificationHolder()
+    ensureNotifs()
+    playSound(self.Sounds.Notify, 0.35)
 
-    local accentColor = Theme.Info
-    local iconId = Icons.Info
-    if notifType == "Success" then accentColor = Theme.Success; iconId = Icons.Check
-    elseif notifType == "Warning" then accentColor = Theme.Warning; iconId = Icons.Alert
-    elseif notifType == "Error" then accentColor = Theme.Error; iconId = Icons.Cross end
+    local col = self.Themes.Obsidian.Info
+    local iconId = self.Icons.Info
+    if nType == "Success" then col = self.Themes.Obsidian.Success; iconId = self.Icons.Check
+    elseif nType == "Warning" then col = self.Themes.Obsidian.Warning; iconId = self.Icons.Alert
+    elseif nType == "Error" then col = self.Themes.Obsidian.Error; iconId = self.Icons.Cross end
 
     local notif = Create("Frame", {
-        BackgroundColor3 = Theme.Secondary,
-        Size = UDim2.new(1, 0, 0, 72),
+        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        Size = UDim2.new(1, 0, 0, 68),
         Position = UDim2.new(1, 100, 0, 0),
         ClipsDescendants = true,
-        Parent = NotificationHolder
+        Parent = notifHolder
     })
-    AddCorner(notif, 10)
-    AddLitStroke(notif, 1, 0.6)
+    corner(notif, 10)
+    AddLitStroke(notif, self.Themes.Obsidian, 1, 0.6)
 
-    -- Left Icon Indicator
     local iconBg = Create("Frame", {
-        BackgroundColor3 = accentColor,
+        BackgroundColor3 = col,
         BackgroundTransparency = 0.85,
-        Size = UDim2.fromOffset(36, 36),
-        Position = UDim2.fromOffset(12, 18),
+        Size = UDim2.fromOffset(34, 34),
+        Position = UDim2.fromOffset(12, 16),
         Parent = notif
     })
-    AddCorner(iconBg, 8)
+    corner(iconBg, 8)
 
     Create("ImageLabel", {
         BackgroundTransparency = 1,
         Image = iconId,
-        ImageColor3 = accentColor,
-        Size = UDim2.fromOffset(20, 20),
+        ImageColor3 = col,
+        Size = UDim2.fromOffset(18, 18),
         Position = UDim2.fromScale(0.5, 0.5),
         AnchorPoint = Vector2.new(0.5, 0.5),
         Parent = iconBg
     })
 
-    -- Text
     Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -64, 0, 18),
-        Position = UDim2.fromOffset(56, 14),
-        Font = Enum.Font.GothamBold,
+        Size = UDim2.new(1, -60, 0, 18),
+        Position = UDim2.fromOffset(54, 13),
+        Font = Fonts.Bold,
         Text = title,
-        TextColor3 = Theme.Text,
-        TextSize = 14,
+        TextColor3 = self.Themes.Obsidian.Text,
+        TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = notif
     })
 
     Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -64, 0, 32),
-        Position = UDim2.fromOffset(56, 32),
-        Font = Enum.Font.GothamMedium,
+        Size = UDim2.new(1, -60, 0, 30),
+        Position = UDim2.fromOffset(54, 31),
+        Font = Fonts.Main,
         Text = content,
-        TextColor3 = Theme.TextDim,
-        TextSize = 12,
+        TextColor3 = self.Themes.Obsidian.TextDim,
+        TextSize = 11,
         TextWrapped = true,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextYAlignment = Enum.TextYAlignment.Top,
         Parent = notif
     })
 
-    -- Countdown Progress Line
     local timerBar = Create("Frame", {
-        BackgroundColor3 = accentColor,
+        BackgroundColor3 = col,
         Size = UDim2.new(1, 0, 0, 2),
         Position = UDim2.new(0, 0, 1, -2),
         BorderSizePixel = 0,
         Parent = notif
     })
 
-    -- Slide In
-    notif.Position = UDim2.new(1, 100, 0, 0)
     Tween(notif, {Position = UDim2.new(0, 0, 0, 0)}, 0.4, Enum.EasingStyle.Back)
     Tween(timerBar, {Size = UDim2.new(0, 0, 0, 2)}, duration, Enum.EasingStyle.Linear)
 
-    local function dismiss()
-        Tween(notif, {Position = UDim2.new(1, 50, 0, 0), BackgroundTransparency = 1}, 0.3)
+    task.delay(duration, function()
+        Tween(notif, {Position = UDim2.new(1, 60, 0, 0), BackgroundTransparency = 1}, 0.3)
         task.wait(0.3)
-        notif:Destroy()
-    end
-
-    task.delay(duration, dismiss)
+        if notif and notif.Parent then notif:Destroy() end
+    end)
 end
 
 ----------------------------------------------------------------
--- WATERMARK OVERLAY
+-- 3. MAIN WINDOW CONSTRUCTOR
 ----------------------------------------------------------------
-function Velox:CreateWatermark(title)
-    local screenGui = Create("ScreenGui", {
-        Name = "Velox_Watermark",
-        ResetOnSpawn = false,
-        DisplayOrder = 99,
-        Parent = (RunService:IsStudio() and LocalPlayer:WaitForChild("PlayerGui")) or CoreGui
-    })
+function Velox:CreateWindow(cfg)
+    cfg = cfg or {}
+    local title        = cfg.Title or "Velox UI"
+    local subTitle     = cfg.SubTitle or "v2.0 • Premium Edition"
+    local size         = cfg.Size or UDim2.fromOffset(680, 480)
+    local minKey       = cfg.MinimizeKey or Enum.KeyCode.RightControl
+    local themeKey     = cfg.Theme or "Obsidian"
+    local showProfile  = cfg.ShowProfile ~= false
+    local showSearch   = cfg.ShowSearch ~= false
+    local showSettings = cfg.ShowSettings ~= false
 
-    local watermark = Create("Frame", {
-        BackgroundColor3 = Theme.Secondary,
-        Size = UDim2.fromOffset(260, 30),
-        Position = UDim2.fromOffset(18, 18),
-        Parent = screenGui
-    })
-    AddCorner(watermark, 6)
-    AddLitStroke(watermark, 1, 0.7)
+    local theme = self.Themes[themeKey] or self.Themes.Obsidian
+    local accentColor = theme.Accent
 
-    local label = Create("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.fromScale(1, 1),
-        Font = Enum.Font.GothamMedium,
-        TextColor3 = Theme.TextDim,
-        TextSize = 11,
-        Text = title or "VELOX UI  |  FPS: --  |  PING: --",
-        Parent = watermark
-    })
-
-    local fps = 0
-    RunService.RenderStepped:Connect(function(dt)
-        fps = math.floor(1 / dt)
-    end)
-
-    task.spawn(function()
-        while watermark and watermark.Parent do
-            local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-            label.Text = string.format("%s  •  %d FPS  •  %dms", title or "VELOX", fps, ping)
-            task.wait(0.5)
-        end
-    end)
-
-    return watermark
-end
-
-----------------------------------------------------------------
--- MAIN WINDOW BUILDER
-----------------------------------------------------------------
-function Velox:CreateWindow(config)
-    config = config or {}
-    local title = config.Title or "Velox UI"
-    local subTitle = config.SubTitle or "v2.0 • Premium Edition"
-    local size = config.Size or UDim2.fromOffset(680, 480)
-    local minimizeKey = config.MinimizeKey or Enum.KeyCode.RightControl
-
-    local screenGui = Create("ScreenGui", {
+    local gui = Create("ScreenGui", {
         Name = "Velox_" .. HttpService:GenerateGUID(false):sub(1, 8),
         ResetOnSpawn = false,
         DisplayOrder = 50,
-        Parent = (RunService:IsStudio() and LocalPlayer:WaitForChild("PlayerGui")) or CoreGui
+        Parent = GuiParent
     })
 
-    -- Main Container Frame
     local main = Create("Frame", {
         Name = "Main",
-        BackgroundColor3 = Theme.Background,
+        BackgroundColor3 = theme.Background,
         Size = size,
         Position = UDim2.fromScale(0.5, 0.5),
         AnchorPoint = Vector2.new(0.5, 0.5),
         ClipsDescendants = false,
-        Parent = screenGui
+        Parent = gui
     })
-    AddCorner(main, 12)
-    local _, mainStrokeGrad = AddLitStroke(main, 1, 0.5)
+    corner(main, 14)
+    AddLitStroke(main, theme, 1, 0.5)
 
-    -- Ambient Depth Shadow
+    local mainScale = Create("UIScale", {Scale = 1.0, Parent = main})
+
+    -- Ambient Shadow
     Create("ImageLabel", {
         BackgroundTransparency = 1,
         Image = "rbxassetid://6014261993",
-        ImageColor3 = Theme.Shadow,
+        ImageColor3 = theme.Shadow,
         ImageTransparency = 0.35,
         ScaleType = Enum.ScaleType.Slice,
         SliceCenter = Rect.new(49, 49, 450, 450),
@@ -410,18 +573,18 @@ function Velox:CreateWindow(config)
     })
 
     --------------------------------------------------------
-    -- TOP HEADER BAR
+    -- TOP HEADER (Player Avatar on Left -> Custom Title)
     --------------------------------------------------------
     local header = Create("Frame", {
-        BackgroundColor3 = Theme.Secondary,
+        Name = "TitleBar",
+        BackgroundColor3 = theme.Secondary,
         Size = UDim2.new(1, 0, 0, 52),
         BorderSizePixel = 0,
         Parent = main
     })
-    AddCorner(header, 12)
-    -- Square off bottom corners
+    corner(header, 14)
     Create("Frame", {
-        BackgroundColor3 = Theme.Secondary,
+        BackgroundColor3 = theme.Secondary,
         BorderSizePixel = 0,
         Size = UDim2.new(1, 0, 0, 16),
         Position = UDim2.fromOffset(0, 36),
@@ -429,155 +592,545 @@ function Velox:CreateWindow(config)
     })
     MakeDraggable(header, main)
 
-    -- Brand / Logo Pill
-    local brandIcon = Create("ImageLabel", {
-        BackgroundTransparency = 1,
-        Image = Icons.Flame,
-        ImageColor3 = Theme.Accent,
-        Size = UDim2.fromOffset(22, 22),
-        Position = UDim2.fromOffset(18, 15),
-        Parent = header
-    })
+    local titleXOffset = 16
 
-    Create("TextLabel", {
+    -- TOP-LEFT PLAYER DISPLAY
+    if showProfile then
+        local avatarBox = Create("Frame", {
+            BackgroundColor3 = theme.InputBackground,
+            Size = UDim2.fromOffset(36, 36),
+            Position = UDim2.fromOffset(12, 8),
+            Parent = header
+        })
+        corner(avatarBox, 18)
+        AddLitStroke(avatarBox, theme, 1, 0.6)
+
+        local avatarImg = Create("ImageLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.fromScale(1, 1),
+            Parent = avatarBox
+        })
+        corner(avatarImg, 18)
+
+        local statusDot = Create("Frame", {
+            BackgroundColor3 = theme.Success,
+            Size = UDim2.fromOffset(9, 9),
+            Position = UDim2.fromOffset(26, 26),
+            ZIndex = 3,
+            Parent = avatarBox
+        })
+        corner(statusDot, 5)
+        AddLitStroke(statusDot, theme, 1, 0.3)
+
+        task.spawn(function()
+            local thumb = "rbxthumb://type=AvatarHeadShot&id=" .. LocalPlayer.UserId .. "&w=150&h=150"
+            pcall(function()
+                local content, isReady = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+                if content and isReady then thumb = content end
+            end)
+            avatarImg.Image = thumb
+        end)
+
+        titleXOffset = 56
+    end
+
+    -- CUSTOM TITLE & SUBTITLE
+    local titleLabel = Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(0, 200, 0, 20),
-        Position = UDim2.fromOffset(48, 10),
-        Font = Enum.Font.GothamBold,
+        Size = UDim2.new(0, 240, 0, 20),
+        Position = UDim2.fromOffset(titleXOffset, 9),
+        Font = Fonts.Bold,
         Text = title,
-        TextColor3 = Theme.Text,
+        TextColor3 = theme.Text,
         TextSize = 15,
         TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd,
         Parent = header
     })
 
-    Create("TextLabel", {
+    local subtitleLabel = Create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(0, 200, 0, 14),
-        Position = UDim2.fromOffset(48, 29),
-        Font = Enum.Font.GothamMedium,
+        Size = UDim2.new(0, 240, 0, 14),
+        Position = UDim2.fromOffset(titleXOffset, 28),
+        Font = Fonts.Semi,
         Text = subTitle,
-        TextColor3 = Theme.TextDark,
+        TextColor3 = theme.TextDark,
         TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd,
         Parent = header
     })
 
-    -- Window Controls (Minimize / Close)
-    local controlsHolder = Create("Frame", {
+    -- Controls: [Settings Gear] [Minimize] [Close]
+    local controls = Create("Frame", {
         BackgroundTransparency = 1,
-        Size = UDim2.fromOffset(70, 32),
-        Position = UDim2.new(1, -80, 0.5, -16),
+        Size = UDim2.fromOffset(108, 32),
+        Position = UDim2.new(1, -118, 0.5, -16),
         Parent = header
+    })
+
+    local settingsBtn = Create("TextButton", {
+        BackgroundColor3 = theme.Tertiary,
+        Size = UDim2.fromOffset(30, 30),
+        Position = UDim2.fromOffset(0, 1),
+        Text = "",
+        AutoButtonColor = false,
+        Visible = showSettings,
+        Parent = controls
+    })
+    corner(settingsBtn, 6)
+    local gearIcon = Create("ImageLabel", {
+        BackgroundTransparency = 1,
+        Image = self.Icons.Settings,
+        ImageColor3 = theme.TextDim,
+        Size = UDim2.fromOffset(16, 16),
+        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Parent = settingsBtn
     })
 
     local minBtn = Create("TextButton", {
-        BackgroundColor3 = Theme.Tertiary,
-        Size = UDim2.fromOffset(30, 30),
-        Position = UDim2.fromOffset(0, 1),
-        Font = Enum.Font.GothamBold,
-        Text = "–",
-        TextColor3 = Theme.TextDim,
-        TextSize = 16,
-        AutoButtonColor = false,
-        Parent = controlsHolder
-    })
-    AddCorner(minBtn, 6)
-
-    local closeBtn = Create("TextButton", {
-        BackgroundColor3 = Theme.Tertiary,
+        BackgroundColor3 = theme.Tertiary,
         Size = UDim2.fromOffset(30, 30),
         Position = UDim2.fromOffset(36, 1),
-        Font = Enum.Font.GothamBold,
+        Font = Fonts.Bold,
+        Text = "–",
+        TextColor3 = theme.TextDim,
+        TextSize = 16,
+        AutoButtonColor = false,
+        Parent = controls
+    })
+    corner(minBtn, 6)
+
+    local closeBtn = Create("TextButton", {
+        BackgroundColor3 = theme.Tertiary,
+        Size = UDim2.fromOffset(30, 30),
+        Position = UDim2.fromOffset(72, 1),
+        Font = Fonts.Bold,
         Text = "×",
-        TextColor3 = Theme.TextDim,
+        TextColor3 = theme.TextDim,
         TextSize = 18,
         AutoButtonColor = false,
-        Parent = controlsHolder
+        Parent = controls
     })
-    AddCorner(closeBtn, 6)
+    corner(closeBtn, 6)
 
     AddBouncyClick(closeBtn, function()
-        Tween(main, {Size = UDim2.fromOffset(0, 0), BackgroundTransparency = 1}, 0.35, Enum.EasingStyle.Quart)
-        task.wait(0.36)
-        screenGui:Destroy()
+        Tween(main, {Size = UDim2.fromOffset(0, 0), BackgroundTransparency = 1}, 0.32, Enum.EasingStyle.Quart)
+        task.wait(0.35)
+        gui:Destroy()
     end)
 
     --------------------------------------------------------
-    -- SIDEBAR NAVIGATION & CONTENT HOLDER
+    -- SIDEBAR NAVIGATION & SEARCH
     --------------------------------------------------------
     local sidebar = Create("Frame", {
-        BackgroundColor3 = Theme.Secondary,
-        Size = UDim2.new(0, 160, 1, -52),
+        Name = "Sidebar",
+        BackgroundColor3 = theme.Secondary,
+        Size = UDim2.new(0, 165, 1, -52),
         Position = UDim2.fromOffset(0, 52),
         BorderSizePixel = 0,
         Parent = main
     })
-    AddCorner(sidebar, 12)
-    -- Square off right edge
+    corner(sidebar, 14)
     Create("Frame", {
-        BackgroundColor3 = Theme.Secondary,
+        BackgroundColor3 = theme.Secondary,
         BorderSizePixel = 0,
         Size = UDim2.new(0, 16, 1, 0),
         Position = UDim2.new(1, -16, 0, 0),
         Parent = sidebar
     })
 
-    local tabList = Create("ScrollingFrame", {
+    local searchInput = nil
+    local tabTopOffset = 10
+
+    if showSearch then
+        local searchCard = Create("Frame", {
+            BackgroundColor3 = theme.Tertiary,
+            Size = UDim2.new(1, -16, 0, 32),
+            Position = UDim2.fromOffset(8, 10),
+            Parent = sidebar
+        })
+        corner(searchCard, 7)
+        AddLitStroke(searchCard, theme, 1, 0.75)
+
+        Create("ImageLabel", {
+            BackgroundTransparency = 1,
+            Image = self.Icons.Search,
+            ImageColor3 = theme.TextDark,
+            Size = UDim2.fromOffset(14, 14),
+            Position = UDim2.fromOffset(8, 9),
+            Parent = searchCard
+        })
+
+        searchInput = Create("TextBox", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -28, 1, 0),
+            Position = UDim2.fromOffset(26, 0),
+            Font = Fonts.Main,
+            PlaceholderText = "Search...",
+            PlaceholderColor3 = theme.TextDark,
+            Text = "",
+            TextColor3 = theme.Text,
+            TextSize = 12,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ClearTextOnFocus = false,
+            Parent = searchCard
+        })
+
+        tabTopOffset = 48
+    end
+
+    local tabScroll = Create("ScrollingFrame", {
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -12, 1, -18),
-        Position = UDim2.fromOffset(6, 10),
+        Size = UDim2.new(1, -12, 1, -(tabTopOffset + 14)),
+        Position = UDim2.fromOffset(6, tabTopOffset),
         CanvasSize = UDim2.new(0, 0, 0, 0),
         ScrollBarThickness = 2,
-        ScrollBarImageColor3 = Theme.Tertiary,
+        ScrollBarImageColor3 = theme.Tertiary,
         BorderSizePixel = 0,
         Parent = sidebar
     })
-    local tabLayout = Create("UIListLayout", {
-        Padding = UDim.new(0, 5),
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Parent = tabList
-    })
+    local tabLayout = list(tabScroll, 5)
     tabLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        tabList.CanvasSize = UDim2.new(0, 0, 0, tabLayout.AbsoluteContentSize.Y + 10)
+        tabScroll.CanvasSize = UDim2.new(0, 0, 0, tabLayout.AbsoluteContentSize.Y + 10)
     end)
 
-    local contentContainer = Create("Frame", {
+    local content = Create("Frame", {
+        Name = "Content",
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -175, 1, -66),
-        Position = UDim2.fromOffset(168, 58),
+        Size = UDim2.new(1, -180, 1, -66),
+        Position = UDim2.fromOffset(173, 58),
         Parent = main
     })
 
     --------------------------------------------------------
+    -- 100% PLAYER CUSTOMIZER MODAL
+    --------------------------------------------------------
+    local settingsModal = Create("Frame", {
+        BackgroundColor3 = theme.Secondary,
+        Size = UDim2.new(0, 260, 1, -52),
+        Position = UDim2.new(1, 0, 0, 52),
+        Visible = false,
+        ClipsDescendants = true,
+        ZIndex = 50,
+        Parent = main
+    })
+    corner(settingsModal, 14)
+    AddLitStroke(settingsModal, theme, 1, 0.6)
+    pad(settingsModal, 14, 14, 14, 14)
+    list(settingsModal, 8)
+
+    local customizerTitle = Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 20),
+        Font = Fonts.Bold,
+        Text = "PLAYER CUSTOMIZER",
+        TextColor3 = accentColor,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 51,
+        Parent = settingsModal
+    })
+
+    -- Live Theme Swatches
+    local themeBox = Create("Frame", {
+        BackgroundColor3 = theme.Tertiary,
+        Size = UDim2.new(1, 0, 0, 60),
+        ZIndex = 51,
+        Parent = settingsModal
+    })
+    corner(themeBox, 8)
+    Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -16, 0, 18),
+        Position = UDim2.fromOffset(8, 6),
+        Font = Fonts.Semi,
+        Text = "Theme Preset Palette",
+        TextColor3 = theme.Text,
+        TextSize = 11,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 52,
+        Parent = themeBox
+    })
+    local swatchHolder = Create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -16, 0, 26),
+        Position = UDim2.fromOffset(8, 26),
+        ZIndex = 52,
+        Parent = themeBox
+    })
+    list(swatchHolder, 6, Enum.FillDirection.Horizontal)
+
+    local accentSubscribers = {}
+    local function notifyAccent(newColor)
+        accentColor = newColor
+        Tween(customizerTitle, {TextColor3 = newColor}, 0.25)
+        for _, sub in ipairs(accentSubscribers) do
+            pcall(sub, newColor)
+        end
+    end
+
+    for tName, tData in pairs(self.Themes) do
+        local sw = Create("TextButton", {
+            BackgroundColor3 = tData.Accent,
+            Size = UDim2.fromOffset(24, 24),
+            Text = "",
+            AutoButtonColor = false,
+            ZIndex = 53,
+            Parent = swatchHolder
+        })
+        corner(sw, 12)
+        AddLitStroke(sw, theme, 1, 0.4)
+        AddBouncyClick(sw, function()
+            notifyAccent(tData.Accent)
+            Velox:Notify({
+                Title = "Theme Applied",
+                Content = "Switched to " .. tName .. " theme palette.",
+                Type = "Success",
+                Duration = 2.5
+            })
+        end)
+    end
+
+    -- UI Scale Slider
+    local scaleBox = Create("Frame", {
+        BackgroundColor3 = theme.Tertiary,
+        Size = UDim2.new(1, 0, 0, 52),
+        ZIndex = 51,
+        Parent = settingsModal
+    })
+    corner(scaleBox, 8)
+    Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -70, 0, 18),
+        Position = UDim2.fromOffset(10, 6),
+        Font = Fonts.Semi,
+        Text = "UI Zoom Scale",
+        TextColor3 = theme.Text,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 52,
+        Parent = scaleBox
+    })
+    local scaleValLabel = Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.fromOffset(60, 18),
+        Position = UDim2.new(1, -66, 0, 6),
+        Font = Fonts.Bold,
+        Text = "100%",
+        TextColor3 = accentColor,
+        TextSize = 11,
+        TextXAlignment = Enum.TextXAlignment.Right,
+        ZIndex = 52,
+        Parent = scaleBox
+    })
+    table.insert(accentSubscribers, function(col)
+        Tween(scaleValLabel, {TextColor3 = col}, 0.25)
+    end)
+
+    local scaleTrack = Create("Frame", {
+        BackgroundColor3 = theme.InputBackground,
+        Size = UDim2.new(1, -20, 0, 6),
+        Position = UDim2.fromOffset(10, 32),
+        ZIndex = 52,
+        Parent = scaleBox
+    })
+    corner(scaleTrack, 3)
+    local scaleFill = Create("Frame", {
+        BackgroundColor3 = accentColor,
+        Size = UDim2.fromScale(0.5, 1),
+        BorderSizePixel = 0,
+        ZIndex = 53,
+        Parent = scaleTrack
+    })
+    corner(scaleFill, 3)
+    table.insert(accentSubscribers, function(col)
+        Tween(scaleFill, {BackgroundColor3 = col}, 0.25)
+    end)
+
+    local scaleKnob = Create("Frame", {
+        BackgroundColor3 = theme.Text,
+        Size = UDim2.fromOffset(12, 12),
+        Position = UDim2.new(0.5, -6, 0.5, -6),
+        ZIndex = 54,
+        Parent = scaleTrack
+    })
+    corner(scaleKnob, 6)
+
+    local function setScalePct(pct)
+        pct = math.clamp(pct, 0, 1)
+        local targetScale = 0.8 + (pct * 0.4)
+        Tween(mainScale, {Scale = targetScale}, 0.15)
+        Tween(scaleFill, {Size = UDim2.fromScale(pct, 1)}, 0.1)
+        Tween(scaleKnob, {Position = UDim2.new(pct, -6, 0.5, -6)}, 0.1)
+        scaleValLabel.Text = math.floor(targetScale * 100) .. "%"
+    end
+
+    local scaling = false
+    scaleTrack.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+            scaling = true
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+            scaling = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(inp)
+        if scaling and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
+            local rel = (inp.Position.X - scaleTrack.AbsolutePosition.X) / scaleTrack.AbsoluteSize.X
+            setScalePct(rel)
+        end
+    end)
+
+    -- Sound Toggle
+    local audioBox = Create("Frame", {
+        BackgroundColor3 = theme.Tertiary,
+        Size = UDim2.new(1, 0, 0, 40),
+        ZIndex = 51,
+        Parent = settingsModal
+    })
+    corner(audioBox, 8)
+    Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -50, 1, 0),
+        Position = UDim2.fromOffset(10, 0),
+        Font = Fonts.Semi,
+        Text = "Interface Sounds",
+        TextColor3 = theme.Text,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 52,
+        Parent = audioBox
+    })
+    local soundSwitch = Create("Frame", {
+        BackgroundColor3 = accentColor,
+        Size = UDim2.fromOffset(36, 20),
+        Position = UDim2.new(1, -44, 0.5, -10),
+        ZIndex = 52,
+        Parent = audioBox
+    })
+    corner(soundSwitch, 10)
+    table.insert(accentSubscribers, function(col)
+        if Velox.Sounds.Enabled then Tween(soundSwitch, {BackgroundColor3 = col}, 0.25) end
+    end)
+
+    local soundKnob = Create("Frame", {
+        BackgroundColor3 = theme.Text,
+        Size = UDim2.fromOffset(14, 14),
+        Position = UDim2.new(1, -16, 0.5, -7),
+        ZIndex = 53,
+        Parent = soundSwitch
+    })
+    corner(soundKnob, 7)
+
+    local soundHit = Create("TextButton", {
+        BackgroundTransparency = 1,
+        Size = UDim2.fromScale(1, 1),
+        Text = "",
+        ZIndex = 54,
+        Parent = audioBox
+    })
+    soundHit.MouseButton1Click:Connect(function()
+        Velox.Sounds.Enabled = not Velox.Sounds.Enabled
+        Tween(soundSwitch, {BackgroundColor3 = Velox.Sounds.Enabled and accentColor or theme.InputBackground}, 0.2)
+        Tween(soundKnob, {Position = Velox.Sounds.Enabled and UDim2.new(1, -16, 0.5, -7) or UDim2.fromOffset(2, 3)}, 0.2, Enum.EasingStyle.Back)
+        playSound(Velox.Sounds.Click, 0.3)
+    end)
+
+    -- Settings Flyout Toggle
+    local settingsOpen = false
+    AddBouncyClick(settingsBtn, function()
+        settingsOpen = not settingsOpen
+        if settingsOpen then
+            settingsModal.Visible = true
+            Tween(gearIcon, {Rotation = 90, ImageColor3 = accentColor}, 0.25)
+            Tween(settingsModal, {Position = UDim2.new(1, -260, 0, 52)}, 0.3, Enum.EasingStyle.Quart)
+        else
+            Tween(gearIcon, {Rotation = 0, ImageColor3 = theme.TextDim}, 0.25)
+            Tween(settingsModal, {Position = UDim2.new(1, 0, 0, 52)}, 0.25, Enum.EasingStyle.Quart)
+            task.delay(0.26, function()
+                if not settingsOpen then settingsModal.Visible = false end
+            end)
+        end
+    end)
+
+    -- Minimize Window
+    local minimized = false
+    local origSize = size
+    AddBouncyClick(minBtn, function()
+        minimized = not minimized
+        if minimized then
+            Tween(main, {Size = UDim2.fromOffset(origSize.X.Offset, 52)}, 0.3)
+            content.Visible = false
+            sidebar.Visible = false
+            settingsModal.Visible = false
+        else
+            Tween(main, {Size = origSize}, 0.35, Enum.EasingStyle.Quart)
+            content.Visible = true
+            sidebar.Visible = true
+        end
+    end)
+
+    UserInputService.InputBegan:Connect(function(inp, gpe)
+        if not gpe and inp.KeyCode == minKey then
+            main.Visible = not main.Visible
+            playSound(Velox.Sounds.Click, 0.3)
+        end
+    end)
+
+    --------------------------------------------------------
     -- WINDOW OBJECT API
     --------------------------------------------------------
-    local window = {
-        ScreenGui = screenGui,
+    local win = {
+        ScreenGui = gui,
         Main = main,
         Tabs = {},
         CurrentTab = nil,
         Flags = {},
+        Theme = theme,
+        SetTitle = function(newTitle) titleLabel.Text = newTitle end,
+        SetSubTitle = function(newSub) subtitleLabel.Text = newSub end,
+        SetAccent = notifyAccent,
     }
 
-    function window:CreateTab(name, iconId)
-        iconId = iconId or Icons.Home
+    if searchInput then
+        searchInput:GetPropertyChangedSignal("Text"):Connect(function()
+            local query = searchInput.Text:lower():gsub("^%s*(.-)%s*$", "%1")
+            for _, tab in ipairs(win.Tabs) do
+                for _, child in ipairs(tab.Content:GetChildren()) do
+                    if child:IsA("GuiObject") and child:GetAttribute("SearchText") then
+                        if query == "" then
+                            child.Visible = true
+                        else
+                            child.Visible = child:GetAttribute("SearchText"):find(query, 1, true) ~= nil
+                        end
+                    end
+                end
+            end
+        end)
+    end
+
+    function win:CreateTab(name, iconId)
+        iconId = iconId or Velox.Icons.Home
 
         local tabBtn = Create("TextButton", {
-            BackgroundColor3 = Theme.Tertiary,
+            BackgroundColor3 = theme.Tertiary,
             BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 0, 36),
-            Font = Enum.Font.GothamMedium,
+            Font = Fonts.Main,
             Text = "",
             AutoButtonColor = false,
-            Parent = tabList
+            Parent = tabScroll
         })
-        AddCorner(tabBtn, 8)
+        corner(tabBtn, 8)
 
         local tabIcon = Create("ImageLabel", {
             BackgroundTransparency = 1,
             Image = iconId,
-            ImageColor3 = Theme.TextDim,
+            ImageColor3 = theme.TextDim,
             Size = UDim2.fromOffset(16, 16),
             Position = UDim2.fromOffset(10, 10),
             Parent = tabBtn
@@ -587,85 +1140,88 @@ function Velox:CreateWindow(config)
             BackgroundTransparency = 1,
             Size = UDim2.new(1, -34, 1, 0),
             Position = UDim2.fromOffset(34, 0),
-            Font = Enum.Font.GothamMedium,
+            Font = Fonts.Main,
             Text = name,
-            TextColor3 = Theme.TextDim,
+            TextColor3 = theme.TextDim,
             TextSize = 13,
             TextXAlignment = Enum.TextXAlignment.Left,
             Parent = tabBtn
         })
 
         local activePill = Create("Frame", {
-            BackgroundColor3 = Theme.Accent,
+            BackgroundColor3 = accentColor,
             Size = UDim2.fromOffset(3, 0),
             Position = UDim2.fromOffset(0, 18),
             BorderSizePixel = 0,
             Parent = tabBtn
         })
-        AddCorner(activePill, 2)
+        corner(activePill, 2)
 
-        local tabScroll = Create("ScrollingFrame", {
+        table.insert(accentSubscribers, function(col)
+            if win.CurrentTab and win.CurrentTab.Name == name then
+                Tween(activePill, {BackgroundColor3 = col}, 0.25)
+                Tween(tabIcon, {ImageColor3 = col}, 0.25)
+            end
+        end)
+
+        local page = Create("ScrollingFrame", {
             BackgroundTransparency = 1,
             Size = UDim2.fromScale(1, 1),
             CanvasSize = UDim2.new(0, 0, 0, 0),
             ScrollBarThickness = 3,
-            ScrollBarImageColor3 = Theme.Tertiary,
+            ScrollBarImageColor3 = theme.Tertiary,
             BorderSizePixel = 0,
             Visible = false,
-            Parent = contentContainer
+            Parent = content
         })
-        local scrollLayout = Create("UIListLayout", {
-            Padding = UDim.new(0, 8),
-            SortOrder = Enum.SortOrder.LayoutOrder,
-            Parent = tabScroll
-        })
-        AddPadding(tabScroll, 4, 8, 4, 12)
-        scrollLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            tabScroll.CanvasSize = UDim2.new(0, 0, 0, scrollLayout.AbsoluteContentSize.Y + 20)
+        local lay = list(page, 8)
+        pad(page, 4, 8, 4, 12)
+        lay:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            page.CanvasSize = UDim2.new(0, 0, 0, lay.AbsoluteContentSize.Y + 20)
         end)
 
-        local tabData = {Button = tabBtn, Content = tabScroll, Name = name}
+        local tabData = {Button = tabBtn, Content = page, Name = name}
 
-        local function activateTab()
-            for _, t in pairs(window.Tabs) do
+        local function select()
+            for _, t in pairs(win.Tabs) do
                 t.Content.Visible = false
                 Tween(t.Button, {BackgroundTransparency = 1}, 0.2)
-                Tween(t.Button:FindFirstChildOfClass("TextLabel"), {TextColor3 = Theme.TextDim}, 0.2)
-                Tween(t.Button:FindFirstChildOfClass("ImageLabel"), {ImageColor3 = Theme.TextDim}, 0.2)
-                Tween(t.Button.Frame, {Size = UDim2.fromOffset(3, 0), Position = UDim2.fromOffset(0, 18)}, 0.2)
+                local l = t.Button:FindFirstChildOfClass("TextLabel")
+                if l then Tween(l, {TextColor3 = theme.TextDim}, 0.2) end
+                local img = t.Button:FindFirstChildOfClass("ImageLabel")
+                if img then Tween(img, {ImageColor3 = theme.TextDim}, 0.2) end
+                local p = t.Button:FindFirstChild("Frame")
+                if p then Tween(p, {Size = UDim2.fromOffset(3, 0), Position = UDim2.fromOffset(0, 18)}, 0.2) end
             end
-            tabScroll.Visible = true
+            page.Visible = true
             Tween(tabBtn, {BackgroundTransparency = 0.2}, 0.2)
-            Tween(tabLabel, {TextColor3 = Theme.Text}, 0.2)
-            Tween(tabIcon, {ImageColor3 = Theme.Accent}, 0.2)
+            Tween(tabLabel, {TextColor3 = theme.Text}, 0.2)
+            Tween(tabIcon, {ImageColor3 = accentColor}, 0.2)
             Tween(activePill, {Size = UDim2.fromOffset(3, 20), Position = UDim2.fromOffset(0, 8)}, 0.25, Enum.EasingStyle.Back)
-            window.CurrentTab = tabData
+            win.CurrentTab = tabData
+            playSound(Velox.Sounds.Click, 0.25)
         end
 
-        tabBtn.MouseButton1Click:Connect(activateTab)
+        tabBtn.MouseButton1Click:Connect(select)
 
-        if #window.Tabs == 0 then
-            task.defer(activateTab)
+        if #win.Tabs == 0 then
+            task.defer(select)
         end
-        table.insert(window.Tabs, tabData)
+        table.insert(win.Tabs, tabData)
 
-        -- ====================================================
-        -- TAB ELEMENT BUILDERS
-        -- ====================================================
-
-        -- 1. SECTION
-        function tabData:CreateSection(text)
+        -- Section
+        function tabData:CreateSection(txt)
             local sec = Create("Frame", {
                 BackgroundTransparency = 1,
                 Size = UDim2.new(1, 0, 0, 24),
-                Parent = tabScroll
+                Parent = page
             })
             Create("TextLabel", {
                 BackgroundTransparency = 1,
                 Size = UDim2.fromScale(1, 1),
-                Font = Enum.Font.GothamBold,
-                Text = text:upper(),
-                TextColor3 = Theme.AccentDark,
+                Font = Fonts.Bold,
+                Text = txt:upper(),
+                TextColor3 = theme.TextDark,
                 TextSize = 11,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Parent = sec
@@ -673,31 +1229,32 @@ function Velox:CreateWindow(config)
             return sec
         end
 
-        -- 2. TACTILE BUTTON (With Subtitle/Description)
-        function tabData:CreateButton(options)
-            options = options or {}
-            local name = options.Name or "Button"
-            local desc = options.Description
-            local callback = options.Callback or function() end
+        -- Button
+        function tabData:CreateButton(opts)
+            opts = opts or {}
+            local name = opts.Name or "Button"
+            local desc = opts.Description
+            local cb = opts.Callback or function() end
 
-            local h = desc and 50 or 38
+            local h = desc and 54 or 40
             local card = Create("TextButton", {
-                BackgroundColor3 = Theme.Tertiary,
+                BackgroundColor3 = theme.Tertiary,
                 Size = UDim2.new(1, 0, 0, h),
                 AutoButtonColor = false,
                 Text = "",
-                Parent = tabScroll
+                Parent = page
             })
-            AddCorner(card, 8)
-            local stroke = AddLitStroke(card, 1, 0.7)
+            corner(card, 8)
+            local st = AddLitStroke(card, theme, 1, 0.7)
+            card:SetAttribute("SearchText", name:lower() .. " " .. (desc or ""):lower())
 
             Create("TextLabel", {
                 BackgroundTransparency = 1,
                 Size = UDim2.new(1, -24, 0, 18),
-                Position = UDim2.fromOffset(12, desc and 8 or 10),
-                Font = Enum.Font.GothamMedium,
+                Position = UDim2.fromOffset(14, desc and 8 or 11),
+                Font = Fonts.Semi,
                 Text = name,
-                TextColor3 = Theme.Text,
+                TextColor3 = theme.Text,
                 TextSize = 13,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Parent = card
@@ -706,55 +1263,56 @@ function Velox:CreateWindow(config)
             if desc then
                 Create("TextLabel", {
                     BackgroundTransparency = 1,
-                    Size = UDim2.new(1, -24, 0, 14),
-                    Position = UDim2.fromOffset(12, 27),
-                    Font = Enum.Font.Gotham,
+                    Size = UDim2.new(1, -24, 0, 16),
+                    Position = UDim2.fromOffset(14, 28),
+                    Font = Fonts.Main,
                     Text = desc,
-                    TextColor3 = Theme.TextDark,
+                    TextColor3 = theme.TextDark,
                     TextSize = 11,
                     TextXAlignment = Enum.TextXAlignment.Left,
                     Parent = card
                 })
             end
 
-            AddBouncyClick(card, callback)
+            AddBouncyClick(card, cb)
             card.MouseEnter:Connect(function()
-                Tween(card, {BackgroundColor3 = Theme.Secondary}, 0.2)
-                Tween(stroke, {Transparency = 0.4}, 0.2)
+                Tween(card, {BackgroundColor3 = theme.CardHover}, 0.2)
+                Tween(st, {Transparency = 0.4}, 0.2)
             end)
             card.MouseLeave:Connect(function()
-                Tween(card, {BackgroundColor3 = Theme.Tertiary}, 0.2)
-                Tween(stroke, {Transparency = 0.7}, 0.2)
+                Tween(card, {BackgroundColor3 = theme.Tertiary}, 0.2)
+                Tween(st, {Transparency = 0.7}, 0.2)
             end)
 
             return card
         end
 
-        -- 3. TOGGLE SWITCH (With Glow & Animated Thumb)
-        function tabData:CreateToggle(options)
-            options = options or {}
-            local name = options.Name or "Toggle"
-            local desc = options.Description
-            local default = options.Default or false
-            local flag = options.Flag
-            local callback = options.Callback or function() end
+        -- Toggle
+        function tabData:CreateToggle(opts)
+            opts = opts or {}
+            local name = opts.Name or "Toggle"
+            local desc = opts.Description
+            local def = opts.Default or false
+            local flag = opts.Flag
+            local cb = opts.Callback or function() end
 
-            local h = desc and 52 or 42
+            local h = desc and 56 or 44
             local card = Create("Frame", {
-                BackgroundColor3 = Theme.Tertiary,
+                BackgroundColor3 = theme.Tertiary,
                 Size = UDim2.new(1, 0, 0, h),
-                Parent = tabScroll
+                Parent = page
             })
-            AddCorner(card, 8)
-            AddLitStroke(card, 1, 0.7)
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.7)
+            card:SetAttribute("SearchText", name:lower() .. " " .. (desc or ""):lower())
 
             Create("TextLabel", {
                 BackgroundTransparency = 1,
                 Size = UDim2.new(1, -64, 0, 18),
-                Position = UDim2.fromOffset(12, desc and 8 or 12),
-                Font = Enum.Font.GothamMedium,
+                Position = UDim2.fromOffset(14, desc and 9 or 13),
+                Font = Fonts.Semi,
                 Text = name,
-                TextColor3 = Theme.Text,
+                TextColor3 = theme.Text,
                 TextSize = 13,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Parent = card
@@ -763,46 +1321,51 @@ function Velox:CreateWindow(config)
             if desc then
                 Create("TextLabel", {
                     BackgroundTransparency = 1,
-                    Size = UDim2.new(1, -64, 0, 14),
-                    Position = UDim2.fromOffset(12, 28),
-                    Font = Enum.Font.Gotham,
+                    Size = UDim2.new(1, -68, 0, 16),
+                    Position = UDim2.fromOffset(14, 29),
+                    Font = Fonts.Main,
                     Text = desc,
-                    TextColor3 = Theme.TextDark,
+                    TextColor3 = theme.TextDim,
                     TextSize = 11,
                     TextXAlignment = Enum.TextXAlignment.Left,
                     Parent = card
                 })
             end
 
-            -- Switch Track
             local switch = Create("Frame", {
-                BackgroundColor3 = default and Theme.Accent or Theme.InputBackground,
+                BackgroundColor3 = def and accentColor or theme.InputBackground,
                 Size = UDim2.fromOffset(40, 22),
                 Position = UDim2.new(1, -52, 0.5, -11),
                 Parent = card
             })
-            AddCorner(switch, 11)
+            corner(switch, 11)
 
-            -- Switch Knob
             local knob = Create("Frame", {
-                BackgroundColor3 = Theme.Text,
+                BackgroundColor3 = theme.Text,
                 Size = UDim2.fromOffset(16, 16),
-                Position = default and UDim2.new(1, -19, 0.5, -8) or UDim2.fromOffset(3, 3),
+                Position = def and UDim2.new(1, -19, 0.5, -8) or UDim2.fromOffset(3, 3),
                 Parent = switch
             })
-            AddCorner(knob, 8)
+            corner(knob, 8)
 
-            local state = default
-            if flag then window.Flags[flag] = state end
+            local state = def
+            if flag then win.Flags[flag] = state end
+
+            table.insert(accentSubscribers, function(col)
+                if state then Tween(switch, {BackgroundColor3 = col}, 0.25) end
+            end)
 
             local function set(val, fire)
                 state = val
-                if flag then window.Flags[flag] = state end
-                Tween(switch, {BackgroundColor3 = state and Theme.Accent or Theme.InputBackground}, 0.2)
+                if flag then win.Flags[flag] = state end
+                Tween(switch, {BackgroundColor3 = state and accentColor or theme.InputBackground}, 0.2)
                 Tween(knob, {
                     Position = state and UDim2.new(1, -19, 0.5, -8) or UDim2.fromOffset(3, 3)
                 }, 0.25, Enum.EasingStyle.Back)
-                if fire ~= false then callback(state) end
+                if fire ~= false then
+                    playSound(Velox.Sounds.Toggle, 0.3)
+                    cb(state)
+                end
             end
 
             local hit = Create("TextButton", {
@@ -811,102 +1374,104 @@ function Velox:CreateWindow(config)
                 Text = "",
                 Parent = card
             })
-            hit.MouseButton1Click:Connect(function()
-                set(not state)
-            end)
+            hit.MouseButton1Click:Connect(function() set(not state) end)
 
             return {Set = set, Get = function() return state end}
         end
 
-        -- 4. PRECISION SLIDER (With Direct Number Editing & Suffix)
-        function tabData:CreateSlider(options)
-            options = options or {}
-            local name = options.Name or "Slider"
-            local min = options.Min or 0
-            local max = options.Max or 100
-            local default = options.Default or min
-            local suffix = options.Suffix or ""
-            local flag = options.Flag
-            local callback = options.Callback or function() end
+        -- Slider
+        function tabData:CreateSlider(opts)
+            opts = opts or {}
+            local name = opts.Name or "Slider"
+            local min = opts.Min or 0
+            local max = opts.Max or 100
+            local def = opts.Default or min
+            local suffix = opts.Suffix or ""
+            local flag = opts.Flag
+            local cb = opts.Callback or function() end
 
             local card = Create("Frame", {
-                BackgroundColor3 = Theme.Tertiary,
+                BackgroundColor3 = theme.Tertiary,
                 Size = UDim2.new(1, 0, 0, 58),
-                Parent = tabScroll
+                Parent = page
             })
-            AddCorner(card, 8)
-            AddLitStroke(card, 1, 0.7)
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.7)
+            card:SetAttribute("SearchText", name:lower())
 
             Create("TextLabel", {
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -90, 0, 20),
-                Position = UDim2.fromOffset(12, 8),
-                Font = Enum.Font.GothamMedium,
+                Size = UDim2.new(1, -95, 0, 20),
+                Position = UDim2.fromOffset(14, 8),
+                Font = Fonts.Semi,
                 Text = name,
-                TextColor3 = Theme.Text,
+                TextColor3 = theme.Text,
                 TextSize = 13,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Parent = card
             })
 
-            -- Direct-Editable Input Box for exact value typing
             local valBox = Create("TextBox", {
-                BackgroundColor3 = Theme.InputBackground,
-                Size = UDim2.fromOffset(60, 20),
-                Position = UDim2.new(1, -72, 0, 8),
-                Font = Enum.Font.GothamBold,
-                Text = tostring(default) .. suffix,
-                TextColor3 = Theme.Accent,
+                BackgroundColor3 = theme.InputBackground,
+                Size = UDim2.fromOffset(72, 20),
+                Position = UDim2.new(1, -84, 0, 8),
+                Font = Fonts.Bold,
+                Text = tostring(def) .. suffix,
+                TextColor3 = accentColor,
                 TextSize = 12,
                 Parent = card
             })
-            AddCorner(valBox, 4)
+            corner(valBox, 4)
+            table.insert(accentSubscribers, function(col)
+                Tween(valBox, {TextColor3 = col}, 0.25)
+            end)
 
             local track = Create("Frame", {
-                BackgroundColor3 = Theme.InputBackground,
-                Size = UDim2.new(1, -24, 0, 6),
-                Position = UDim2.fromOffset(12, 38),
+                BackgroundColor3 = theme.InputBackground,
+                Size = UDim2.new(1, -28, 0, 6),
+                Position = UDim2.fromOffset(14, 38),
                 Parent = card
             })
-            AddCorner(track, 3)
+            corner(track, 3)
 
             local fill = Create("Frame", {
-                BackgroundColor3 = Theme.Accent,
-                Size = UDim2.fromScale((default - min) / math.max(max - min, 1), 1),
+                BackgroundColor3 = accentColor,
+                Size = UDim2.fromScale((def - min) / math.max(max - min, 1), 1),
                 BorderSizePixel = 0,
                 Parent = track
             })
-            AddCorner(fill, 3)
+            corner(fill, 3)
+            table.insert(accentSubscribers, function(col)
+                Tween(fill, {BackgroundColor3 = col}, 0.25)
+            end)
 
             local thumb = Create("Frame", {
-                BackgroundColor3 = Theme.Text,
+                BackgroundColor3 = theme.Text,
                 Size = UDim2.fromOffset(14, 14),
-                Position = UDim2.new((default - min) / math.max(max - min, 1), -7, 0.5, -7),
+                Position = UDim2.new((def - min) / math.max(max - min, 1), -7, 0.5, -7),
                 Parent = track
             })
-            AddCorner(thumb, 7)
+            corner(thumb, 7)
 
-            local value = default
-            if flag then window.Flags[flag] = value end
+            local value = def
+            if flag then win.Flags[flag] = value end
 
             local function set(val, fire)
                 val = math.clamp(math.round(val), min, max)
                 value = val
-                if flag then window.Flags[flag] = value end
+                if flag then win.Flags[flag] = value end
                 local pct = (val - min) / math.max(max - min, 1)
                 Tween(fill, {Size = UDim2.fromScale(pct, 1)}, 0.1)
                 Tween(thumb, {Position = UDim2.new(pct, -7, 0.5, -7)}, 0.1)
                 valBox.Text = tostring(val) .. suffix
-                if fire ~= false then callback(val) end
+                if fire ~= false then cb(val) end
             end
 
-            -- Manual type-in listener
             valBox.FocusLost:Connect(function()
                 local parsed = tonumber(valBox.Text:gsub("%D+", ""))
                 if parsed then set(parsed) else set(value) end
             end)
 
-            -- Drag listener
             local sliding = false
             track.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -928,93 +1493,194 @@ function Velox:CreateWindow(config)
             return {Set = set, Get = function() return value end}
         end
 
-        -- 5. REAL HSV COLOR PICKER
-        function tabData:CreateColorPicker(options)
-            options = options or {}
-            local name = options.Name or "Color Picker"
-            local default = options.Default or Color3.fromRGB(100, 140, 255)
-            local flag = options.Flag
-            local callback = options.Callback or function() end
+        -- Dropdown
+        function tabData:CreateDropdown(opts)
+            opts = opts or {}
+            local name = opts.Name or "Dropdown"
+            local items = opts.Options or {"Option 1", "Option 2"}
+            local def = opts.Default or items[1]
+            local flag = opts.Flag
+            local cb = opts.Callback or function() end
 
             local card = Create("Frame", {
-                BackgroundColor3 = Theme.Tertiary,
+                BackgroundColor3 = theme.Tertiary,
                 Size = UDim2.new(1, 0, 0, 42),
-                Parent = tabScroll
+                ClipsDescendants = true,
+                Parent = page
             })
-            AddCorner(card, 8)
-            AddLitStroke(card, 1, 0.7)
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.7)
+            card:SetAttribute("SearchText", name:lower())
 
-            Create("TextLabel", {
+            local label = Create("TextLabel", {
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -60, 1, 0),
-                Position = UDim2.fromOffset(12, 0),
-                Font = Enum.Font.GothamMedium,
-                Text = name,
-                TextColor3 = Theme.Text,
+                Size = UDim2.new(1, -40, 0, 42),
+                Position = UDim2.fromOffset(14, 0),
+                Font = Fonts.Semi,
+                Text = name .. ":  " .. tostring(def),
+                TextColor3 = theme.Text,
                 TextSize = 13,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Parent = card
             })
 
-            local preview = Create("Frame", {
-                BackgroundColor3 = default,
-                Size = UDim2.fromOffset(26, 26),
-                Position = UDim2.new(1, -38, 0.5, -13),
+            local arrow = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.fromOffset(30, 42),
+                Position = UDim2.new(1, -34, 0, 0),
+                Font = Fonts.Bold,
+                Text = "▾",
+                TextColor3 = theme.TextDim,
+                TextSize = 16,
                 Parent = card
             })
-            AddCorner(preview, 6)
-            AddLitStroke(preview, 1, 0.5)
 
-            local currentColor = default
-            if flag then window.Flags[flag] = currentColor end
+            local dropFrame = Create("Frame", {
+                BackgroundColor3 = theme.Secondary,
+                Size = UDim2.new(1, 0, 0, 0),
+                Position = UDim2.fromOffset(0, 42),
+                ClipsDescendants = true,
+                Parent = card
+            })
+            corner(dropFrame, 8)
+            list(dropFrame, 2)
+            pad(dropFrame, 6, 6, 6, 6)
 
-            -- Color palette modal toggle (Clean Quick-Pick cycle + expansion hook)
-            local palette = {
-                Color3.fromRGB(100, 140, 255),
-                Color3.fromRGB(75, 215, 145),
-                Color3.fromRGB(255, 190, 65),
-                Color3.fromRGB(250, 85, 85),
-                Color3.fromRGB(180, 110, 255),
-                Color3.fromRGB(240, 240, 250),
-            }
-            local pIndex = 1
+            local open = false
+            local current = def
+            if flag then win.Flags[flag] = current end
+
+            local function toggle()
+                open = not open
+                local height = open and math.min(#items * 30 + 12, 160) or 0
+                Tween(card, {Size = UDim2.new(1, 0, 0, 42 + height)}, 0.3, Enum.EasingStyle.Quart)
+                Tween(dropFrame, {Size = UDim2.new(1, 0, 0, height)}, 0.3, Enum.EasingStyle.Quart)
+                Tween(arrow, {Rotation = open and 180 or 0}, 0.25)
+                playSound(Velox.Sounds.Click, 0.25)
+            end
 
             local hit = Create("TextButton", {
                 BackgroundTransparency = 1,
-                Size = UDim2.fromScale(1, 1),
+                Size = UDim2.new(1, 0, 0, 42),
                 Text = "",
                 Parent = card
             })
-            hit.MouseButton1Click:Connect(function()
-                pIndex = (pIndex % #palette) + 1
-                currentColor = palette[pIndex]
-                Tween(preview, {BackgroundColor3 = currentColor}, 0.2)
-                if flag then window.Flags[flag] = currentColor end
-                callback(currentColor)
+            hit.MouseButton1Click:Connect(toggle)
+
+            for _, item in ipairs(items) do
+                local opt = Create("TextButton", {
+                    BackgroundColor3 = theme.Tertiary,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 28),
+                    Font = Fonts.Main,
+                    Text = "  " .. item,
+                    TextColor3 = theme.TextDim,
+                    TextSize = 12,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    AutoButtonColor = false,
+                    Parent = dropFrame
+                })
+                corner(opt, 6)
+                opt.MouseButton1Click:Connect(function()
+                    current = item
+                    if flag then win.Flags[flag] = current end
+                    label.Text = name .. ":  " .. item
+                    toggle()
+                    cb(item)
+                end)
+            end
+
+            return {
+                Set = function(val)
+                    current = val
+                    label.Text = name .. ":  " .. val
+                    if flag then win.Flags[flag] = current end
+                end,
+                Get = function() return current end
+            }
+        end
+
+        -- Keybind
+        function tabData:CreateKeybind(opts)
+            opts = opts or {}
+            local name = opts.Name or "Keybind"
+            local def = opts.Default or Enum.KeyCode.E
+            local flag = opts.Flag
+            local cb = opts.Callback or function() end
+
+            local card = Create("Frame", {
+                BackgroundColor3 = theme.Tertiary,
+                Size = UDim2.new(1, 0, 0, 42),
+                Parent = page
+            })
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.7)
+            card:SetAttribute("SearchText", name:lower())
+
+            Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -110, 1, 0),
+                Position = UDim2.fromOffset(14, 0),
+                Font = Fonts.Semi,
+                Text = name,
+                TextColor3 = theme.Text,
+                TextSize = 13,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card
+            })
+
+            local keyBtn = Create("TextButton", {
+                BackgroundColor3 = theme.InputBackground,
+                Size = UDim2.fromOffset(80, 26),
+                Position = UDim2.new(1, -94, 0.5, -13),
+                Font = Fonts.Bold,
+                Text = def.Name,
+                TextColor3 = accentColor,
+                TextSize = 12,
+                AutoButtonColor = false,
+                Parent = card
+            })
+            corner(keyBtn, 6)
+            table.insert(accentSubscribers, function(col)
+                Tween(keyBtn, {TextColor3 = col}, 0.25)
+            end)
+
+            local current = def
+            local listening = false
+            if flag then win.Flags[flag] = current end
+
+            keyBtn.MouseButton1Click:Connect(function()
+                listening = true
+                keyBtn.Text = "..."
+                Tween(keyBtn, {BackgroundColor3 = accentColor, TextColor3 = theme.Text}, 0.2)
+                playSound(Velox.Sounds.Click, 0.3)
+            end)
+
+            UserInputService.InputBegan:Connect(function(input, processed)
+                if listening and input.UserInputType == Enum.UserInputType.Keyboard then
+                    current = input.KeyCode
+                    if flag then win.Flags[flag] = current end
+                    keyBtn.Text = current.Name
+                    listening = false
+                    Tween(keyBtn, {BackgroundColor3 = theme.InputBackground, TextColor3 = accentColor}, 0.2)
+                    cb(current)
+                end
             end)
 
             return {
-                Set = function(col)
-                    currentColor = col
-                    preview.BackgroundColor3 = col
-                    if flag then window.Flags[flag] = currentColor end
+                Set = function(k)
+                    current = k
+                    keyBtn.Text = k.Name
+                    if flag then win.Flags[flag] = current end
                 end,
-                Get = function() return currentColor end
+                Get = function() return current end
             }
         end
 
         return tabData
     end
 
-    -- Initial Window Entrance Animation
-    main.Size = UDim2.fromOffset(size.X.Offset * 0.9, size.Y.Offset * 0.9)
-    main.BackgroundTransparency = 1
-    Tween(main, {
-        Size = size,
-        BackgroundTransparency = 0
-    }, 0.45, Enum.EasingStyle.Back)
-
-    return window
+    return win
 end
 
 return Velox
