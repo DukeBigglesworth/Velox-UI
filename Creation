@@ -241,9 +241,9 @@ local Velox = {
             Priority = 10
         }
     },
-    ActiveRole = "Owner",
+    ActiveRole = "Free",
     RegisteredTags = {},
-    NametagsEnabled = true
+    NametagsEnabled = false
 }
 Velox.__index = Velox
 
@@ -1022,7 +1022,7 @@ function Velox:OpenCustomizer(opts)
     local studioPages = {}
     local navButtons = {}
 
-    local tabNames = {"Nametags", "UI Theme & FX", "Audio"}
+    local tabNames = {"Nametags", "Audio"}
     for _, tName in ipairs(tabNames) do
         local nb = Create("TextButton", {
             BackgroundColor3 = (tName == activeTab) and self.Themes.Obsidian.Tertiary or self.Themes.Obsidian.Secondary,
@@ -1960,6 +1960,7 @@ function Velox:CreateWindow(cfg)
     local logoImgUrl   = cfg.Logo or ""
 
     self.ActiveRole = customRole
+    self.NametagsEnabled = (cfg.Nametags == true)
     local theme = self.Themes[themeKey] or self.Themes.Obsidian
     local accentColor = theme.Accent
 
@@ -1969,7 +1970,7 @@ function Velox:CreateWindow(cfg)
         for _, fn in ipairs(accentSubscribers) do fn(newCol) end
     end
 
-    if cfg.Nametags then
+    if self.NametagsEnabled then
         local def = cfg.DefaultNametag or {}
         def.Role = customRole
         self:CreateNametag(def)
@@ -3121,21 +3122,23 @@ function Velox:CreateWindow(cfg)
             end)
         end
 
-        local studioBtn = Create("TextButton", {
-            BackgroundColor3 = theme.Accent,
-            Size = UDim2.new(1, 0, 0, 32),
-            Font = Fonts.Bold,
-            Text = "🎨 OPEN STUDIO PRO",
-            TextColor3 = Color3.new(1, 1, 1),
-            TextSize = 10,
-            AutoButtonColor = false,
-            ZIndex = 27,
-            Parent = dScroll
-        })
-        corner(studioBtn, 6)
-        AddBouncyClick(studioBtn, function()
-            self:OpenCustomizer({Window = win})
-        end)
+        if cfg.Nametags == true then
+            local studioBtn = Create("TextButton", {
+                BackgroundColor3 = theme.Accent,
+                Size = UDim2.new(1, 0, 0, 32),
+                Font = Fonts.Bold,
+                Text = "OPEN NAMETAG STUDIO",
+                TextColor3 = Color3.new(1, 1, 1),
+                TextSize = 10,
+                AutoButtonColor = false,
+                ZIndex = 27,
+                Parent = dScroll
+            })
+            corner(studioBtn, 6)
+            AddBouncyClick(studioBtn, function()
+                self:OpenCustomizer({Window = win})
+            end)
+        end
 
         local unloadBtn = Create("TextButton", {
             BackgroundColor3 = theme.Tertiary,
