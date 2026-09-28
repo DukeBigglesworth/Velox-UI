@@ -657,6 +657,45 @@ function Velox:Notify(opts)
     end)
 end
 
+
+
+function Velox:SaveConfig(name, data)
+    if not name then return false end
+    self.Configs = self.Configs or {}
+    self.Configs[name] = data or {}
+    if writefile then
+        pcall(function()
+            writefile("VeloxConfig_" .. name .. ".json", HttpService:JSONEncode(self.Configs[name]))
+        end)
+    end
+    return true
+end
+
+function Velox:LoadConfig(name)
+    if not name then return nil end
+    self.Configs = self.Configs or {}
+    if self.Configs[name] then return self.Configs[name] end
+    if readfile and isfile and isfile("VeloxConfig_" .. name .. ".json") then
+        local ok, data = pcall(function()
+            return HttpService:JSONDecode(readfile("VeloxConfig_" .. name .. ".json"))
+        end)
+        if ok and data then
+            self.Configs[name] = data
+            return data
+        end
+    end
+    return nil
+end
+
+function Velox:DeleteConfig(name)
+    if not name then return end
+    self.Configs = self.Configs or {}
+    self.Configs[name] = nil
+    if delfile and isfile and isfile("VeloxConfig_" .. name .. ".json") then
+        pcall(function() delfile("VeloxConfig_" .. name .. ".json") end)
+    end
+end
+
 function Velox:CreateMobileToggle(onToggle)
     local old = GuiParent:FindFirstChild("Velox_MobileToggle")
     if old then old:Destroy() end
@@ -3817,6 +3856,268 @@ function Velox:CreateWindow(cfg)
             }
         end
 
+
+        function tabData:CreateLabel(opts)
+            opts = opts or {}
+            local text = opts.Text or "Label"
+            local size = opts.Size or 13
+            local color = opts.Color or theme.Text
+            local card = Create("Frame", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -6, 0, 22),
+                Parent = tabContainer
+            })
+            local lbl = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 1, 0),
+                Font = Fonts.Semi,
+                Text = text,
+                TextColor3 = color,
+                TextSize = size,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card
+            })
+            table.insert(tabData.Elements, {Name = text, Frame = card})
+            return {
+                SetText = function(t) lbl.Text = tostring(t) end,
+                SetColor = function(c) lbl.TextColor3 = c end,
+                SetVisible = function(v) card.Visible = v end,
+                Frame = card,
+                Label = lbl
+            }
+        end
+
+        function tabData:CreateParagraph(opts)
+            opts = opts or {}
+            local title = opts.Title or "Info"
+            local content = opts.Content or ""
+            local card = Create("Frame", {
+                BackgroundColor3 = theme.Secondary,
+                Size = UDim2.new(1, -6, 0, 0),
+                AutomaticSize = Enum.AutomaticSize.Y,
+                Parent = tabContainer
+            })
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.75)
+            local titleLbl = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -20, 0, 18),
+                Position = UDim2.fromOffset(10, 8),
+                Font = Fonts.Bold,
+                Text = title,
+                TextColor3 = theme.Text,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card
+            })
+            local contentLbl = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -20, 0, 0),
+                Position = UDim2.fromOffset(10, 28),
+                Font = Fonts.Main,
+                Text = content,
+                TextColor3 = theme.TextDim,
+                TextSize = 11,
+                TextWrapped = true,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextYAlignment = Enum.TextYAlignment.Top,
+                AutomaticSize = Enum.AutomaticSize.Y,
+                Parent = card
+            })
+            Create("Frame", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 0, 10),
+                Parent = card
+            })
+            table.insert(tabData.Elements, {Name = title, Frame = card})
+            return {
+                SetTitle = function(t) titleLbl.Text = tostring(t) end,
+                SetContent = function(c) contentLbl.Text = tostring(c) end,
+                Set = function(t, c)
+                    if t then titleLbl.Text = tostring(t) end
+                    if c then contentLbl.Text = tostring(c) end
+                end,
+                Frame = card,
+                TitleLabel = titleLbl,
+                ContentLabel = contentLbl
+            }
+        end
+
+        function tabData:CreateStatus(opts)
+            opts = opts or {}
+            local name = opts.Name or "Status"
+            local default = opts.Default or "0"
+            local card = Create("Frame", {
+                BackgroundColor3 = theme.Secondary,
+                Size = UDim2.new(1, -6, 0, 36),
+                Parent = tabContainer
+            })
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.75)
+            local nameLbl = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0.55, 0, 1, 0),
+                Position = UDim2.fromOffset(12, 0),
+                Font = Fonts.Semi,
+                Text = name,
+                TextColor3 = theme.Text,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card
+            })
+            local valueLbl = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0.4, 0, 1, 0),
+                Position = UDim2.new(0.55, 0, 0, 0),
+                Font = Fonts.Bold,
+                Text = tostring(default),
+                TextColor3 = accentColor,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Right,
+                Parent = card
+            })
+            table.insert(accentSubscribers, function(c) valueLbl.TextColor3 = c end)
+            table.insert(tabData.Elements, {Name = name, Frame = card})
+            return {
+                Set = function(v) valueLbl.Text = tostring(v) end,
+                SetName = function(n) nameLbl.Text = tostring(n) end,
+                Value = function() return valueLbl.Text end,
+                Frame = card
+            }
+        end
+
+        function tabData:CreateLog(opts)
+            opts = opts or {}
+            local height = opts.Height or 160
+            local maxLines = opts.MaxLines or 60
+            local card = Create("Frame", {
+                BackgroundColor3 = theme.Secondary,
+                Size = UDim2.new(1, -6, 0, height),
+                Parent = tabContainer
+            })
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.75)
+            local scroll = Create("ScrollingFrame", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -12, 1, -12),
+                Position = UDim2.fromOffset(6, 6),
+                CanvasSize = UDim2.new(0, 0, 0, 0),
+                ScrollBarThickness = 3,
+                BorderSizePixel = 0,
+                Parent = card
+            })
+            local logLayout = list(scroll, 2)
+            logLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                scroll.CanvasSize = UDim2.new(0, 0, 0, logLayout.AbsoluteContentSize.Y + 4)
+                scroll.CanvasPosition = Vector2.new(0, logLayout.AbsoluteContentSize.Y)
+            end)
+            local lines = {}
+            local function addLine(text, lineType)
+                lineType = lineType or "Info"
+                local colors = {
+                    Info = theme.TextDim,
+                    Success = theme.Success,
+                    Warning = theme.Warning,
+                    Error = theme.Error,
+                }
+                local lbl = Create("TextLabel", {
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 16),
+                    Font = Fonts.Main,
+                    Text = tostring(text),
+                    TextColor3 = colors[lineType] or theme.TextDim,
+                    TextSize = 11,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextTruncate = Enum.TextTruncate.AtEnd,
+                    Parent = scroll
+                })
+                table.insert(lines, lbl)
+                if #lines > maxLines then
+                    local old = table.remove(lines, 1)
+                    if old then old:Destroy() end
+                end
+            end
+            table.insert(tabData.Elements, {Name = "Log", Frame = card})
+            return {
+                Add = addLine,
+                Clear = function()
+                    for _, l in ipairs(lines) do l:Destroy() end
+                    lines = {}
+                end,
+                Frame = card
+            }
+        end
+
+        function tabData:CreateProgressBar(opts)
+            opts = opts or {}
+            local name = opts.Name or "Progress"
+            local default = opts.Default or 0
+            local card = Create("Frame", {
+                BackgroundColor3 = theme.Secondary,
+                Size = UDim2.new(1, -6, 0, 48),
+                Parent = tabContainer
+            })
+            corner(card, 8)
+            AddLitStroke(card, theme, 1, 0.75)
+            local nameLbl = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -60, 0, 18),
+                Position = UDim2.fromOffset(12, 6),
+                Font = Fonts.Semi,
+                Text = name,
+                TextColor3 = theme.Text,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = card
+            })
+            local pctLbl = Create("TextLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.fromOffset(50, 18),
+                Position = UDim2.new(1, -58, 0, 6),
+                Font = Fonts.Bold,
+                Text = tostring(default) .. "%",
+                TextColor3 = accentColor,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Right,
+                Parent = card
+            })
+            table.insert(accentSubscribers, function(c) pctLbl.TextColor3 = c end)
+            local track = Create("Frame", {
+                BackgroundColor3 = theme.InputBackground,
+                Size = UDim2.new(1, -24, 0, 8),
+                Position = UDim2.fromOffset(12, 30),
+                Parent = card
+            })
+            corner(track, 4)
+            local fill = Create("Frame", {
+                BackgroundColor3 = accentColor,
+                Size = UDim2.fromScale(math.clamp(default / 100, 0, 1), 1),
+                Parent = track
+            })
+            corner(fill, 4)
+            table.insert(accentSubscribers, function(c) fill.BackgroundColor3 = c end)
+            table.insert(tabData.Elements, {Name = name, Frame = card})
+            return {
+                Set = function(v)
+                    v = math.clamp(tonumber(v) or 0, 0, 100)
+                    pctLbl.Text = tostring(math.floor(v)) .. "%"
+                    fill.Size = UDim2.fromScale(v / 100, 1)
+                end,
+                Value = function() return tonumber(pctLbl.Text:match("%d+")) or 0 end,
+                Frame = card
+            }
+        end
+
+        function tabData:Clear()
+            for _, el in ipairs(tabData.Elements) do
+                if el.Frame and el.Frame.Parent then
+                    el.Frame:Destroy()
+                end
+            end
+            tabData.Elements = {}
+        end
+
+
         return tabData
     end
 
@@ -4112,4 +4413,3 @@ if getgenv then
 end
 
 return Velox
-
