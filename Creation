@@ -136,6 +136,25 @@ local Velox = {
             Info            = Color3.fromRGB(95, 170, 255),
             Shadow          = Color3.fromRGB(0, 0, 0),
         },
+        RGB = {
+            Background      = Color3.fromRGB(9, 10, 15),
+            Secondary       = Color3.fromRGB(15, 17, 25),
+            Tertiary        = Color3.fromRGB(24, 27, 38),
+            Quaternary      = Color3.fromRGB(34, 38, 52),
+            CardHover       = Color3.fromRGB(30, 34, 48),
+            InputBackground = Color3.fromRGB(12, 14, 21),
+            BorderLight     = Color3.fromRGB(255, 255, 255),
+            BorderDark      = Color3.fromRGB(48, 52, 68),
+            Accent          = Color3.fromRGB(255, 90, 220),
+            Text            = Color3.fromRGB(248, 249, 255),
+            TextDim         = Color3.fromRGB(170, 177, 195),
+            TextDark        = Color3.fromRGB(112, 121, 145),
+            Success         = Color3.fromRGB(80, 220, 150),
+            Error           = Color3.fromRGB(255, 90, 90),
+            Warning         = Color3.fromRGB(255, 195, 75),
+            Info            = Color3.fromRGB(95, 170, 255),
+            Shadow          = Color3.fromRGB(0, 0, 0),
+        },
     },
     Sounds = {
         Enabled   = true,
@@ -247,6 +266,13 @@ local Velox = {
 }
 Velox.__index = Velox
 
+local function GetThemeKey(themeObject)
+    for key, value in pairs(Velox.Themes) do
+        if value == themeObject then return key end
+    end
+    return nil
+end
+
 local Fonts = {
     Main  = Enum.Font.GothamMedium,
     Bold  = Enum.Font.GothamBold,
@@ -306,22 +332,34 @@ function Velox.LoadWebAsset(url)
         return url
     end
 
-    local imgParam = url:match("imgurl=([^&]+)")
+    local isGoogleLink = url:lower():find("google.", 1, true) ~= nil
+    local imgParam = url:match("[?&]imgurl=([^&]+)") or url:match("[?&]mediaurl=([^&]+)")
+    if not imgParam and isGoogleLink then
+        imgParam = url:match("[?&]url=([^&]+)")
+    end
     if imgParam then
-        pcall(function()
-            local decoded = HttpService:UrlDecode(imgParam)
-            if decoded and decoded ~= "" then url = decoded end
-        end)
+        local decoded = imgParam
+        for _ = 1, 2 do
+            local ok, value = pcall(function() return HttpService:UrlDecode(decoded) end)
+            if not ok or not value or value == decoded then break end
+            decoded = value
+        end
+        if decoded:match("^https?://") or decoded:match("^data:image/") then
+            url = decoded
+        end
+    elseif isGoogleLink then
+        return ""
     end
 
-    if url:find("imgur%.com/%w+$") then
-        local id = url:match("imgur%.com/(%w+)$")
-        if id then url = "https://i.imgur.com/" .. id .. ".png" end
+    local imgurId = url:match("^https?://[^/]*imgur%.com/([%w]+)$")
+    if imgurId then
+        url = "https://i.imgur.com/" .. imgurId .. ".png"
     end
 
+    local assetGetter = getcustomasset or getsynasset
     if url:find("^data:image/[%w%+]+;base64,") then
         local b64 = url:match("^data:image/[%w%+]+;base64,(.+)$")
-        if b64 and writefile and getcustomasset then
+        if b64 and writefile and assetGetter then
             local decoded = nil
             pcall(function()
                 if syn and syn.crypt and syn.crypt.base64 then
@@ -333,20 +371,18 @@ function Velox.LoadWebAsset(url)
             if decoded and #decoded > 20 then
                 local fileName = "velox_data_" .. tostring(#decoded) .. ".png"
                 pcall(function() writefile(fileName, decoded) end)
-                local aOk, asset = pcall(function() return getcustomasset(fileName) end)
+                local aOk, asset = pcall(function() return assetGetter(fileName) end)
                 if aOk and asset then return asset end
             end
         end
     end
 
     local req = (syn and syn.request) or (http and http.request) or request or http_request
-    if req and writefile and getcustomasset then
+    if req and writefile and assetGetter then
         local hash = 0
         for i = 1, #url do
             hash = (hash * 31 + string.byte(url, i)) % 2147483647
         end
-        local fileName = "velox_web_" .. string.format("%08X", hash) .. ".png"
-
         local ok, res = pcall(function()
             return req({
                 Url = url,
@@ -360,9 +396,17 @@ function Velox.LoadWebAsset(url)
             })
         end)
 
-        if ok and res and res.StatusCode >= 200 and res.StatusCode < 300 and res.Body and #res.Body > 50 then
-            pcall(function() writefile(fileName, res.Body) end)
-            local aOk, assetId = pcall(function() return getcustomasset(fileName) end)
+        local statusCode = ok and res and (res.StatusCode or res.Status) or nil
+        local body = ok and res and res.Body or nil
+        if type(statusCode) == "number" and statusCode >= 200 and statusCode < 300 and type(body) == "string" and #body > 50 then
+            local headers = res.Headers or res.headers or {}
+            local contentType = tostring(headers["Content-Type"] or headers["content-type"] or ""):lower()
+            local extension = contentType:match("image/([%w%+%-]+)") or url:match("%.([%w]+)[%?#]?[^/]*$") or "png"
+            if extension == "jpeg" then extension = "jpg" end
+            if extension == "svg+xml" then return url end
+            local assetFile = "velox_web_" .. string.format("%08X", hash) .. "." .. extension
+            pcall(function() writefile(assetFile, body) end)
+            local aOk, assetId = pcall(function() return assetGetter(assetFile) end)
             if aOk and assetId then return assetId end
         end
     end
@@ -373,11 +417,13 @@ end
 local function MakeDraggable(handle, target)
     target = target or handle
     local dragging = false
+    local wasDragged = false
     local dragInput, dragStart, startAbs
 
     handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
+            wasDragged = false
             dragStart = input.Position
             startAbs = target.AbsolutePosition
             input.Changed:Connect(function()
@@ -397,6 +443,7 @@ local function MakeDraggable(handle, target)
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging and startAbs then
             local delta = input.Position - dragStart
+            if delta.Magnitude > 5 then wasDragged = true end
             local newX = startAbs.X + delta.X
             local newY = startAbs.Y + delta.Y
             local cam = workspace.CurrentCamera
@@ -410,6 +457,8 @@ local function MakeDraggable(handle, target)
             target.AnchorPoint = Vector2.new(0, 0)
         end
     end)
+
+    return function() return wasDragged end
 end
 
 local function AddLitStroke(parent, theme, width, trans)
@@ -551,7 +600,7 @@ function Velox:Notify(opts)
     local nContent  = opts.Content or ""
     local nDuration = opts.Duration or 3.5
     local nType     = opts.Type or "Info"
-    local nTheme    = opts.Theme or self.Themes.Obsidian
+    local nTheme    = opts.Theme or self.ActiveTheme or self.Themes.Obsidian
 
     local typeColors = {
         Success = nTheme.Success,
@@ -696,7 +745,8 @@ function Velox:DeleteConfig(name)
     end
 end
 
-function Velox:CreateMobileToggle(onToggle)
+function Velox:CreateMobileToggle(onToggle, themeObject)
+    local bubbleTheme = themeObject or self.Themes.Obsidian
     local old = GuiParent:FindFirstChild("Velox_MobileToggle")
     if old then old:Destroy() end
 
@@ -707,31 +757,109 @@ function Velox:CreateMobileToggle(onToggle)
         ResetOnSpawn = false,
         Parent = GuiParent,
     })
+    toggleGui:SetAttribute("VeloxTheme", GetThemeKey(bubbleTheme) or "Obsidian")
+    self._ThemeBindings = self._ThemeBindings or {}
+    self._ThemeBindings[toggleGui] = function(nextTheme) bubbleTheme = nextTheme end
 
     local bubble = Create("TextButton", {
         Name = "Bubble",
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BackgroundColor3 = bubbleTheme.Secondary,
         Size = UDim2.fromOffset(48, 48),
         Position = UDim2.new(0, 24, 0.35, 0),
-        Text = "V",
+        Text = "",
         Font = Fonts.Black,
-        TextColor3 = self.Themes.Obsidian.Accent,
+        TextColor3 = bubbleTheme.Accent,
         TextSize = 22,
         AutoButtonColor = false,
         Visible = false,
         Parent = toggleGui,
     })
     corner(bubble, 24)
-    AddLitStroke(bubble, self.Themes.Obsidian, 1.4, 0.3)
-    MakeDraggable(bubble, bubble)
+    AddLitStroke(bubble, bubbleTheme, 1.4, 0.3)
+    local bubbleWasDragged = MakeDraggable(bubble, bubble)
+
+    local spinView = Create("ViewportFrame", {
+        Name = "VeloxSpinMark",
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Active = false,
+        Size = UDim2.fromOffset(32, 32),
+        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Ambient = Color3.fromRGB(255, 255, 255),
+        LightColor = Color3.fromRGB(255, 255, 255),
+        LightDirection = Vector3.new(-1, -1, -1),
+        Parent = bubble,
+    })
+    local spinWorld = Create("WorldModel", {Parent = spinView})
+    local spinCamera = Create("Camera", {FieldOfView = 26, Parent = spinView})
+    spinCamera.CFrame = CFrame.lookAt(Vector3.new(0, 0, 1.4), Vector3.zero)
+    spinView.CurrentCamera = spinCamera
+
+    local spinModel = Create("Model", {Name = "VeloxV", Parent = spinWorld})
+    local spinAccent = bubbleTheme.Accent
+    local spinRoot = Create("Part", {
+        Name = "Pivot",
+        Anchored = true,
+        CanCollide = false,
+        CastShadow = false,
+        Transparency = 1,
+        Size = Vector3.new(0.01, 0.01, 0.01),
+        CFrame = CFrame.new(),
+        Parent = spinModel,
+    })
+    spinModel.PrimaryPart = spinRoot
+
+    for _, leg in ipairs({
+        {Position = Vector3.new(-0.13, 0, 0), Rotation = 34},
+        {Position = Vector3.new(0.13, 0, 0), Rotation = -34},
+    }) do
+        Create("Part", {
+            Name = "VStroke",
+            Anchored = true,
+            CanCollide = false,
+            CastShadow = false,
+            Material = Enum.Material.Neon,
+            Color = spinAccent,
+            Size = Vector3.new(0.085, 0.48, 0.09),
+            CFrame = CFrame.new(leg.Position) * CFrame.Angles(0, 0, math.rad(leg.Rotation)),
+            Parent = spinModel,
+        })
+    end
 
     local bScale = Create("UIScale", {Scale = 1, Parent = bubble})
+    local spinRunning = false
+    local spinGeneration = 0
+    local spinAngle = 0
+
+    local function stopSpin()
+        spinRunning = false
+        spinGeneration += 1
+        spinAngle = 0
+        if spinModel.Parent then
+            spinModel:PivotTo(CFrame.new())
+        end
+    end
+
+    local function startSpin()
+        if spinRunning then return end
+        spinRunning = true
+        spinGeneration += 1
+        local generation = spinGeneration
+        task.spawn(function()
+            while spinRunning and spinGeneration == generation and spinView.Parent do
+                local delta = RunService.Heartbeat:Wait()
+                spinAngle = (spinAngle + 32 * delta) % 360
+                spinModel:PivotTo(CFrame.Angles(0, math.rad(spinAngle), 0))
+            end
+        end)
+    end
 
     AddBouncyClick(bubble, function()
-        if onToggle then onToggle(bubble, bScale) end
+        if not bubbleWasDragged() and onToggle then onToggle(bubble, bScale) end
     end)
 
-    return {Gui = toggleGui, Button = bubble, Scale = bScale}
+    return {Gui = toggleGui, Button = bubble, Scale = bScale, StartSpin = startSpin, StopSpin = stopSpin}
 end
 
 function Velox:ApplyNametagToPlayer(player, tagConfig)
@@ -994,6 +1122,7 @@ end
 function Velox:OpenCustomizer(opts)
     opts = opts or {}
     local winTarget = opts.Window
+    local customizerTheme = (winTarget and winTarget.Theme) or self.Themes.Obsidian
 
     local editorGui = Create("ScreenGui", {
         Name = "Velox_StudioPro",
@@ -1002,10 +1131,13 @@ function Velox:OpenCustomizer(opts)
         ResetOnSpawn = false,
         Parent = GuiParent
     })
+    editorGui:SetAttribute("VeloxTheme", GetThemeKey(customizerTheme) or "Obsidian")
+    self._ThemeBindings = self._ThemeBindings or {}
+    self._ThemeBindings[editorGui] = function(nextTheme) customizerTheme = nextTheme end
 
     local modal = Create("Frame", {
         Name = "StudioProModal",
-        BackgroundColor3 = self.Themes.Obsidian.Background,
+        BackgroundColor3 = customizerTheme.Background,
         Size = UDim2.fromOffset(580, 580),
         Position = UDim2.fromScale(0.5, 0.5),
         AnchorPoint = Vector2.new(0.5, 0.5),
@@ -1013,7 +1145,7 @@ function Velox:OpenCustomizer(opts)
         Parent = editorGui
     })
     corner(modal, 14)
-    AddLitStroke(modal, self.Themes.Obsidian, 1.4, 0.5)
+    AddLitStroke(modal, customizerTheme, 1.4, 0.5)
 
     Create("ImageLabel", {
         BackgroundTransparency = 1,
@@ -1029,13 +1161,13 @@ function Velox:OpenCustomizer(opts)
     })
 
     local titleBar = Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BackgroundColor3 = customizerTheme.Secondary,
         Size = UDim2.new(1, 0, 0, 46),
         Parent = modal
     })
     corner(titleBar, 14)
     Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BackgroundColor3 = customizerTheme.Secondary,
         BorderSizePixel = 0,
         Size = UDim2.new(1, 0, 0, 12),
         Position = UDim2.fromOffset(0, 34),
@@ -1046,7 +1178,7 @@ function Velox:OpenCustomizer(opts)
     Create("ImageLabel", {
         BackgroundTransparency = 1,
         Image = self.Icons.Palette,
-        ImageColor3 = self.Themes.Obsidian.Accent,
+        ImageColor3 = customizerTheme.Accent,
         Size = UDim2.fromOffset(20, 20),
         Position = UDim2.fromOffset(14, 13),
         Parent = titleBar
@@ -1058,19 +1190,19 @@ function Velox:OpenCustomizer(opts)
         Position = UDim2.fromOffset(42, 0),
         Font = Fonts.Bold,
         Text = "VELOX STUDIO PRO • SCRIPT CUSTOMIZER",
-        TextColor3 = self.Themes.Obsidian.Text,
+        TextColor3 = customizerTheme.Text,
         TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = titleBar
     })
 
     local closeBtn = Create("TextButton", {
-        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        BackgroundColor3 = customizerTheme.Tertiary,
         Size = UDim2.fromOffset(28, 28),
         Position = UDim2.new(1, -38, 0.5, -14),
         Font = Fonts.Bold,
         Text = "×",
-        TextColor3 = self.Themes.Obsidian.TextDim,
+        TextColor3 = customizerTheme.TextDim,
         TextSize = 18,
         AutoButtonColor = false,
         Parent = titleBar
@@ -1079,7 +1211,7 @@ function Velox:OpenCustomizer(opts)
     AddBouncyClick(closeBtn, function() editorGui:Destroy() end)
 
     local navBar = Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BackgroundColor3 = customizerTheme.Secondary,
         Size = UDim2.new(1, -28, 0, 34),
         Position = UDim2.fromOffset(14, 52),
         Parent = modal
@@ -1094,11 +1226,11 @@ function Velox:OpenCustomizer(opts)
     local tabNames = {"Nametags"}
     for _, tName in ipairs(tabNames) do
         local nb = Create("TextButton", {
-            BackgroundColor3 = (tName == activeTab) and self.Themes.Obsidian.Tertiary or self.Themes.Obsidian.Secondary,
+            BackgroundColor3 = (tName == activeTab) and customizerTheme.Tertiary or customizerTheme.Secondary,
             Size = UDim2.new(0.32, 0, 1, 0),
             Font = Fonts.Bold,
             Text = tName,
-            TextColor3 = (tName == activeTab) and self.Themes.Obsidian.Accent or self.Themes.Obsidian.TextDim,
+            TextColor3 = (tName == activeTab) and customizerTheme.Accent or customizerTheme.TextDim,
             TextSize = 11,
             AutoButtonColor = false,
             Parent = navBar
@@ -1141,8 +1273,8 @@ function Velox:OpenCustomizer(opts)
         end
         for t, btn in pairs(navButtons) do
             local isSel = (t == tab)
-            btn.BackgroundColor3 = isSel and self.Themes.Obsidian.Tertiary or self.Themes.Obsidian.Secondary
-            btn.TextColor3 = isSel and self.Themes.Obsidian.Accent or self.Themes.Obsidian.TextDim
+            btn.BackgroundColor3 = isSel and customizerTheme.Tertiary or customizerTheme.Secondary
+            btn.TextColor3 = isSel and customizerTheme.Accent or customizerTheme.TextDim
         end
     end
 
@@ -1166,7 +1298,7 @@ function Velox:OpenCustomizer(opts)
         Parent = nametagPage
     })
     corner(previewStage, 10)
-    AddLitStroke(previewStage, self.Themes.Obsidian, 1, 0.75)
+    AddLitStroke(previewStage, customizerTheme, 1, 0.75)
 
     local previewTagPill = Create("Frame", {
         BackgroundColor3 = Color3.fromRGB(10, 11, 15),
@@ -1262,7 +1394,7 @@ function Velox:OpenCustomizer(opts)
             Size = UDim2.new(1, 0, 0, 16),
             Font = Fonts.Bold,
             Text = txt:upper(),
-            TextColor3 = self.Themes.Obsidian.TextDim,
+            TextColor3 = customizerTheme.TextDim,
             TextSize = 10,
             TextXAlignment = Enum.TextXAlignment.Left,
             Parent = parent
@@ -1271,7 +1403,7 @@ function Velox:OpenCustomizer(opts)
     end
 
     local roleBanner = Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BackgroundColor3 = customizerTheme.Secondary,
         Size = UDim2.new(1, 0, 0, 32),
         Parent = nametagPage
     })
@@ -1290,22 +1422,22 @@ function Velox:OpenCustomizer(opts)
 
     makeHeader(nametagPage, "Custom Title & Subtitle")
     local titleCard = Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BackgroundColor3 = customizerTheme.Secondary,
         Size = UDim2.new(1, 0, 0, 44),
         Parent = nametagPage
     })
     corner(titleCard, 8)
-    AddLitStroke(titleCard, self.Themes.Obsidian, 1, 0.75)
+    AddLitStroke(titleCard, customizerTheme, 1, 0.75)
 
     local titleTB = Create("TextBox", {
-        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        BackgroundColor3 = customizerTheme.Tertiary,
         Size = UDim2.new(1, -16, 0, 26),
         Position = UDim2.fromOffset(8, 9),
         Font = Fonts.Main,
         Text = tagTitle,
         PlaceholderText = "Custom Nametag Title...",
-        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
-        TextColor3 = self.Themes.Obsidian.Text,
+        PlaceholderColor3 = customizerTheme.TextDark,
+        TextColor3 = customizerTheme.Text,
         TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left,
         ClearTextOnFocus = false,
@@ -1318,22 +1450,22 @@ function Velox:OpenCustomizer(opts)
     end)
 
     local subCard = Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BackgroundColor3 = customizerTheme.Secondary,
         Size = UDim2.new(1, 0, 0, 44),
         Parent = nametagPage
     })
     corner(subCard, 8)
-    AddLitStroke(subCard, self.Themes.Obsidian, 1, 0.75)
+    AddLitStroke(subCard, customizerTheme, 1, 0.75)
 
     local subTB = Create("TextBox", {
-        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        BackgroundColor3 = customizerTheme.Tertiary,
         Size = UDim2.new(1, -16, 0, 26),
         Position = UDim2.fromOffset(8, 9),
         Font = Fonts.Main,
         Text = tagSub,
         PlaceholderText = "Custom Subtitle / Bio...",
-        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
-        TextColor3 = self.Themes.Obsidian.Text,
+        PlaceholderColor3 = customizerTheme.TextDark,
+        TextColor3 = customizerTheme.Text,
         TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left,
         ClearTextOnFocus = false,
@@ -1357,11 +1489,11 @@ function Velox:OpenCustomizer(opts)
     local animButtons = {}
     for _, aMode in ipairs(animModes) do
         local ab = Create("TextButton", {
-            BackgroundColor3 = (aMode == tagAnim) and self.Themes.Obsidian.Accent or self.Themes.Obsidian.Secondary,
+            BackgroundColor3 = (aMode == tagAnim) and customizerTheme.Accent or customizerTheme.Secondary,
             Size = UDim2.new(0, 92, 1, 0),
             Font = Fonts.Semi,
             Text = aMode,
-            TextColor3 = (aMode == tagAnim) and Color3.new(1, 1, 1) or self.Themes.Obsidian.TextDim,
+            TextColor3 = (aMode == tagAnim) and Color3.new(1, 1, 1) or customizerTheme.TextDim,
             TextSize = 10,
             AutoButtonColor = false,
             Parent = animRow
@@ -1372,8 +1504,8 @@ function Velox:OpenCustomizer(opts)
             tagAnim = aMode
             for m, b in pairs(animButtons) do
                 local sel = (m == tagAnim)
-                b.BackgroundColor3 = sel and self.Themes.Obsidian.Accent or self.Themes.Obsidian.Secondary
-                b.TextColor3 = sel and Color3.new(1, 1, 1) or self.Themes.Obsidian.TextDim
+                b.BackgroundColor3 = sel and customizerTheme.Accent or customizerTheme.Secondary
+                b.TextColor3 = sel and Color3.new(1, 1, 1) or customizerTheme.TextDim
             end
         end)
     end
@@ -1416,22 +1548,22 @@ function Velox:OpenCustomizer(opts)
 
     makeHeader(nametagPage, "Custom Icon & Background (Any Image Address / Google Images / GIFs)")
     local iconBgCard = Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BackgroundColor3 = customizerTheme.Secondary,
         Size = UDim2.new(1, 0, 0, 80),
         Parent = nametagPage
     })
     corner(iconBgCard, 8)
-    AddLitStroke(iconBgCard, self.Themes.Obsidian, 1, 0.75)
+    AddLitStroke(iconBgCard, customizerTheme, 1, 0.75)
 
     local iconTB = Create("TextBox", {
-        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        BackgroundColor3 = customizerTheme.Tertiary,
         Size = UDim2.new(1, -16, 0, 24),
         Position = UDim2.fromOffset(8, 8),
         Font = Fonts.Main,
         Text = tagIcon,
         PlaceholderText = "Paste any image address (Google Images / Discord / Imgur)...",
-        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
-        TextColor3 = self.Themes.Obsidian.Text,
+        PlaceholderColor3 = customizerTheme.TextDark,
+        TextColor3 = customizerTheme.Text,
         TextSize = 10,
         TextXAlignment = Enum.TextXAlignment.Left,
         ClearTextOnFocus = false,
@@ -1447,14 +1579,14 @@ function Velox:OpenCustomizer(opts)
     end)
 
     local bgTB = Create("TextBox", {
-        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        BackgroundColor3 = customizerTheme.Tertiary,
         Size = UDim2.new(1, -16, 0, 24),
         Position = UDim2.fromOffset(8, 42),
         Font = Fonts.Main,
         Text = tagBg,
         PlaceholderText = "Paste any background address (Google Images / GIFs)...",
-        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
-        TextColor3 = self.Themes.Obsidian.Text,
+        PlaceholderColor3 = customizerTheme.TextDark,
+        TextColor3 = customizerTheme.Text,
         TextSize = 10,
         TextXAlignment = Enum.TextXAlignment.Left,
         ClearTextOnFocus = false,
@@ -1477,12 +1609,12 @@ function Velox:OpenCustomizer(opts)
     })
     list(themeGrid, 6, Enum.FillDirection.Horizontal)
 
-    local themes = {"Obsidian", "Midnight", "TokyoPurple", "Cyberpunk", "Emerald", "Crimson"}
+    local themes = {"Obsidian", "Midnight", "TokyoPurple", "Cyberpunk", "Emerald", "Crimson", "RGB"}
     for _, thKey in ipairs(themes) do
         local thData = self.Themes[thKey]
         local tb = Create("TextButton", {
             BackgroundColor3 = thData.Secondary,
-            Size = UDim2.new(0.155, 0, 1, 0),
+            Size = UDim2.new(0.125, 0, 1, 0),
             Font = Fonts.Semi,
             Text = thKey,
             TextColor3 = thData.Accent,
@@ -1491,32 +1623,34 @@ function Velox:OpenCustomizer(opts)
             Parent = themeGrid
         })
         corner(tb, 6)
+        tb:SetAttribute("VeloxThemeSwatch", true)
         AddLitStroke(tb, {Accent = thData.Accent}, 1, 0.6)
 
         AddBouncyClick(tb, function()
             if winTarget and winTarget.SetTheme then
                 winTarget.SetTheme(thKey)
+                customizerTheme = self.Themes[thKey]
             end
         end)
     end
 
-    makeHeader(uiFxPage, "Custom UI Background Image or GIF (Any Image Address)")
+    makeHeader(uiFxPage, "Main UI Background Image • Direct or Google Images URL")
     local uiBgCard = Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BackgroundColor3 = customizerTheme.Secondary,
         Size = UDim2.new(1, 0, 0, 48),
         Parent = uiFxPage
     })
     corner(uiBgCard, 8)
-    AddLitStroke(uiBgCard, self.Themes.Obsidian, 1, 0.75)
+    AddLitStroke(uiBgCard, customizerTheme, 1, 0.75)
 
     local uiBgTB = Create("TextBox", {
-        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        BackgroundColor3 = customizerTheme.Tertiary,
         Size = UDim2.new(1, -16, 0, 26),
         Position = UDim2.fromOffset(8, 11),
         Font = Fonts.Main,
         PlaceholderText = "Paste any image/GIF address (Google / Discord / Imgur)...",
-        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
-        TextColor3 = self.Themes.Obsidian.Text,
+        PlaceholderColor3 = customizerTheme.TextDark,
+        TextColor3 = customizerTheme.Text,
         TextSize = 10,
         TextXAlignment = Enum.TextXAlignment.Left,
         ClearTextOnFocus = false,
@@ -1531,21 +1665,21 @@ function Velox:OpenCustomizer(opts)
 
     makeHeader(uiFxPage, "Custom UI Logo (Any Image Address)")
     local logoCard = Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Secondary,
+        BackgroundColor3 = customizerTheme.Secondary,
         Size = UDim2.new(1, 0, 0, 48),
         Parent = uiFxPage
     })
     corner(logoCard, 8)
-    AddLitStroke(logoCard, self.Themes.Obsidian, 1, 0.75)
+    AddLitStroke(logoCard, customizerTheme, 1, 0.75)
 
     local logoTB = Create("TextBox", {
-        BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+        BackgroundColor3 = customizerTheme.Tertiary,
         Size = UDim2.new(1, -16, 0, 26),
         Position = UDim2.fromOffset(8, 11),
         Font = Fonts.Main,
         PlaceholderText = "Paste any image/GIF address for Window Logo...",
-        PlaceholderColor3 = self.Themes.Obsidian.TextDark,
-        TextColor3 = self.Themes.Obsidian.Text,
+        PlaceholderColor3 = customizerTheme.TextDark,
+        TextColor3 = customizerTheme.Text,
         TextSize = 10,
         TextXAlignment = Enum.TextXAlignment.Left,
         ClearTextOnFocus = false,
@@ -1561,12 +1695,12 @@ function Velox:OpenCustomizer(opts)
     makeHeader(uiFxPage, "Cinematic Visual FX")
     local function makeFxToggle(parent, txt, callback)
         local c = Create("Frame", {
-            BackgroundColor3 = self.Themes.Obsidian.Secondary,
+            BackgroundColor3 = customizerTheme.Secondary,
             Size = UDim2.new(1, 0, 0, 36),
             Parent = parent
         })
         corner(c, 8)
-        AddLitStroke(c, self.Themes.Obsidian, 1, 0.75)
+        AddLitStroke(c, customizerTheme, 1, 0.75)
 
         Create("TextLabel", {
             BackgroundTransparency = 1,
@@ -1574,14 +1708,14 @@ function Velox:OpenCustomizer(opts)
             Position = UDim2.fromOffset(12, 0),
             Font = Fonts.Semi,
             Text = txt,
-            TextColor3 = self.Themes.Obsidian.Text,
+            TextColor3 = customizerTheme.Text,
             TextSize = 11,
             TextXAlignment = Enum.TextXAlignment.Left,
             Parent = c
         })
 
         local sw = Create("TextButton", {
-            BackgroundColor3 = self.Themes.Obsidian.Tertiary,
+            BackgroundColor3 = customizerTheme.Tertiary,
             Size = UDim2.fromOffset(36, 18),
             Position = UDim2.new(1, -48, 0.5, -9),
             Text = "",
@@ -1602,10 +1736,10 @@ function Velox:OpenCustomizer(opts)
         AddBouncyClick(sw, function()
             enabled = not enabled
             if enabled then
-                Tween(sw, {BackgroundColor3 = self.Themes.Obsidian.Accent}, 0.2)
+                Tween(sw, {BackgroundColor3 = customizerTheme.Accent}, 0.2)
                 Tween(dot, {Position = UDim2.fromOffset(21, 3)}, 0.2)
             else
-                Tween(sw, {BackgroundColor3 = self.Themes.Obsidian.Tertiary}, 0.2)
+                Tween(sw, {BackgroundColor3 = customizerTheme.Tertiary}, 0.2)
                 Tween(dot, {Position = UDim2.fromOffset(3, 3)}, 0.2)
             end
             if callback then callback(enabled) end
@@ -1628,7 +1762,7 @@ function Velox:OpenCustomizer(opts)
     end)
 
     local footer = Create("Frame", {
-        BackgroundColor3 = self.Themes.Obsidian.Background,
+        BackgroundColor3 = customizerTheme.Background,
         Size = UDim2.new(1, -28, 0, 48),
         Position = UDim2.new(0, 14, 1, -56),
         Parent = modal
@@ -1670,7 +1804,7 @@ function Velox:OpenCustomizer(opts)
     end)
 
     local exportBtn = Create("TextButton", {
-        BackgroundColor3 = self.Themes.Obsidian.Accent,
+        BackgroundColor3 = customizerTheme.Accent,
         Size = UDim2.new(0.54, 0, 1, 0),
         Font = Fonts.Bold,
         Text = "🚀 EXPORT & COPY CODE",
@@ -1680,7 +1814,7 @@ function Velox:OpenCustomizer(opts)
         Parent = footer
     })
     corner(exportBtn, 8)
-    AddLitStroke(exportBtn, self.Themes.Obsidian, 1.2, 0.4)
+    AddLitStroke(exportBtn, customizerTheme, 1.2, 0.4)
 
     AddBouncyClick(exportBtn, function()
         local tagConfig = {
@@ -1718,7 +1852,7 @@ function Velox:CreateSubWindow(opts)
     opts = opts or {}
     local subTitle = opts.Title or "Mini UI"
     local size = opts.Size or UDim2.fromOffset(300, 240)
-    local theme = opts.Theme or self.Themes.Obsidian
+    local theme = opts.Theme or self.ActiveTheme or self.Themes.Obsidian
 
     local subGui = Create("ScreenGui", {
         Name = "Velox_SubWin_" .. HttpService:GenerateGUID(false):sub(1, 6),
@@ -1727,6 +1861,9 @@ function Velox:CreateSubWindow(opts)
         ResetOnSpawn = false,
         Parent = GuiParent
     })
+    subGui:SetAttribute("VeloxTheme", GetThemeKey(theme) or "Obsidian")
+    self._ThemeBindings = self._ThemeBindings or {}
+    self._ThemeBindings[subGui] = function(nextTheme) theme = nextTheme end
 
     local frame = Create("Frame", {
         Name = "MiniWindow",
@@ -2019,13 +2156,17 @@ function Velox:CreateWindow(cfg)
     local size         = cfg.Size or UDim2.fromOffset(680, 480)
     local minKey       = cfg.MinimizeKey or Enum.KeyCode.RightControl
     local themeKey     = cfg.Theme or "Obsidian"
-    local orientation  = cfg.Orientation or "Vertical"
+    local preset = cfg.Preset or cfg.Layout or (cfg.Orientation == "Horizontal" and "Topbar" or "Classic")
+    local presets = { Classic = true, Topbar = true, Rail = true, Command = true }
+    if not presets[preset] then preset = "Classic" end
+    local orientation = (preset == "Topbar" or preset == "Command") and "Horizontal" or "Vertical"
     local showProfile  = cfg.ShowProfile ~= false
     local showSearch   = cfg.ShowSearch ~= false
     local showSettings = cfg.ShowSettings ~= false
     local showMobileToggle = cfg.MobileToggle ~= false
     local customRole   = cfg.Role or "Owner"
     local bgImgUrl     = cfg.BackgroundImage or ""
+    local bgImgTransparency = math.clamp(tonumber(cfg.BackgroundImageTransparency) or 0.18, 0, 1)
     local logoImgUrl   = cfg.Logo or ""
 
     self.ActiveRole = customRole
@@ -2038,6 +2179,7 @@ function Velox:CreateWindow(cfg)
         self.NametagsEnabled = false
     end
     local theme = self.Themes[themeKey] or self.Themes.Obsidian
+    self.ActiveTheme = theme
     local accentColor = theme.Accent
 
     local accentSubscribers = {}
@@ -2061,6 +2203,12 @@ function Velox:CreateWindow(cfg)
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         Parent = GuiParent,
     })
+    gui:SetAttribute("VeloxTheme", GetThemeKey(theme) or "Obsidian")
+    Velox._ThemeBindings = Velox._ThemeBindings or {}
+    Velox._ThemeBindings[gui] = function(nextTheme, accentOverride)
+        theme = nextTheme
+        notifyAccentChange(accentOverride or nextTheme.Accent)
+    end
 
     local centerPosition = UDim2.fromScale(0.5, 0.5)
 
@@ -2097,6 +2245,7 @@ function Velox:CreateWindow(cfg)
         Name = "CustomBackground",
         BackgroundTransparency = 1,
         Image = Velox.LoadWebAsset(bgImgUrl),
+        ImageTransparency = bgImgTransparency,
         ScaleType = Enum.ScaleType.Crop,
         Size = UDim2.fromScale(1, 1),
         ZIndex = 1,
@@ -2350,8 +2499,21 @@ function Velox:CreateWindow(cfg)
 
     local mobileBubbleObj = nil
 
+    local function bubbleCenterPosition()
+        if not mobileBubbleObj then return UDim2.new(0, 48, 0.35, 24) end
+        local button = mobileBubbleObj.Button
+        local position = button.Position
+        local absoluteSize = button.AbsoluteSize
+        return UDim2.new(
+            position.X.Scale,
+            position.X.Offset + absoluteSize.X * (0.5 - button.AnchorPoint.X),
+            position.Y.Scale,
+            position.Y.Offset + absoluteSize.Y * (0.5 - button.AnchorPoint.Y)
+        )
+    end
+
     local function shrinkToCircle()
-        local bubblePos = UDim2.new(0, 24, 0.35, 0)
+        local bubblePos = bubbleCenterPosition()
         Tween(main, {
             Size = UDim2.fromOffset(48, 48),
             Position = bubblePos
@@ -2366,6 +2528,7 @@ function Velox:CreateWindow(cfg)
 
             if mobileBubbleObj then
                 mobileBubbleObj.Button.Visible = true
+                mobileBubbleObj.StartSpin()
                 mobileBubbleObj.Scale.Scale = 0.2
                 Tween(mobileBubbleObj.Scale, {Scale = 1.0}, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
             end
@@ -2374,12 +2537,14 @@ function Velox:CreateWindow(cfg)
 
     local function restoreFromCircle()
         if mobileBubbleObj then
+            local bubblePos = bubbleCenterPosition()
+            mobileBubbleObj.StopSpin()
             Tween(mobileBubbleObj.Scale, {Scale = 0.2}, 0.18, Enum.EasingStyle.Back, Enum.EasingDirection.In)
             task.delay(0.18, function()
                 mobileBubbleObj.Button.Visible = false
                 main.Visible = true
                 main.Size = UDim2.fromOffset(48, 48)
-                main.Position = UDim2.new(0, 24, 0.35, 0)
+                main.Position = bubblePos
                 mainScale.Scale = 0.15
 
                 Tween(main, {
@@ -2398,7 +2563,7 @@ function Velox:CreateWindow(cfg)
     if showMobileToggle then
         mobileBubbleObj = self:CreateMobileToggle(function()
             restoreFromCircle()
-        end)
+        end, theme)
     end
 
     local bodyWrapper = Create("Frame", {
@@ -2813,25 +2978,109 @@ function Velox:CreateWindow(cfg)
         end)
     end
 
-    local sidebarWidth = (orientation == "Horizontal") and 0 or 170
+    local sidebarWidth = (orientation == "Horizontal") and 0 or (preset == "Rail" and 82 or 170)
     local tabButtonsContainer = nil
     local contentContainer = nil
+    local tabs = {}
+    local currentTab = nil
+    local searchInput = nil
+    local searchQuery = ""
+    local noResultsLabel = nil
+
+    local function applyWidgetSearch(tabData)
+        local query = string.lower(searchQuery)
+        local matches = 0
+        for _, element in ipairs(tabData.Elements or {}) do
+            if element.Frame and element.Frame.Parent then
+                local name = string.lower(tostring(element.Name or ""))
+                local visible = query == "" or string.find(name, query, 1, true) ~= nil
+                element.Frame.Visible = visible
+                if visible and not element.IsSection then matches += 1 end
+            end
+        end
+        return matches
+    end
+
+    local function refreshWidgetSearch()
+        local query = string.lower(searchQuery)
+        local totalMatches = 0
+        local firstMatchingTab = nil
+        for _, tabData in ipairs(tabs) do
+            local count = applyWidgetSearch(tabData)
+            totalMatches += count
+            if count > 0 and not firstMatchingTab then firstMatchingTab = tabData end
+        end
+        if query ~= "" and firstMatchingTab and firstMatchingTab.Select then
+            firstMatchingTab.Select()
+        end
+        if noResultsLabel then
+            noResultsLabel.Visible = query ~= "" and totalMatches == 0
+        end
+    end
+
+    local function registerTabElement(tabData, name, frame, isSection)
+        table.insert(tabData.Elements, {Name = name, Frame = frame, IsSection = isSection or false})
+        if searchQuery ~= "" then refreshWidgetSearch() end
+    end
+
+    local function createWidgetSearch(parent, size, position)
+        local searchBox = Create("Frame", {
+            BackgroundColor3 = theme.InputBackground,
+            Size = size,
+            Position = position,
+            Parent = parent,
+        })
+        corner(searchBox, 7)
+        AddLitStroke(searchBox, theme, 1, 0.8)
+        Create("ImageLabel", {
+            BackgroundTransparency = 1,
+            Image = self.Icons.Search,
+            ImageColor3 = theme.TextDark,
+            Size = UDim2.fromOffset(14, 14),
+            Position = UDim2.fromOffset(8, 6),
+            Parent = searchBox,
+        })
+        searchInput = Create("TextBox", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -32, 1, 0),
+            Position = UDim2.fromOffset(28, 0),
+            Font = Fonts.Main,
+            PlaceholderText = "Search widgets...",
+            PlaceholderColor3 = theme.TextDark,
+            Text = "",
+            TextColor3 = theme.Text,
+            TextSize = 11,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ClearTextOnFocus = false,
+            Parent = searchBox,
+        })
+        searchInput:GetPropertyChangedSignal("Text"):Connect(function()
+            searchQuery = searchInput.Text
+            refreshWidgetSearch()
+        end)
+        return searchBox
+    end
 
     if orientation == "Horizontal" then
         local topTabBar = Create("Frame", {
-            BackgroundColor3 = theme.Secondary,
-            Size = UDim2.new(1, 0, 0, 36),
+            BackgroundColor3 = preset == "Command" and theme.Background or theme.Secondary,
+            Size = UDim2.new(1, preset == "Command" and -32 or 0, 0, preset == "Command" and 48 or 36),
+            Position = preset == "Command" and UDim2.new(0, 16, 1, -58) or UDim2.fromOffset(0, 0),
             Parent = bodyWrapper
         })
+        if preset == "Command" then corner(topTabBar, 14); AddLitStroke(topTabBar, theme, 1, 0.55) end
         tabButtonsContainer = Create("ScrollingFrame", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, -20, 1, 0),
+            Size = UDim2.new(1, showSearch and -210 or -20, 1, 0),
             Position = UDim2.fromOffset(10, 0),
             CanvasSize = UDim2.new(0, 0, 0, 0),
             ScrollBarThickness = 0,
             BorderSizePixel = 0,
             Parent = topTabBar
         })
+        if showSearch then
+            createWidgetSearch(topTabBar, UDim2.fromOffset(176, 26), UDim2.new(1, -186, 0.5, -13))
+        end
         local hLayout = list(tabButtonsContainer, 6, Enum.FillDirection.Horizontal)
         hLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
             tabButtonsContainer.CanvasSize = UDim2.new(0, hLayout.AbsoluteContentSize.X + 16, 0, 0)
@@ -2839,57 +3088,27 @@ function Velox:CreateWindow(cfg)
 
         contentContainer = Create("Frame", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, -20, 1, -44),
-            Position = UDim2.fromOffset(10, 40),
+            Size = preset == "Command" and UDim2.new(1, -20, 1, -74) or UDim2.new(1, -20, 1, -44),
+            Position = UDim2.fromOffset(10, preset == "Command" and 8 or 40),
             Parent = bodyWrapper
         })
     else
         local sidebar = Create("Frame", {
-            BackgroundColor3 = theme.Secondary,
+            BackgroundColor3 = preset == "Command" and theme.Background or theme.Secondary,
             Size = UDim2.new(0, sidebarWidth, 1, 0),
+            Position = preset == "Rail" and UDim2.new(1, -sidebarWidth, 0, 0) or UDim2.new(0, 0, 0, 0),
             Parent = bodyWrapper,
         })
 
-        if showSearch then
-            local searchBox = Create("Frame", {
-                BackgroundColor3 = theme.InputBackground,
-                Size = UDim2.new(1, -16, 0, 30),
-                Position = UDim2.fromOffset(8, 8),
-                Parent = sidebar,
-            })
-            corner(searchBox, 6)
-            AddLitStroke(searchBox, theme, 1, 0.8)
-
-            Create("ImageLabel", {
-                BackgroundTransparency = 1,
-                Image = self.Icons.Search,
-                ImageColor3 = theme.TextDark,
-                Size = UDim2.fromOffset(14, 14),
-                Position = UDim2.fromOffset(8, 8),
-                Parent = searchBox,
-            })
-
-            local searchInput = Create("TextBox", {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -30, 1, 0),
-                Position = UDim2.fromOffset(26, 0),
-                Font = Fonts.Main,
-                PlaceholderText = "Filter widgets...",
-                PlaceholderColor3 = theme.TextDark,
-                Text = "",
-                TextColor3 = theme.Text,
-                TextSize = 11,
-                TextXAlignment = Enum.TextXAlignment.Left,
-                ClearTextOnFocus = false,
-                Parent = searchBox,
-            })
+        if showSearch and preset ~= "Rail" then
+            createWidgetSearch(sidebar, UDim2.new(1, -16, 0, 30), UDim2.fromOffset(8, 8))
         end
 
-        local searchH = showSearch and 46 or 8
+        local searchH = (showSearch and preset ~= "Rail") and 46 or 8
         tabButtonsContainer = Create("ScrollingFrame", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, -16, 1, -(searchH + 8)),
-            Position = UDim2.fromOffset(8, searchH),
+            Size = UDim2.new(1, -(preset == "Rail" and 12 or 16), 1, -(searchH + 8)),
+            Position = UDim2.fromOffset(preset == "Rail" and 6 or 8, searchH),
             CanvasSize = UDim2.new(0, 0, 0, 0),
             ScrollBarThickness = 2,
             BorderSizePixel = 0,
@@ -2903,25 +3122,148 @@ function Velox:CreateWindow(cfg)
         contentContainer = Create("Frame", {
             BackgroundTransparency = 1,
             Size = UDim2.new(1, -(sidebarWidth + 20), 1, -16),
-            Position = UDim2.fromOffset(sidebarWidth + 10, 8),
+            Position = preset == "Rail" and UDim2.fromOffset(10, 8) or UDim2.fromOffset(sidebarWidth + 10, 8),
             Parent = bodyWrapper,
         })
     end
 
-    local tabs = {}
-    local currentTab = nil
+    noResultsLabel = Create("TextLabel", {
+        Name = "SearchEmptyState",
+        BackgroundTransparency = 1,
+        Size = UDim2.fromScale(1, 1),
+        Font = Fonts.Semi,
+        Text = "No widgets match that search.",
+        TextColor3 = theme.TextDim,
+        TextSize = 13,
+        TextWrapped = true,
+        Visible = false,
+        ZIndex = 20,
+        Parent = contentContainer,
+    })
+
+    local rgbConnection = nil
+    local rgbColor = nil
 
     local win = {
         Tabs = tabs,
+        Theme = theme,
         Gui = gui,
         Main = main,
         OpenCustomizer = function() self:OpenCustomizer({Window = win}) end,
         SetTheme = function(k)
-            local th = Velox.Themes[k]
-            if th then
-                theme = th
-                main.BackgroundColor3 = th.Background
-                notifyAccentChange(th.Accent)
+            local nextTheme = Velox.Themes[k]
+            if not nextTheme then return end
+
+            if rgbConnection then
+                rgbConnection:Disconnect()
+                rgbConnection = nil
+            end
+
+            local oldTheme = theme
+            local colorKeys = {"Background", "Secondary", "Tertiary", "Quaternary", "CardHover", "InputBackground", "BorderLight", "BorderDark", "Accent", "Text", "TextDim", "TextDark", "Success", "Error", "Warning", "Info", "Shadow"}
+            local properties = {"BackgroundColor3", "TextColor3", "ImageColor3", "Color", "Ambient", "LightColor", "TintColor"}
+            local dynamicAccent = rgbColor
+
+            local function roots()
+                local result = {}
+                for _, root in ipairs(GuiParent:GetChildren()) do
+                    if root.Name:match("^Velox_") then
+                        table.insert(result, root)
+                    end
+                end
+                return result
+            end
+
+            local function isThemeSwatch(object, root)
+                local node = object
+                while node and node ~= root do
+                    if node:GetAttribute("VeloxThemeSwatch") then return true end
+                    node = node.Parent
+                end
+                return false
+            end
+
+            local function remapRoot(root, sourceTheme, exactFrom, exactTo)
+                for _, object in ipairs(root:GetDescendants()) do
+                    if not isThemeSwatch(object, root) then
+                        for _, property in ipairs(properties) do
+                            local ok, value = pcall(function() return object[property] end)
+                            if ok then
+                                local replacement = nil
+                                if exactFrom and value == exactFrom then
+                                    replacement = exactTo
+                                else
+                                    for _, colorKey in ipairs(colorKeys) do
+                                        if sourceTheme[colorKey] and value == sourceTheme[colorKey] then
+                                            replacement = nextTheme[colorKey]
+                                            break
+                                        end
+                                    end
+                                end
+                                if replacement then
+                                    pcall(function() object[property] = replacement end)
+                                end
+                            end
+                        end
+                    end
+                end
+                root:SetAttribute("VeloxTheme", k)
+            end
+
+            local function paintRgbAccents(root, rgb, previousRgb)
+                for _, object in ipairs(root:GetDescendants()) do
+                    if not isThemeSwatch(object, root) then
+                        if object:IsA("UIStroke") or (object:IsA("BasePart") and object.Name == "VStroke") then
+                            object.Color = rgb
+                        else
+                            for _, property in ipairs({"BackgroundColor3", "TextColor3", "ImageColor3", "Color"}) do
+                                local ok, value = pcall(function() return object[property] end)
+                                if ok and (value == previousRgb or value == Velox.Themes.RGB.Accent) then
+                                    pcall(function() object[property] = rgb end)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            for _, root in ipairs(roots()) do
+                local sourceKey = root:GetAttribute("VeloxTheme")
+                local sourceTheme = Velox.Themes[sourceKey] or oldTheme
+                remapRoot(root, sourceTheme, dynamicAccent, nextTheme.Accent)
+                local binding = Velox._ThemeBindings and Velox._ThemeBindings[root]
+                if binding then binding(nextTheme, nextTheme.Accent) end
+            end
+
+            theme = nextTheme
+            self.ActiveTheme = nextTheme
+            win.Theme = nextTheme
+            notifyAccentChange(nextTheme.Accent)
+            rgbColor = nil
+
+            if k == "RGB" then
+                local hue = 0
+                local elapsed = 0
+                local lastColor = nextTheme.Accent
+                rgbConnection = RunService.Heartbeat:Connect(function(dt)
+                    if not gui.Parent then
+                        rgbConnection:Disconnect()
+                        rgbConnection = nil
+                        return
+                    end
+                    elapsed += dt
+                    if elapsed < (1 / 24) then return end
+                    hue = (hue + elapsed * 0.18) % 1
+                    elapsed = 0
+                    local nextColor = Color3.fromHSV(hue, 1, 1)
+                    for _, root in ipairs(roots()) do
+                        paintRgbAccents(root, nextColor, lastColor)
+                        local binding = Velox._ThemeBindings and Velox._ThemeBindings[root]
+                        if binding then binding(nextTheme, nextColor) end
+                    end
+                    lastColor = nextColor
+                    rgbColor = nextColor
+                end)
             end
         end,
         SetBackgroundImage = function(url)
@@ -2952,6 +3294,10 @@ function Velox:CreateWindow(cfg)
             end)
         end
     }
+
+    if themeKey == "RGB" then
+        win:SetTheme("RGB")
+    end
 
     if showSettings then
         settingsDrawer = Create("Frame", {
@@ -3037,7 +3383,7 @@ function Velox:CreateWindow(cfg)
         makeSettingsHeader("UI Theme")
         local themePillRow = Create("Frame", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 56),
+            Size = UDim2.new(1, 0, 0, 84),
             ZIndex = 27,
             Parent = dScroll
         })
@@ -3046,7 +3392,7 @@ function Velox:CreateWindow(cfg)
             CellPadding = UDim2.new(0, 4, 0, 4),
             Parent = themePillRow
         })
-        for _, tKey in ipairs({"Obsidian", "Midnight", "TokyoPurple", "Cyberpunk", "Emerald", "Crimson"}) do
+        for _, tKey in ipairs({"Obsidian", "Midnight", "TokyoPurple", "Cyberpunk", "Emerald", "Crimson", "RGB"}) do
             local tp = Create("TextButton", {
                 BackgroundColor3 = self.Themes[tKey].Secondary,
                 Font = Fonts.Semi,
@@ -3058,6 +3404,7 @@ function Velox:CreateWindow(cfg)
                 Parent = themePillRow
             })
             corner(tp, 5)
+            tp:SetAttribute("VeloxThemeSwatch", true)
             AddLitStroke(tp, {Accent = self.Themes[tKey].Accent}, 1, 0.6)
             AddBouncyClick(tp, function() win.SetTheme(tKey) end)
         end
@@ -3248,9 +3595,11 @@ function Velox:CreateWindow(cfg)
 
     function win:CreateTab(tabName, tabIcon)
         local isHoriz = (orientation == "Horizontal")
+        local isRail = preset == "Rail"
+        local isCommand = preset == "Command"
         local tabBtn = Create("TextButton", {
             BackgroundColor3 = theme.Secondary,
-            Size = isHoriz and UDim2.fromOffset(120, 28) or UDim2.new(1, 0, 0, 34),
+            Size = isHoriz and UDim2.fromOffset(isCommand and 148 or 120, isCommand and 36 or 28) or UDim2.new(1, 0, 0, isRail and 58 or 34),
             Text = "",
             AutoButtonColor = false,
             Parent = tabButtonsContainer,
@@ -3259,7 +3608,7 @@ function Velox:CreateWindow(cfg)
 
         local tabPill = Create("Frame", {
             BackgroundColor3 = accentColor,
-            Size = isHoriz and UDim2.new(1, 0, 0, 2) or UDim2.new(0, 3, 0.6, 0),
+            Size = isHoriz and (isCommand and UDim2.new(0, 0, 0, 0) or UDim2.new(1, 0, 0, 2)) or (isRail and UDim2.fromOffset(0, 0) or UDim2.new(0, 3, 0.6, 0)),
             Position = isHoriz and UDim2.new(0, 0, 1, -2) or UDim2.new(0, 2, 0.2, 0),
             Visible = false,
             Parent = tabBtn,
@@ -3274,7 +3623,7 @@ function Velox:CreateWindow(cfg)
                 Image = tabIcon,
                 ImageColor3 = theme.TextDark,
                 Size = UDim2.fromOffset(16, 16),
-                Position = UDim2.fromOffset(10, 9),
+                Position = isRail and UDim2.new(0.5, -8, 0, 7) or UDim2.fromOffset(10, isCommand and 13 or 9),
                 Parent = tabBtn,
             })
         end
@@ -3283,14 +3632,24 @@ function Velox:CreateWindow(cfg)
         local tabLabel = Create("TextLabel", {
             BackgroundTransparency = 1,
             Size = UDim2.new(1, -(textX + 6), 1, 0),
-            Position = UDim2.fromOffset(textX, 0),
+            Position = isRail and UDim2.new(0, 3, 0, 29) or UDim2.fromOffset(textX, 0),
+            Visible = true,
             Font = Fonts.Semi,
             Text = tabName,
             TextColor3 = theme.TextDark,
-            TextSize = 11,
-            TextXAlignment = Enum.TextXAlignment.Left,
+            TextSize = isRail and 9 or (isCommand and 12 or 11),
+            TextXAlignment = isRail and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left,
+            TextTruncate = Enum.TextTruncate.AtEnd,
             Parent = tabBtn,
         })
+        if isRail and tabIcon then
+            tabBtn:SetAttribute("Tooltip", tabName)
+        end
+        if isCommand then
+            tabBtn.BackgroundColor3 = theme.Tertiary
+            corner(tabBtn, 10)
+            AddLitStroke(tabBtn, theme, 1, 0.7)
+        end
 
         local tabContainer = Create("ScrollingFrame", {
             Name = "Tab_" .. tabName,
@@ -3308,6 +3667,7 @@ function Velox:CreateWindow(cfg)
         end)
 
         local tabData = {
+            Name = tabName,
             Button = tabBtn,
             Container = tabContainer,
             Label = tabLabel,
@@ -3315,14 +3675,17 @@ function Velox:CreateWindow(cfg)
             Pill = tabPill,
             Elements = {},
         }
+        table.insert(tabs, tabData)
 
-        local function activateTab()
+        local function activateTab(silent)
+            if currentTab == tabData then return end
             if currentTab then
                 currentTab.Container.Visible = false
                 currentTab.Pill.Visible = false
                 currentTab.Label.TextColor3 = theme.TextDark
                 if currentTab.Icon then currentTab.Icon.ImageColor3 = theme.TextDark end
-                Tween(currentTab.Button, {BackgroundColor3 = theme.Secondary}, 0.15)
+                Tween(currentTab.Button, {BackgroundColor3 = isCommand and theme.Background or theme.Secondary}, 0.15)
+                if isCommand then currentTab.Button.BackgroundTransparency = 0 end
             end
 
             currentTab = tabData
@@ -3330,10 +3693,13 @@ function Velox:CreateWindow(cfg)
             tabData.Pill.Visible = true
             tabData.Label.TextColor3 = theme.Text
             if tabData.Icon then tabData.Icon.ImageColor3 = accentColor end
-            Tween(tabBtn, {BackgroundColor3 = theme.Tertiary}, 0.2)
-            playSound(Velox.Sounds.Click, 0.3)
+            Tween(tabBtn, {BackgroundColor3 = isCommand and theme.Accent or theme.Tertiary}, 0.2)
+            if isCommand then tabLabel.TextColor3 = Color3.new(1, 1, 1) end
+            if isRail and tabIcon then tabIcon.ImageColor3 = accentColor end
+            if not silent then playSound(Velox.Sounds.Click, 0.3) end
         end
 
+        tabData.Select = function() activateTab(true) end
         AddBouncyClick(tabBtn, activateTab)
         if not currentTab then activateTab() end
 
@@ -3354,6 +3720,7 @@ function Velox:CreateWindow(cfg)
                 Parent = sec
             })
             table.insert(accentSubscribers, function(c) lbl.TextColor3 = c end)
+            registerTabElement(tabData, txt, sec, true)
             return sec
         end
 
@@ -3421,7 +3788,7 @@ function Velox:CreateWindow(cfg)
                 subWin.Toggle()
             end)
 
-            table.insert(tabData.Elements, {Name = modName, Frame = card})
+            registerTabElement(tabData, modName, card)
             return subWin
         end
 
@@ -3469,7 +3836,7 @@ function Velox:CreateWindow(cfg)
             end
 
             AddBouncyClick(card, cb)
-            table.insert(tabData.Elements, {Name = bName, Frame = card})
+            registerTabElement(tabData, bName, card)
             return card
         end
 
@@ -3546,7 +3913,7 @@ function Velox:CreateWindow(cfg)
                 if cb then cb(state) end
             end)
 
-            table.insert(tabData.Elements, {Name = tName, Frame = card})
+            registerTabElement(tabData, tName, card)
             return {
                 Set = function(newVal)
                     state = newVal
@@ -3652,7 +4019,7 @@ function Velox:CreateWindow(cfg)
                 end
             end)
 
-            table.insert(tabData.Elements, {Name = sName, Frame = card})
+            registerTabElement(tabData, sName, card)
             return {
                 Set = function(newVal)
                     curVal = math.clamp(newVal, minVal, maxVal)
@@ -3777,7 +4144,7 @@ function Velox:CreateWindow(cfg)
                 Tween(card, {Size = UDim2.new(1, -6, 0, targetH)}, 0.25)
             end)
 
-            table.insert(tabData.Elements, {Name = dName, Frame = card})
+            registerTabElement(tabData, dName, card)
             return {
                 Set = function(val)
                     cur = val
@@ -3846,7 +4213,7 @@ function Velox:CreateWindow(cfg)
                 end
             end)
 
-            table.insert(tabData.Elements, {Name = kName, Frame = card})
+            registerTabElement(tabData, kName, card)
             return {
                 Set = function(newKey)
                     currentKey = newKey
@@ -3877,7 +4244,7 @@ function Velox:CreateWindow(cfg)
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Parent = card
             })
-            table.insert(tabData.Elements, {Name = text, Frame = card})
+            registerTabElement(tabData, text, card)
             return {
                 SetText = function(t) lbl.Text = tostring(t) end,
                 SetColor = function(c) lbl.TextColor3 = c end,
@@ -3929,7 +4296,7 @@ function Velox:CreateWindow(cfg)
                 Size = UDim2.new(1, 0, 0, 10),
                 Parent = card
             })
-            table.insert(tabData.Elements, {Name = title, Frame = card})
+            registerTabElement(tabData, title, card)
             return {
                 SetTitle = function(t) titleLbl.Text = tostring(t) end,
                 SetContent = function(c) contentLbl.Text = tostring(c) end,
@@ -3977,7 +4344,7 @@ function Velox:CreateWindow(cfg)
                 Parent = card
             })
             table.insert(accentSubscribers, function(c) valueLbl.TextColor3 = c end)
-            table.insert(tabData.Elements, {Name = name, Frame = card})
+            registerTabElement(tabData, name, card)
             return {
                 Set = function(v) valueLbl.Text = tostring(v) end,
                 SetName = function(n) nameLbl.Text = tostring(n) end,
@@ -4037,7 +4404,7 @@ function Velox:CreateWindow(cfg)
                     if old then old:Destroy() end
                 end
             end
-            table.insert(tabData.Elements, {Name = "Log", Frame = card})
+            registerTabElement(tabData, "Log", card)
             return {
                 Add = addLine,
                 Clear = function()
@@ -4096,7 +4463,7 @@ function Velox:CreateWindow(cfg)
             })
             corner(fill, 4)
             table.insert(accentSubscribers, function(c) fill.BackgroundColor3 = c end)
-            table.insert(tabData.Elements, {Name = name, Frame = card})
+            registerTabElement(tabData, name, card)
             return {
                 Set = function(v)
                     v = math.clamp(tonumber(v) or 0, 0, 100)
@@ -4133,7 +4500,7 @@ function Velox:CreateWindow(cfg)
 end
 
 function Velox.createUI(width, height, position, title, themeKey)
-    local theme = Velox.Themes[themeKey or "Obsidian"] or Velox.Themes.Obsidian
+    local theme = Velox.Themes[themeKey or GetThemeKey(Velox.ActiveTheme) or "Obsidian"] or Velox.Themes.Obsidian
     local w = width or 400
     local h = height or 300
     local pos = position or UDim2.fromScale(0.5, 0.5)
@@ -4145,6 +4512,7 @@ function Velox.createUI(width, height, position, title, themeKey)
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         Parent = GuiParent
     })
+    gui:SetAttribute("VeloxTheme", GetThemeKey(theme) or "Obsidian")
 
     local frame = Create("Frame", {
         Name = "VeloxCustomFrame",
@@ -4252,6 +4620,11 @@ function Velox.createUI(width, height, position, title, themeKey)
         Container = container,
         Theme = theme,
     }
+    Velox._ThemeBindings = Velox._ThemeBindings or {}
+    Velox._ThemeBindings[gui] = function(nextTheme)
+        theme = nextTheme
+        customUI.Theme = nextTheme
+    end
 
     function customUI:AddCard(opts)
         opts = opts or {}
